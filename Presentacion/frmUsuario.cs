@@ -27,9 +27,8 @@ namespace Presentacion_575_AV
         UsuarioBLL usuarioBLL = new UsuarioBLL();
         PerfilBLL perfilBLL = new PerfilBLL();
         GestorDeIdioma gestorIdioma = GestorDeIdioma.GetInstance;
-        int varMod = 0; //Indica si la modificacion esta activa
+        int varMod = 0;
         List<string> roles = new List<string>();
-        //{ "Cajero", "Vendedor", "Administrador" };
 
         #region Patron Observer - Idiomas
 
@@ -63,13 +62,13 @@ namespace Presentacion_575_AV
         private void TraducirColumnas()
         {
             if (dgvUsuarios.Columns.Count == 0) { return; }
-            dgvUsuarios.Columns[1].HeaderText = gestorIdioma.Traducir("USU_LBL_DNI");
-            dgvUsuarios.Columns[2].HeaderText = gestorIdioma.Traducir("COMUN_NOMBRE");
-            dgvUsuarios.Columns[3].HeaderText = gestorIdioma.Traducir("COMUN_APELLIDO");
-            dgvUsuarios.Columns[4].HeaderText = gestorIdioma.Traducir("COMUN_USUARIO");
-            dgvUsuarios.Columns[5].HeaderText = gestorIdioma.Traducir("COMUN_ROL");
-            dgvUsuarios.Columns[10].HeaderText = gestorIdioma.Traducir("USU_CHK_ACTIVO");
-            dgvUsuarios.Columns[11].HeaderText = gestorIdioma.Traducir("USU_CHK_BLOQUEADO");
+            dgvUsuarios.Columns["dni"].HeaderText = gestorIdioma.Traducir("USU_LBL_DNI");
+            dgvUsuarios.Columns["nomb"].HeaderText = gestorIdioma.Traducir("COMUN_NOMBRE");
+            dgvUsuarios.Columns["ape"].HeaderText = gestorIdioma.Traducir("COMUN_APELLIDO");
+            dgvUsuarios.Columns["user"].HeaderText = gestorIdioma.Traducir("COMUN_USUARIO");
+            dgvUsuarios.Columns["rol"].HeaderText = gestorIdioma.Traducir("COMUN_ROL");
+            dgvUsuarios.Columns["estado"].HeaderText = gestorIdioma.Traducir("USU_CHK_ACTIVO");
+            dgvUsuarios.Columns["bloq"].HeaderText = gestorIdioma.Traducir("USU_CHK_BLOQUEADO");
         }
 
         #endregion
@@ -167,13 +166,7 @@ namespace Presentacion_575_AV
             dgvUsuarios.Columns["pass"].Visible = false;
             dgvUsuarios.Columns["dvh"].Visible = false;
             dgvUsuarios.Columns["digito"].Visible = false;
-            dgvUsuarios.Columns["ape"].HeaderText = "Apellido";
-            dgvUsuarios.Columns["nomb"].HeaderText = "Nombre";
-            dgvUsuarios.Columns["dni"].HeaderText = "DNI";
-            dgvUsuarios.Columns["user"].HeaderText = "Usuario";
-            dgvUsuarios.Columns["rol"].HeaderText = "Rol";
-            dgvUsuarios.Columns["estado"].HeaderText = "Activo";
-            dgvUsuarios.Columns["bloq"].HeaderText = "Bloqueado";
+            TraducirColumnas();
             dgvUsuarios.ReadOnly = true;
         }
 
@@ -185,7 +178,7 @@ namespace Presentacion_575_AV
 
         private UsuarioBE CargaUsuario()
         {
-            if (ValCampos())//Validacion caracteres
+            if (ValCampos())
             {
                 if(varMod == 1) { auxUsuario = ExtraerDatos(dgvUsuarios.SelectedRows[0]); }
                 else auxUsuario = new UsuarioBE();
@@ -223,7 +216,6 @@ namespace Presentacion_575_AV
         }
 
         private void CampoError(string campo)
-        //Marcar en rojo los campos con validacion no ok
         {
             foreach (Control t in gbDatos.Controls)
             {
@@ -317,7 +309,6 @@ namespace Presentacion_575_AV
             {
                 if (t is TextBox)
                 {
-                    //Validacion Nombre y Apellido
                     if (t.Name == "txtNom" || t.Name == "txtApe")
                     {
                         if (!Regex.IsMatch(t.Text, patronT))
@@ -328,7 +319,6 @@ namespace Presentacion_575_AV
                     }
                     else
                     {
-                        //Validacion Direccion
                         if (t.Name == "txtDir")
                         {
                             if (!Regex.IsMatch(t.Text, patronD) & t.Text != string.Empty)
@@ -339,7 +329,6 @@ namespace Presentacion_575_AV
                         }
                         else
                         {
-                            //Validacion User y Pass
                             if (t.Name == "txtUsu")
                             {
                                 if (!Regex.IsMatch(t.Text, patronS))
@@ -350,7 +339,6 @@ namespace Presentacion_575_AV
                             }
                             else
                             {
-                                //Validacion DNI y Telefono
                                 if ((t.Name == "txtTel" & t.Text != string.Empty) || t.Name == "txtDoc")
                                 {
                                     if (!Regex.IsMatch(t.Text, patronN))
@@ -361,7 +349,6 @@ namespace Presentacion_575_AV
                                 }
                                 else
                                 {
-                                    //Validacion Mail
                                     if (t.Name == "txtMail" & t.Text != string.Empty)
                                     {
                                         if (!Regex.IsMatch(t.Text, patronM))
@@ -379,32 +366,27 @@ namespace Presentacion_575_AV
             #region Texto de error en Campo Mensajes
             if (!txtOK)
             {
-                LlenarMensaje("Campos Nombre y/o Apellido contienen caracteres no validos." +
-                    "Ingrese solo letras por favor.");
+                LlenarMensaje(gestorIdioma.Traducir("USU_VAL_NOMBRE"));
             }
 
             if (!numOK)
             {
-                LlenarMensaje("Campos DNI y/o Telefono contienen caracteres no validos." +
-                    "Ingrese solo numeros por favor.");
+                LlenarMensaje(gestorIdioma.Traducir("USU_VAL_NUMEROS"));
             }
 
             if (!dirOK)
             {
-                LlenarMensaje("Campo Direccion contiene caracteres no validos." +
-                    "Ingrese solo letras y numeros por favor.");
+                LlenarMensaje(gestorIdioma.Traducir("USU_VAL_DIRECCION"));
             }
 
             if (!sensOK)
             {
-                LlenarMensaje("Campo Usuario contiene caracteres no validos." +
-                    "No se permiten espacios ni caracteres especiales.");
+                LlenarMensaje(gestorIdioma.Traducir("USU_VAL_USUARIO"));
             }
 
             if (!mailOK)
             {
-                LlenarMensaje("Campo eMail contiene caracteres no validos." +
-                    "Respete el formato xxxx@xxx.xxx, sin espacios ni caracteres especiales.");
+                LlenarMensaje(gestorIdioma.Traducir("USU_VAL_MAIL"));
             }
             #endregion
 
@@ -431,15 +413,19 @@ namespace Presentacion_575_AV
                         roles.Add(permiso.Nombre);
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show(gestorIdioma.Traducir("USU_ERR_ROLES") + ex.Message);
-                    roles = new List<string>() { "Cajero", "Vendedor", "Admin" };
+                    MessageBox.Show(gestorIdioma.Traducir("USU_ERR_ROLES"));
+                    roles = new List<string>();
                 }
                 cmbRol.DataSource = new BindingSource(roles, null);
                 ConfigDefaultForm();
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             gestorIdioma.Suscribir(this);
             this.FormClosed += frmUsuario_FormClosed;
         }
@@ -451,10 +437,8 @@ namespace Presentacion_575_AV
 
         private void dgvUsuarios_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            //Carga de datos de fila seleccionada a textbox
             if (e.RowIndex >= 0)
             {
-
                 DataGridViewRow fila = dgvUsuarios.Rows[e.RowIndex];
 
                 txtDoc.Text = fila.Cells["dni"].Value.ToString();
@@ -528,7 +512,7 @@ namespace Presentacion_575_AV
             {
                 int error = 0;
 
-                if (varMod == 0) //Guardar Usuario Nuevo
+                if (varMod == 0)
                 {
                     foreach (DataGridViewRow fila in dgvUsuarios.Rows)
                     {
@@ -559,14 +543,14 @@ namespace Presentacion_575_AV
                             ActualizarDGV();
                             LlenarMensaje(string.Format(gestorIdioma.Traducir("USU_MSG_CREADO"), us.user));
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            MessageBox.Show(gestorIdioma.Traducir("USU_ERR_CREAR") + ex.Message);
+                            MessageBox.Show(gestorIdioma.Traducir("USU_ERR_CREAR"));
                             ConfigDefaultForm();
                         }
                     }
                 }
-                else //Guardar Usuario Modificado
+                else
                 {
                     try
                     {
@@ -575,9 +559,9 @@ namespace Presentacion_575_AV
                         ActualizarDGV();
                         LlenarMensaje(string.Format(gestorIdioma.Traducir("USU_MSG_ACTUALIZADO"), us.user));
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        MessageBox.Show(gestorIdioma.Traducir("USU_ERR_ACTUALIZAR") + ex.Message);
+                        MessageBox.Show(gestorIdioma.Traducir("USU_ERR_ACTUALIZAR"));
                         ConfigDefaultForm();
                     }
                 }
@@ -615,9 +599,9 @@ namespace Presentacion_575_AV
                     LlenarMensaje(string.Format(gestorIdioma.Traducir("USU_MSG_BAJA_OK"), us.user));
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(gestorIdioma.Traducir("USU_ERR_ELIMINAR") + ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("USU_ERR_ELIMINAR"));
                 ConfigDefaultForm();
             }
         }
@@ -635,7 +619,11 @@ namespace Presentacion_575_AV
                     ActualizarDGV();
                 }
             }
-            catch (Exception ex) { MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message); }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

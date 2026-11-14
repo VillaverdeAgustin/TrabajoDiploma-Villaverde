@@ -7,17 +7,6 @@ using System.Linq;
 
 namespace Negocio_BLL
 {
-    /// <summary>
-    /// Emision de la orden de pago (CUN-002, RFN1.4).
-    ///
-    /// <para>Toma un carrito ya confirmado y emite el documento con el que el
-    /// cliente pasa por la caja. No descuenta existencias ni emite comprobante:
-    /// eso ocurre recien al cobrar.</para>
-    ///
-    /// <para>El total se toma del carrito, no de la pantalla, y queda copiado en
-    /// la orden: si despues cambia el precio del articulo, la orden conserva lo
-    /// que se emitio.</para>
-    /// </summary>
     public class OrdenPagoBLL_575_AV
     {
         private const string TABLA = "OrdenPago";
@@ -29,16 +18,11 @@ namespace Negocio_BLL
 
         #region Consulta
 
-        /// <summary>Las ordenes que esperan cobro, con el numero de carrito resuelto.</summary>
         public List<OrdenPagoBE_575_AV> ListarPendientes()
         {
             return Completar(mpOrden.ListarPendientes());
         }
 
-        /// <summary>
-        /// Entrada del circuito de caja: se busca la orden por su numero.
-        /// Devuelve nulo si no existe.
-        /// </summary>
         public OrdenPagoBE_575_AV BuscarOrdenPago(string nro_orden_pago)
         {
             if (string.IsNullOrWhiteSpace(nro_orden_pago)) { return null; }
@@ -54,10 +38,6 @@ namespace Negocio_BLL
 
         #region Emision
 
-        /// <summary>
-        /// Emite la orden a partir del carrito confirmado. Devuelve la orden con
-        /// su numero, que es lo que se le informa al cliente.
-        /// </summary>
         public OrdenPagoBE_575_AV GenerarOrdenPago(CarritoBE_575_AV carrito,
                                                    string nombre_cliente,
                                                    string usuario)
@@ -69,17 +49,18 @@ namespace Negocio_BLL
 
             if (guardado == null)
             {
-                throw new InvalidOperationException("El carrito no existe.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_NO_EXISTE"));
             }
             if (guardado.estado != EstadoCarrito_575_AV.Confirmado)
             {
                 throw new InvalidOperationException(
-                    "Solo se emite la orden de pago de un carrito confirmado.");
+                    GestorDeIdioma.GetInstance.Traducir("OP_ERR_NO_CONFIRMADO"));
             }
             if (mpOrden.ListarOrdenes().Any(o => o.id_carrito == guardado.id_carrito))
             {
                 throw new InvalidOperationException(
-                    "El carrito ya tiene una orden de pago emitida.");
+                    GestorDeIdioma.GetInstance.Traducir("OP_ERR_YA_EMITIDA"));
             }
 
             OrdenPagoBE_575_AV orden = new OrdenPagoBE_575_AV
@@ -90,7 +71,6 @@ namespace Negocio_BLL
                     ? guardado.nombre_cliente
                     : nombre_cliente,
                 fecha_emision = DateTime.Now,
-                // El total sale del carrito, no de la pantalla.
                 precio_total = guardado.precio_total,
                 estado = EstadoOrdenPago_575_AV.Pendiente,
                 activo = true
@@ -98,8 +78,6 @@ namespace Negocio_BLL
 
             orden.id_orden_pago = mpOrden.CrearOrdenPago(orden);
 
-            // La base fija la fecha con su propio redondeo: se relee antes de
-            // calcular el dvh.
             OrdenPagoBE_575_AV emitida = mpOrden.ListarOrdenes()
                 .FirstOrDefault(o => o.id_orden_pago == orden.id_orden_pago) ?? orden;
 
@@ -174,7 +152,8 @@ namespace Negocio_BLL
 
             if (carrito.id_carrito <= 0)
             {
-                throw new InvalidOperationException("El carrito no esta identificado.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_NO_IDENTIFICADO"));
             }
         }
 

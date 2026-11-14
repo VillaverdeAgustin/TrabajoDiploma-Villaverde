@@ -7,17 +7,6 @@ using System.Linq;
 
 namespace Negocio_BLL
 {
-    /// <summary>
-    /// Logica de articulo y de los catalogos que lo componen.
-    ///
-    /// <para>Implementa <see cref="IExistencias_575_AV"/> y se registra en
-    /// <see cref="GestorDeExistencias_575_AV"/>: el gestor es el unico que
-    /// descuenta existencias o bloquea un articulo, y llega a los datos por
-    /// esta clase sin que Servicios dependa de la DAL.</para>
-    ///
-    /// <para>Toda escritura registra bitacora (T06) y recalcula el digito
-    /// verificador de la fila y de la tabla (T08). Las bajas son logicas.</para>
-    /// </summary>
     public class ArticuloBLL_575_AV : IExistencias_575_AV
     {
         private const string TABLA = "Articulo";
@@ -30,8 +19,6 @@ namespace Negocio_BLL
 
         public ArticuloBLL_575_AV()
         {
-            // El gestor conserva el primer origen que reciba; las llamadas
-            // siguientes no hacen nada.
             GestorDeExistencias_575_AV.GetInstance.Configurar(this);
         }
 
@@ -61,16 +48,11 @@ namespace Negocio_BLL
 
         #region Consulta
 
-        /// <summary>Listado completo, con los nombres de catalogo ya resueltos.</summary>
         public List<ArticuloBE_575_AV> ListarArticulos()
         {
             return Completar(mpArticulo.ListarArticulos());
         }
 
-        /// <summary>
-        /// RFN1.1 - Busca por descripcion, categoria, marca o codigo. Los
-        /// criterios que llegan vacios o nulos no filtran.
-        /// </summary>
         public List<ArticuloBE_575_AV> BuscarArticulos(string descripcion, int? id_categoria,
                                                        int? id_marca, string codigo,
                                                        bool solo_activos = true)
@@ -84,13 +66,24 @@ namespace Negocio_BLL
             return ListarArticulos().FirstOrDefault(a => a.id_articulo == id_articulo);
         }
 
-        /// <summary>
-        /// RFN1.2 - Verifica la disponibilidad. Delega en el gestor de
-        /// existencias, que es el punto unico de verdad.
-        /// </summary>
+        public List<ArticuloBE_575_AV> ListarParaReponer()
+        {
+            return ListarArticulos()
+                .Where(a => a.activo && a.bajo_punto_reposicion)
+                .OrderBy(a => a.codigo)
+                .ToList();
+        }
+
         public bool ValidarDisponibilidad(int id_articulo, decimal cantidad)
         {
-            return GestorDeExistencias_575_AV.GetInstance.HayDisponibilidad(id_articulo, cantidad);
+            try
+            {
+                return GestorDeExistencias_575_AV.GetInstance.HayDisponibilidad(id_articulo, cantidad);
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw new InvalidOperationException(GestorDeIdioma.GetInstance.Traducir(ex.Message), ex);
+            }
         }
 
         #endregion
@@ -104,7 +97,8 @@ namespace Negocio_BLL
             if (mpArticulo.BuscarArticulos(null, null, null, articulo.codigo, false).Any())
             {
                 throw new InvalidOperationException(
-                    "Ya existe un articulo con el codigo " + articulo.codigo + ".");
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("ART_ERR_CODIGO_EXISTE"),
+                        articulo.codigo));
             }
 
             articulo.activo = true;
@@ -126,7 +120,8 @@ namespace Negocio_BLL
 
             if (articulo.id_articulo <= 0)
             {
-                throw new InvalidOperationException("El articulo no esta identificado.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_NO_IDENTIFICADO"));
             }
 
             bool codigoRepetido = mpArticulo
@@ -136,7 +131,8 @@ namespace Negocio_BLL
             if (codigoRepetido)
             {
                 throw new InvalidOperationException(
-                    "Ya existe otro articulo con el codigo " + articulo.codigo + ".");
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("ART_ERR_CODIGO_EXISTE"),
+                        articulo.codigo));
             }
 
             mpArticulo.ActualizarArticulo(articulo);
@@ -145,13 +141,13 @@ namespace Negocio_BLL
             bitacora.RegistrarBitacora(usuario, TipoAccion.ModificacionArticulo);
         }
 
-        /// <summary>Baja logica. El articulo deja de ofrecerse pero conserva su historia.</summary>
         public void EliminarArticulo(int id_articulo, string usuario)
         {
             ArticuloBE_575_AV articulo = ObtenerPorId(id_articulo);
             if (articulo == null)
             {
-                throw new InvalidOperationException("El articulo no existe.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_NO_EXISTE"));
             }
 
             mpArticulo.EliminarArticulo(id_articulo);
@@ -164,9 +160,6 @@ namespace Negocio_BLL
         #endregion
 
         #region IExistencias_575_AV
-
-        // El gestor de existencias entra por aca. Ningun otro camino descuenta
-        // existencias ni cambia el estado del articulo.
 
         ArticuloBE_575_AV IExistencias_575_AV.ObtenerArticulo(int id_articulo)
         {
@@ -207,7 +200,6 @@ namespace Negocio_BLL
 
         #region Integridad
 
-        /// <summary>T08 - Verifica la tabla Articulo contra su DVV.</summary>
         public bool VerificarIntegridad()
         {
             List<ArticuloBE_575_AV> articulos = mpArticulo.ListarArticulos()
@@ -217,7 +209,6 @@ namespace Negocio_BLL
             return verificador.VerificarIntegridad(articulos, TABLA);
         }
 
-        /// <summary>T08 - Recalcula el dvh de cada fila y el DVV de la tabla.</summary>
         public void RecalcularDV()
         {
             List<ArticuloBE_575_AV> articulos = mpArticulo.ListarArticulos()
@@ -237,11 +228,6 @@ namespace Negocio_BLL
 
         #region Integridad de los catalogos
 
-        // Los cuatro catalogos no tienen BLL propia: los atiende esta clase, que
-        // es la que ya los expone. Cada tabla se verifica y se recalcula por
-        // separado, porque cada una tiene su propia fila en DigitoVertical.
-
-        /// <summary>Tablas de catalogo que no pasan el control de integridad.</summary>
         public List<string> VerificarIntegridadCatalogos()
         {
             List<string> falladas = new List<string>();
@@ -270,7 +256,6 @@ namespace Negocio_BLL
             return falladas;
         }
 
-        /// <summary>Recalcula el dvh de cada fila de catalogo y el DVV de cada tabla.</summary>
         public void RecalcularDVCatalogos()
         {
             foreach (CategoriaBE_575_AV categoria in ListarCategorias().OrderBy(c => c.id_categoria))
@@ -306,7 +291,6 @@ namespace Negocio_BLL
 
         #region Apoyo
 
-        /// <summary>Calcula y persiste el dvh de la fila y el DVV de la tabla.</summary>
         private void PersistirDigito(ArticuloBE_575_AV articulo)
         {
             articulo.dvh = VerificadorIntegridad.CalcularDVH(articulo);
@@ -314,11 +298,6 @@ namespace Negocio_BLL
             verificador.ActualizarDVV(TABLA);
         }
 
-        /// <summary>
-        /// Completa los datos de catalogo que la pantalla necesita mostrar y que
-        /// no viven en la tabla Articulo. Se resuelven en memoria: los catalogos
-        /// son cuatro tablas chicas y evita un join por fila.
-        /// </summary>
         private List<ArticuloBE_575_AV> Completar(List<ArticuloBE_575_AV> articulos)
         {
             if (articulos.Count == 0) { return articulos; }
@@ -361,35 +340,43 @@ namespace Negocio_BLL
 
             if (string.IsNullOrWhiteSpace(articulo.codigo))
             {
-                throw new InvalidOperationException("El codigo del articulo es obligatorio.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_CODIGO"));
             }
             if (string.IsNullOrWhiteSpace(articulo.descripcion))
             {
-                throw new InvalidOperationException("La descripcion del articulo es obligatoria.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_DESCRIPCION"));
             }
             if (articulo.id_categoria <= 0)
             {
-                throw new InvalidOperationException("Hay que elegir una categoria.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_CATEGORIA"));
             }
             if (articulo.id_marca <= 0)
             {
-                throw new InvalidOperationException("Hay que elegir una marca.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_MARCA"));
             }
             if (articulo.id_unidad_medida <= 0)
             {
-                throw new InvalidOperationException("Hay que elegir una unidad de medida.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_UNIDAD"));
             }
             if (articulo.precio_unitario < 0)
             {
-                throw new InvalidOperationException("El precio no puede ser negativo.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_PRECIO"));
             }
             if (articulo.cantidad_disponible < 0)
             {
-                throw new InvalidOperationException("Las existencias no pueden ser negativas.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_EXISTENCIAS"));
             }
             if (articulo.punto_reposicion < 0)
             {
-                throw new InvalidOperationException("El punto de reposicion no puede ser negativo.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_REPOSICION"));
             }
         }
 

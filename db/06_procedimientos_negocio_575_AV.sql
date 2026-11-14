@@ -1,14 +1,4 @@
--- =============================================================================
--- ConectAR S.R.L. - Trabajo de Diploma - Villaverde, Agustin (575_AV)
--- 06 - Stored procedures de negocio, fase 1: catalogos, articulo y bobina
---
--- Misma convencion que 02: DROP + CREATE (idempotente y portable a versiones
--- anteriores a SQL Server 2016 SP1), SET NOCOUNT ON y parametros tipados.
--- Las firmas estan atadas a los mapeadores Acceso_DAL/MP_*_575_AV.cs: si se
--- cambia un nombre de parametro aca, hay que cambiarlo tambien alli.
---
--- Orden de ejecucion: 01 -> 02 -> 03 -> 04 -> 05 -> 06
--- =============================================================================
+﻿-- 06 - Stored procedures de negocio - 575_AV
 
 USE [ConectAR_DB];
 GO
@@ -18,14 +8,8 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
--- =============================================================================
 -- Digito verificador de las tablas de negocio
--- =============================================================================
 
--- Persiste el dvh de una fila cualquiera de negocio. La BLL lo llama despues
--- del alta o la modificacion, una vez que conoce el id generado.
--- El nombre de tabla se valida contra sys.tables y la columna clave se deduce
--- de la PK, para no dejar una via de SQL Injection abierta.
 IF OBJECT_ID('dbo.SP_ActualizarDVHNegocio', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ActualizarDVHNegocio];
 GO
@@ -65,9 +49,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Catalogos
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtCategoria', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtCategoria];
@@ -135,12 +117,8 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Articulo
--- =============================================================================
 
--- Listado completo. El DVV se calcula sobre la secuencia ordenada por PK, asi
--- que el ORDER BY tiene que coincidir con el OrderBy de la BLL.
 IF OBJECT_ID('dbo.SP_ExtArticulo', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtArticulo];
 GO
@@ -156,8 +134,6 @@ BEGIN
 END
 GO
 
--- RFN1.1 - Consultar articulos por descripcion, categoria, marca o codigo.
--- Los criterios no informados llegan NULL desde la DAL y no filtran.
 IF OBJECT_ID('dbo.SP_BuscarArticulo', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_BuscarArticulo];
 GO
@@ -185,8 +161,6 @@ BEGIN
 END
 GO
 
--- Devuelve el id_articulo generado: la BLL lo necesita para calcular el dvh y
--- persistirlo enseguida con SP_ActualizarDVHNegocio.
 IF OBJECT_ID('dbo.SP_CrearArticulo', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_CrearArticulo];
 GO
@@ -271,10 +245,6 @@ BEGIN
 END
 GO
 
--- RFN1.6 - Movimiento de existencias. @cantidad es un delta con signo:
--- negativo descuenta una venta, positivo repone. No deja la cantidad en
--- negativo. Cuando llega a cero el articulo pasa a SinStock, y vuelve a
--- Disponible al reponerse, salvo que este Bloqueado por una reserva.
 IF OBJECT_ID('dbo.SP_ActualizarStock', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ActualizarStock];
 GO
@@ -310,8 +280,6 @@ BEGIN
 END
 GO
 
--- Bloqueo y liberacion del articulo. El bloqueo lo dispara la reserva de un
--- faltante y se mantiene hasta que la compra se concrete.
 IF OBJECT_ID('dbo.SP_ActualizarEstadoArticulo', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ActualizarEstadoArticulo];
 GO
@@ -334,9 +302,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Bobina
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtBobina', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtBobina];
@@ -352,8 +318,6 @@ BEGIN
 END
 GO
 
--- Las bobinas de un articulo, primero las abiertas y de menor saldo: asi el
--- fraccionamiento agota la bobina ya abierta antes de abrir una nueva.
 IF OBJECT_ID('dbo.SP_ExtBobinaPorArticulo', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtBobinaPorArticulo];
 GO
@@ -396,8 +360,6 @@ BEGIN
 END
 GO
 
--- RFN1.8 - Fraccionamiento. La BLL decide el nuevo saldo y el estado; aca solo
--- se persiste, validando que el saldo no quede fuera de rango.
 IF OBJECT_ID('dbo.SP_ActualizarSaldoBobina', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ActualizarSaldoBobina];
 GO
@@ -432,13 +394,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Cliente
---
--- En la Entrega 1 el cliente solo se consulta y se da de alta: el alta entra
--- por DNI desde la caja, como extend de CUN-004. No hay SP_ActualizarCliente ni
--- SP_ElimCliente todavia; el ABM completo queda fuera del alcance.
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtCliente', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtCliente];
@@ -470,8 +426,6 @@ BEGIN
 END
 GO
 
--- Busqueda general por documento, CUIT o razon social. Los criterios no
--- informados llegan NULL desde la DAL y no filtran.
 IF OBJECT_ID('dbo.SP_BuscarCliente', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_BuscarCliente];
 GO
@@ -494,8 +448,6 @@ BEGIN
 END
 GO
 
--- Devuelve el id_cliente generado: la BLL lo necesita para calcular el dvh.
--- El correo llega ya cifrado desde la BLL (T03.2).
 IF OBJECT_ID('dbo.SP_CrearCliente', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_CrearCliente];
 GO
@@ -527,13 +479,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Carrito y detalle (CUN-001)
---
--- Cada procedimiento escribe una sola tabla, como exige la regla de negocio:
--- cuando una operacion toca dos tablas, las encadena la BLL, que recalcula el
--- dvh de cada fila y el DVV de cada tabla por separado.
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtCarrito', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtCarrito];
@@ -549,8 +495,6 @@ BEGIN
 END
 GO
 
--- Los carritos que el cajero puede tomar: armados por el vendedor y todavia
--- sin facturar.
 IF OBJECT_ID('dbo.SP_ExtCarritoAbiertos', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtCarritoAbiertos];
 GO
@@ -575,7 +519,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT id_detalle_carrito, id_carrito, id_articulo, cantidad, id_unidad_medida,
-           precio_unitario, subtotal, id_bobina, dvh
+           precio_unitario, subtotal, dvh
     FROM DetalleCarrito
     WHERE (@id_carrito IS NULL OR id_carrito = @id_carrito)
     ORDER BY id_detalle_carrito;
@@ -631,8 +575,7 @@ CREATE PROCEDURE [dbo].[SP_AgregarDetalleCarrito]
     @cantidad         DECIMAL(12,2),
     @id_unidad_medida INT,
     @precio_unitario  DECIMAL(12,2),
-    @subtotal         DECIMAL(12,2),
-    @id_bobina        INT = NULL
+    @subtotal         DECIMAL(12,2)
 )
 AS
 BEGIN
@@ -640,17 +583,15 @@ BEGIN
 
     INSERT INTO DetalleCarrito
         (id_carrito, id_articulo, cantidad, id_unidad_medida,
-         precio_unitario, subtotal, id_bobina, dvh)
+         precio_unitario, subtotal, dvh)
     VALUES
         (@id_carrito, @id_articulo, @cantidad, @id_unidad_medida,
-         @precio_unitario, @subtotal, @id_bobina, NULL);
+         @precio_unitario, @subtotal, NULL);
 
     SELECT SCOPE_IDENTITY();
 END
 GO
 
--- El renglon se borra fisicamente: es un borrador de mostrador, no un
--- documento. La baja logica aplica al carrito, que se anula.
 IF OBJECT_ID('dbo.SP_QuitarDetalleCarrito', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_QuitarDetalleCarrito];
 GO
@@ -700,113 +641,7 @@ BEGIN
 END
 GO
 
--- Cierra el carrito: fija el total y lo pasa a Confirmado en una sola
--- escritura sobre Carrito. El total se recalcula desde el detalle aca, para
--- que no dependa de lo que traiga la pantalla.
-IF OBJECT_ID('dbo.SP_ConfirmarCarrito', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_ConfirmarCarrito];
-GO
-CREATE PROCEDURE [dbo].[SP_ConfirmarCarrito]
-(
-    @id_carrito     INT,
-    @nombre_cliente VARCHAR(100) = NULL
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF NOT EXISTS (SELECT 1 FROM DetalleCarrito WHERE id_carrito = @id_carrito)
-    BEGIN
-        RAISERROR('El carrito no tiene articulos.', 16, 1);
-        RETURN;
-    END
-
-    UPDATE Carrito
-    SET precio_total   = (SELECT SUM(subtotal) FROM DetalleCarrito WHERE id_carrito = @id_carrito),
-        estado         = 'Confirmado',
-        nombre_cliente = ISNULL(@nombre_cliente, nombre_cliente)
-    WHERE id_carrito = @id_carrito AND estado = 'Abierto';
-
-    IF @@ROWCOUNT = 0
-    BEGIN
-        RAISERROR('El carrito no esta abierto.', 16, 1);
-        RETURN;
-    END
-END
-GO
-
--- =============================================================================
--- Reserva del faltante (CUN-001)
--- =============================================================================
-
-IF OBJECT_ID('dbo.SP_CrearReserva', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_CrearReserva];
-GO
-CREATE PROCEDURE [dbo].[SP_CrearReserva]
-(
-    @id_articulo    INT,
-    @id_cliente     INT = NULL,
-    @nombre_cliente VARCHAR(100) = NULL,
-    @cantidad       DECIMAL(12,2),
-    @fecha_reserva  DATETIME,
-    @plazo_entrega  INT
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    INSERT INTO Reserva
-        (id_articulo, id_cliente, nombre_cliente, cantidad,
-         fecha_reserva, plazo_entrega, estado, dvh)
-    VALUES
-        (@id_articulo, @id_cliente, @nombre_cliente, @cantidad,
-         @fecha_reserva, @plazo_entrega, 'Pendiente', NULL);
-
-    SELECT SCOPE_IDENTITY();
-END
-GO
-
-IF OBJECT_ID('dbo.SP_ExtReservaPorArticulo', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_ExtReservaPorArticulo];
-GO
-CREATE PROCEDURE [dbo].[SP_ExtReservaPorArticulo]
-    @id_articulo INT = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SELECT id_reserva, id_articulo, id_cliente, nombre_cliente, cantidad,
-           fecha_reserva, plazo_entrega, estado, dvh
-    FROM Reserva
-    WHERE (@id_articulo IS NULL OR id_articulo = @id_articulo)
-    ORDER BY id_reserva;
-END
-GO
-
-IF OBJECT_ID('dbo.SP_ActualizarEstadoReserva', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_ActualizarEstadoReserva];
-GO
-CREATE PROCEDURE [dbo].[SP_ActualizarEstadoReserva]
-(
-    @id_reserva INT,
-    @estado     VARCHAR(15)
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF @estado NOT IN ('Pendiente', 'EnCompra', 'Cumplida', 'Anulada')
-    BEGIN
-        RAISERROR('Estado de reserva invalido.', 16, 1);
-        RETURN;
-    END
-
-    UPDATE Reserva SET estado = @estado WHERE id_reserva = @id_reserva;
-END
-GO
-
--- =============================================================================
 -- Orden de pago (CUN-002)
--- =============================================================================
 
 -- Numero de orden siguiente, con el formato OP-000000.
 IF OBJECT_ID('dbo.SP_ProximoNumeroOrdenPago', 'P') IS NOT NULL
@@ -864,9 +699,6 @@ BEGIN
 END
 GO
 
--- Con el numero busca una orden; sin el, devuelve todas. La segunda forma la
--- usa el control de integridad, que necesita la tabla completa ordenada por
--- clave primaria.
 IF OBJECT_ID('dbo.SP_BuscarOrdenPago', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_BuscarOrdenPago];
 GO
@@ -905,9 +737,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Comprobante, detalle y pago (CUN-004)
--- =============================================================================
 
 -- Numero de comprobante siguiente, por tipo, con el formato A-0001-00000000.
 IF OBJECT_ID('dbo.SP_ProximoNumeroComprobante', 'P') IS NOT NULL
@@ -981,8 +811,6 @@ BEGIN
 END
 GO
 
--- Con el numero busca un comprobante; sin el, devuelve todos. La segunda forma
--- la usa el control de integridad.
 IF OBJECT_ID('dbo.SP_BuscarComprobante', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_BuscarComprobante];
 GO
@@ -1080,11 +908,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- Entrega en deposito (CUN-005)
---
--- No mueve existencias: el stock ya bajo al emitirse el comprobante.
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_CrearEntrega', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_CrearEntrega];
@@ -1132,8 +956,6 @@ BEGIN
 END
 GO
 
--- Con el comprobante devuelve su entrega; sin el, devuelve todas. La segunda
--- forma la usa el control de integridad.
 IF OBJECT_ID('dbo.SP_ExtEntregaPorComprobante', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtEntregaPorComprobante];
 GO

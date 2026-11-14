@@ -2,10 +2,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Renglon del comprobante. Copia cantidad y precio del carrito en lugar de
-    /// leerlos por la FK: el comprobante conserva lo que se emitio.
-    /// </summary>
     public class DetalleComprobanteBE_575_AV : IVerificable
     {
         public int id_detalle_comprobante { get; set; }
@@ -16,16 +12,12 @@ namespace Entidad_BE
         public decimal precio_unitario { get; set; }
         public string dvh { get; set; }
 
-        /// <summary>Codigo del articulo, que resuelve la BLL para pantalla.</summary>
         public string codigo_articulo { get; set; }
 
-        /// <summary>Descripcion del articulo, que resuelve la BLL para pantalla.</summary>
         public string descripcion_articulo { get; set; }
 
-        /// <summary>Abreviatura de la unidad, para mostrar junto a la cantidad.</summary>
         public string abreviatura_unidad { get; set; }
 
-        /// <summary>Ubicacion en deposito, que necesita el despacho (CUN-005).</summary>
         public string deposito_ubicacion { get; set; }
 
         public decimal subtotal

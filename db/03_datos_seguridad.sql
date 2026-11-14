@@ -1,9 +1,4 @@
-﻿-- =============================================================================
--- ConectAR S.R.L. - Trabajo de Diploma - Villaverde, Agustin (575_AV)
--- 03 - Datos iniciales de seguridad: arbol de perfiles y usuario administrador
---
--- Idempotente: se puede reejecutar sin duplicar filas.
--- =============================================================================
+﻿-- 03 - Datos de seguridad: perfiles y administrador - 575_AV
 
 USE [ConectAR_DB];
 GO
@@ -11,30 +6,14 @@ GO
 SET NOCOUNT ON;
 GO
 
--- -----------------------------------------------------------------------------
 -- T04 - Arbol de perfiles (Composite)
---
---   Familias / roles (Tipo='Compuesto', Rol=1) -> raices del TreeView
---   Permisos         (Tipo='Simple',    Rol=0) -> hojas
---
--- Los permisos simples se corresponden uno a uno con el enum
--- Entidad_BE.TipoPermiso: agregar un valor alli obliga a insertarlo aca.
---
--- La jerarquia usa una FK reflexiva (Nombre_PermisoPadre), de modo que un
--- permiso cuelga de una sola familia.
--- -----------------------------------------------------------------------------
 
--- Familias / roles del negocio, segun G04 - Roles del sistema.
--- Sin acentos: el nombre viaja a la base y se compara como texto. El rotulo que
--- ve el usuario ("Deposito" -> "Depósito") sale de la tabla Traduccion.
 MERGE INTO Permiso AS destino
 USING (VALUES
     (N'Admin',                N'Compuesto', 1),
     (N'Ventas',               N'Compuesto', 1),
     (N'Caja',                 N'Compuesto', 1),
     (N'Deposito',             N'Compuesto', 1),
-    -- Roles de RFN2 (Compras). Quedan creados para completar el modelo de
-    -- roles; sus permisos se agregan junto con los casos de uso CUN-007..013.
     (N'AdministradorCompras', N'Compuesto', 1),
     (N'Propietario',          N'Compuesto', 1)
 ) AS origen (Nombre, Tipo, EsRol)
@@ -43,8 +22,6 @@ WHEN NOT MATCHED THEN
     INSERT (Nombre_Permiso, Tipo, Rol) VALUES (origen.Nombre, origen.Tipo, origen.EsRol);
 GO
 
--- Permisos simples. Uno a uno con el enum Entidad_BE.TipoPermiso: agregar un
--- valor alli obliga a insertarlo aca con el mismo texto.
 MERGE INTO Permiso AS destino
 USING (VALUES
     (N'CompletarCarrito'),
@@ -56,7 +33,15 @@ USING (VALUES
     (N'GestionUsuarios'),
     (N'GestionPerfiles'),
     (N'GestionBackup'),
-    (N'GestionBitacora')
+    (N'GestionBitacora'),
+    (N'RegistrarProveedor'),
+    (N'ImportarListaPrecios'),
+    (N'CompararPrecios'),
+    (N'GenerarOrdenCompra'),
+    (N'AutorizarOrdenCompra'),
+    (N'RegistrarRecepcion'),
+    (N'ReporteCompras'),
+    (N'SerializarOrdenCompra')
 ) AS origen (Nombre)
     ON destino.Nombre_Permiso = origen.Nombre
 WHEN NOT MATCHED THEN
@@ -73,27 +58,22 @@ WHERE Nombre_Permiso IN (N'CompletarCarrito', N'GenerarOrdenPago');
 UPDATE Permiso SET Nombre_PermisoPadre = N'Caja'
 WHERE Nombre_Permiso IN (N'ValidarPedidoYCobrar', N'RegistrarCliente');
 
--- GestionArticulos queda en Deposito, que es donde estaba GestionProductos en el
--- mapa anterior: el ABM de articulos es tarea de deposito.
 UPDATE Permiso SET Nombre_PermisoPadre = N'Deposito'
-WHERE Nombre_Permiso IN (N'EntregarArticulos', N'GestionArticulos');
+WHERE Nombre_Permiso IN (N'EntregarArticulos', N'GestionArticulos', N'RegistrarRecepcion');
+
+UPDATE Permiso SET Nombre_PermisoPadre = N'AdministradorCompras'
+WHERE Nombre_Permiso IN (N'RegistrarProveedor', N'ImportarListaPrecios', N'CompararPrecios', N'GenerarOrdenCompra',
+                         N'ReporteCompras', N'SerializarOrdenCompra');
+
+UPDATE Permiso SET Nombre_PermisoPadre = N'Propietario'
+WHERE Nombre_Permiso IN (N'AutorizarOrdenCompra');
 GO
 
--- Las tres familias del circuito cuelgan de Admin, para que el administrador
--- pueda recorrerlo completo. Es el Composite haciendo su trabajo: Admin no
--- repite los permisos, contiene las familias y los hereda por recursion, y
--- cada permiso sigue colgando de una sola familia.
 UPDATE Permiso SET Nombre_PermisoPadre = N'Admin'
-WHERE Nombre_Permiso IN (N'Ventas', N'Caja', N'Deposito');
+WHERE Nombre_Permiso IN (N'Ventas', N'Caja', N'Deposito', N'AdministradorCompras', N'Propietario');
 GO
 
--- -----------------------------------------------------------------------------
 -- Limpieza del mapa de casos de uso anterior.
---
--- Solo corre sobre bases ya instaladas: en una base nueva no hay nada que
--- borrar. Se desenganchan los hijos antes de borrar el padre, porque la FK
--- reflexiva lo impide, y no se toca ningun rol que algun usuario tenga asignado.
--- -----------------------------------------------------------------------------
 DECLARE @obsoletos TABLE (Nombre NVARCHAR(100));
 INSERT INTO @obsoletos (Nombre) VALUES
     (N'LlenarCarrito'), (N'SeleccionarProducto'), (N'GenerarFactura'),
@@ -108,24 +88,7 @@ WHERE Nombre_Permiso IN (SELECT Nombre FROM @obsoletos)
   AND NOT EXISTS (SELECT 1 FROM Usuarios u WHERE u.Rol = Permiso.Nombre_Permiso);
 GO
 
--- -----------------------------------------------------------------------------
 -- T02 / T03 / T08 - Usuario administrador inicial
---
---   usuario : admin
---   clave   : Admin1234
---
--- La clave se guarda como SHA-256 irreversible (Servicios.Encriptador).
--- CAMBIAR LA CLAVE EN EL PRIMER INICIO DE SESION.
---
--- El DVH es el SHA-256 de UsuarioBE.ObtenerCamposDV(), es decir de:
---   Codigo|DNI|Nombre|Apellido|Usuario|Rol|Contrasena|Direccion|Telefono|Email|Activo|Bloqueado
--- con Activo/Bloqueado renderizados como 'True'/'False' (string.Join sobre bool).
--- El DVV de Usuarios es el SHA-256 de la lista de DVH unidos por '|'; con una
--- sola fila equivale al SHA-256 del unico DVH.
---
--- Si se cambian los datos de esta fila hay que recalcular ambos digitos, o
--- correr "Recalcular Digitos" (CUS-012) desde la aplicacion.
--- -----------------------------------------------------------------------------
 IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE Usuario = 'admin')
 BEGIN
     SET IDENTITY_INSERT Usuarios ON;

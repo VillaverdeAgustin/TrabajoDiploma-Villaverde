@@ -89,7 +89,7 @@ namespace Acceso_DAL
             conexDB.Escribir("SP_ElimUsuario", parametros);
         }
 
-        public void ActualizarUsuario(UsuarioBE us) //Uso exclusivo para actualizar DVH
+        public void ActualizarUsuario(UsuarioBE us)
         {
             SqlParameter[] parametros = new SqlParameter[12];
             parametros[0] = new SqlParameter("@Codigo", us.cod);
@@ -164,7 +164,5 @@ namespace Acceso_DAL
 
             conexDB.Escribir("SP_ActualizarUsuarioConHistorial", parametros);
         }
-
-
     }
 }

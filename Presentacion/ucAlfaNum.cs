@@ -46,10 +46,6 @@ namespace Presentacion_575_AV
 
         public Button boton;
 
-        /// <summary>
-        /// Alinea el control con la identidad visual de ConectAR: caja sin borde
-        /// sobre fondo blanco y subrayado institucional que marca la validacion.
-        /// </summary>
         public void AplicarEstilo()
         {
             this.BackColor = EstiloConectAR_575_AV.Superficie;
@@ -81,7 +77,6 @@ namespace Presentacion_575_AV
                 texto = txtTexto.Text;
                 if(Regex.IsMatch(texto, patron))
                 {
-
                     ok = true;
                     ptxtTexto.BackColor = EstiloConectAR_575_AV.Borde;
                 }
@@ -115,7 +110,6 @@ namespace Presentacion_575_AV
         }
 
         public void txtContra_KeyPress(object sender, KeyPressEventArgs e)
-        //btn Iniciar al presion enter en campo Contraseña
         {
             if (isPass)
             {

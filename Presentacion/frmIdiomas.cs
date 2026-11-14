@@ -1,9 +1,8 @@
-﻿using Entidad_BE;
+using Entidad_BE;
 using Negocio_BLL;
 using Servicios;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Windows.Forms;
 
 namespace Presentacion_575_AV
@@ -14,11 +13,12 @@ namespace Presentacion_575_AV
         {
             InitializeComponent();
             EstiloConectAR_575_AV.AplicarFormulario(this);
+            EstiloConectAR_575_AV.BotonSecundario(btnSalir);
         }
 
         GestorDeIdioma gestorIdioma = GestorDeIdioma.GetInstance;
         BitacoraBLL bitacora = new BitacoraBLL();
-        DataTable traducciones;
+        bool cargando;
 
         private void frmIdiomas_Load(object sender, EventArgs e)
         {
@@ -37,154 +37,58 @@ namespace Presentacion_575_AV
         public void ActualizarTextos()
         {
             this.Text = gestorIdioma.Traducir("IDI_TITULO");
-            gbNuevo.Text = gestorIdioma.Traducir("IDI_GB_NUEVO");
-            lblCodigo.Text = gestorIdioma.Traducir("IDI_LBL_CODIGO");
-            lblNombre.Text = gestorIdioma.Traducir("COMUN_NOMBRE");
-            lblBase.Text = gestorIdioma.Traducir("IDI_LBL_BASE");
-            lblArchivo.Text = gestorIdioma.Traducir("IDI_LBL_ARCHIVO");
-            btnExaminar.Text = gestorIdioma.Traducir("IDI_BTN_EXAMINAR");
-            btnCrear.Text = gestorIdioma.Traducir("IDI_BTN_CREAR");
-            gbTraducciones.Text = gestorIdioma.Traducir("IDI_GB_TRADUCCIONES");
+            lblTitulo.Text = gestorIdioma.Traducir("IDI_TITULO");
             lblIdioma.Text = gestorIdioma.Traducir("IDI_LBL_IDIOMA");
-            btnGuardar.Text = gestorIdioma.Traducir("COMUN_GUARDAR");
+            lblAyuda.Text = gestorIdioma.Traducir("IDI_LBL_AYUDA");
             btnSalir.Text = gestorIdioma.Traducir("COMUN_SALIR");
-            TraducirColumnas();
-        }
-
-        private void TraducirColumnas()
-        {
-            if (dgvTraducciones.Columns.Count == 0) { return; }
-            dgvTraducciones.Columns["Clave"].HeaderText = gestorIdioma.Traducir("IDI_COL_CLAVE");
-            dgvTraducciones.Columns["Texto"].HeaderText = gestorIdioma.Traducir("IDI_COL_TEXTO");
         }
 
         #endregion
 
         private void CargarIdiomas()
         {
-            cmbIdioma.DataSource = gestorIdioma.ObtenerIdiomas();
-        }
-
-        private void SeleccionarIdioma(string codigo)
-        {
-            //Deja seleccionado en el combo el idioma recien creado,
-            //listo para editar sus traducciones en la grilla
-            foreach (IdiomaBE idioma in (List<IdiomaBE>)cmbIdioma.DataSource)
+            cargando = true;
+            try
             {
-                if (idioma.Codigo == codigo)
+                List<IdiomaBE> idiomas = gestorIdioma.ObtenerIdiomas();
+                cmbIdioma.DataSource = idiomas;
+                cmbIdioma.DisplayMember = "Nombre";
+
+                IdiomaBE actual = gestorIdioma.IdiomaActual;
+                if (actual != null)
                 {
-                    cmbIdioma.SelectedItem = idioma;
-                    break;
+                    cmbIdioma.SelectedItem = idiomas.Find(i => i.Codigo == actual.Codigo);
                 }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                cargando = false;
             }
         }
 
         private void cmbIdioma_SelectedIndexChanged(object sender, EventArgs e)
         {
-            CargarTraducciones();
-        }
+            if (cargando) { return; }
 
-        private void CargarTraducciones()
-        {
             IdiomaBE idioma = cmbIdioma.SelectedItem as IdiomaBE;
             if (idioma == null) { return; }
-
-            traducciones = gestorIdioma.ObtenerTablaTraducciones(idioma.Id);
-            dgvTraducciones.DataSource = traducciones;
-            dgvTraducciones.Columns["Clave"].ReadOnly = true;
-            dgvTraducciones.Columns["Texto"].ReadOnly = false;
-            TraducirColumnas();
-        }
-
-        private void btnExaminar_Click(object sender, EventArgs e)
-        {
-            using (OpenFileDialog dialogo = new OpenFileDialog())
-            {
-                dialogo.Filter = "Archivos de traducciones (*.csv;*.txt)|*.csv;*.txt|Todos los archivos (*.*)|*.*";
-                if (dialogo.ShowDialog() == DialogResult.OK)
-                {
-                    txtArchivo.Text = dialogo.FileName;
-                }
-            }
-        }
-
-        private void btnCrear_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                string nombre = txtNombre.Text.Trim();
-                string codigo = txtCodigo.Text.Trim().ToUpper();
-                string rutaArchivo = txtArchivo.Text.Trim() == "" ? null : txtArchivo.Text.Trim();
-
-                int importadas = gestorIdioma.AgregarIdioma(codigo, nombre, rutaArchivo);
-                bitacora.RegistrarBitacora(SessionManager.GetInstance.UsuarioActual().user,
-                    TipoAccion.AltaIdioma);
-
-                if (importadas > 0)
-                {
-                    MessageBox.Show(string.Format(gestorIdioma.Traducir("IDI_MSG_IMPORTADAS"), nombre, importadas));
-                }
-                else
-                {
-                    MessageBox.Show(string.Format(gestorIdioma.Traducir("IDI_MSG_CREADO"), nombre));
-                }
-                txtCodigo.Clear();
-                txtNombre.Clear();
-                txtArchivo.Clear();
-                CargarIdiomas();
-                SeleccionarIdioma(codigo);
-            }
-            catch (ArgumentException ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            catch (FormatException ex)
-            {
-                MessageBox.Show(gestorIdioma.Traducir("IDI_ERR_ARCHIVO") + ex.Message);
-            }
-            catch (System.IO.IOException ex)
-            {
-                MessageBox.Show(gestorIdioma.Traducir("IDI_ERR_ARCHIVO") + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message);
-            }
-        }
-
-        private void btnGuardar_Click(object sender, EventArgs e)
-        {
-            IdiomaBE idioma = cmbIdioma.SelectedItem as IdiomaBE;
-            if (idioma == null || traducciones == null) { return; }
+            if (gestorIdioma.IdiomaActual != null && gestorIdioma.IdiomaActual.Codigo == idioma.Codigo) { return; }
 
             try
             {
-                //Confirma la edicion pendiente de celda Y de fila antes de leer
-                //los RowState, sino la fila en edicion no figura como Modified
-                dgvTraducciones.EndEdit();
-                this.Validate();
-                this.BindingContext[traducciones].EndCurrentEdit();
-
-                Dictionary<string, string> cambios = new Dictionary<string, string>();
-                foreach (DataRow fila in traducciones.Rows)
-                {
-                    if (fila.RowState == DataRowState.Modified)
-                    {
-                        cambios[fila["Clave"].ToString()] = fila["Texto"].ToString();
-                    }
-                }
-                if (cambios.Count == 0) { return; }
-
-                gestorIdioma.GuardarTraducciones(idioma.Id, cambios);
-                traducciones.AcceptChanges();
-                bitacora.RegistrarBitacora(SessionManager.GetInstance.UsuarioActual().user,
-                    TipoAccion.ModificacionIdioma);
-
-                MessageBox.Show(gestorIdioma.Traducir("IDI_MSG_GUARDADO"));
+                gestorIdioma.CambiarIdioma(idioma.Codigo);
+                string usuario = SessionManager.Logged() ? SessionManager.GetInstance.UsuarioActual().user : "null";
+                bitacora.RegistrarBitacora(usuario, TipoAccion.CambioIdioma);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

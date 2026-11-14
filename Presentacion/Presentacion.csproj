@@ -49,6 +49,127 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EstiloConectAR_575_AV.cs" />
+    <Compile Include="TextoTraducido_575_AV.cs" />
+    <Compile Include="frmGestionArticulos_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmGestionArticulos_575_AV.Designer.cs">
+      <DependentUpon>frmGestionArticulos_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRegistrarCliente_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRegistrarCliente_575_AV.Designer.cs">
+      <DependentUpon>frmRegistrarCliente_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCarritoCompras_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCarritoCompras_575_AV.Designer.cs">
+      <DependentUpon>frmCarritoCompras_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmProveedor_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmProveedor_575_AV.Designer.cs">
+      <DependentUpon>frmProveedor_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmImportarListaPrecios_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmImportarListaPrecios_575_AV.Designer.cs">
+      <DependentUpon>frmImportarListaPrecios_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmCompararPrecios_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmCompararPrecios_575_AV.Designer.cs">
+      <DependentUpon>frmCompararPrecios_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmOrdenCompra_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmOrdenCompra_575_AV.Designer.cs">
+      <DependentUpon>frmOrdenCompra_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmAutorizarOrdenCompra_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAutorizarOrdenCompra_575_AV.Designer.cs">
+      <DependentUpon>frmAutorizarOrdenCompra_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRecepcionMercaderia_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRecepcionMercaderia_575_AV.Designer.cs">
+      <DependentUpon>frmRecepcionMercaderia_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmConexion_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConexion_575_AV.Designer.cs">
+      <DependentUpon>frmConexion_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmOrdenPago_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmOrdenPago_575_AV.Designer.cs">
+      <DependentUpon>frmOrdenPago_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmValidarCobrar_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmValidarCobrar_575_AV.Designer.cs">
+      <DependentUpon>frmValidarCobrar_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmBitacoraCambios_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBitacoraCambios_575_AV.Designer.cs">
+      <DependentUpon>frmBitacoraCambios_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmReporteCompras_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmReporteCompras_575_AV.Designer.cs">
+      <DependentUpon>frmReporteCompras_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmSerializacion_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmSerializacion_575_AV.Designer.cs">
+      <DependentUpon>frmSerializacion_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmBackup_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmBackup_575_AV.Designer.cs">
+      <DependentUpon>frmBackup_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmRestore_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmRestore_575_AV.Designer.cs">
+      <DependentUpon>frmRestore_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmComprobante_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmComprobante_575_AV.Designer.cs">
+      <DependentUpon>frmComprobante_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmConsultaComprobantes_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmConsultaComprobantes_575_AV.Designer.cs">
+      <DependentUpon>frmConsultaComprobantes_575_AV.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frmEntregaDeposito_575_AV.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmEntregaDeposito_575_AV.Designer.cs">
+      <DependentUpon>frmEntregaDeposito_575_AV.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmBitacora.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -156,6 +277,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="..\db\*.sql">
+      <Link>db\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entidad_BE\Entidad_BE.csproj">

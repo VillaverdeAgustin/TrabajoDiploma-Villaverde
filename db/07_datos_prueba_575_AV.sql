@@ -1,30 +1,4 @@
-﻿-- =============================================================================
--- ConectAR S.R.L. - Trabajo de Diploma - Villaverde, Agustin (575_AV)
--- 07 - Datos de prueba del RFN1 (Gestion de Venta por mostrador)
---
--- Juego minimo para recorrer el circuito completo de venta:
---
---   * Ocho articulos, con su ubicacion de deposito.
---   * Dos fraccionables (cable por metro lineal) con bobinas de 305 m:
---     CAB-UTP6-EXT tiene tres, una de ellas ABIERTA con 120 m de saldo, para
---     que se vea el remanente; CAB-UTP5E-INT tiene dos cerradas.
---   * JCK-RJ45-C6 y RCK-12U-MUR quedan por debajo de su punto de reposicion.
---   * CER-DSX-600 queda SIN STOCK: es el que dispara el faltante y la reserva.
---   * Dos clientes, uno responsable inscripto con CUIT y otro consumidor
---     final, con el correo electronico cifrado en AES-256 (T03.2).
---
--- Los dvh y los DVV van precalculados, con el mismo metodo que los catalogos
--- de 05: son el SHA-256 de ObtenerCamposDV() de cada entidad. Asi una base
--- recien instalada pasa el control de integridad del login sin pedir
--- Recalcular Digitos.
---
--- Los correos cifrados dependen de la clave 'ClaveAES' de App.config: si se
--- cambia esa clave, estos valores dejan de poder descifrarse.
---
--- Idempotente: si ya hay articulos cargados, el script no hace nada.
---
--- Orden de ejecucion: 01 -> 02 -> 03 -> 04 -> 05 -> 06 -> 07
--- =============================================================================
+﻿-- 07 - Datos de prueba - 575_AV
 
 USE [ConectAR_DB];
 GO

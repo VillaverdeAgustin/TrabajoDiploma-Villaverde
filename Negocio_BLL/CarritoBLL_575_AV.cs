@@ -7,17 +7,6 @@ using System.Linq;
 
 namespace Negocio_BLL
 {
-    /// <summary>
-    /// Armado del carrito de compras (CUN-001).
-    ///
-    /// <para>El carrito es un borrador de mostrador: mientras esta abierto se
-    /// le agregan y quitan renglones. No descuenta existencias, solo las
-    /// verifica; el descuento ocurre al emitir el comprobante.</para>
-    ///
-    /// <para>Carrito y DetalleCarrito son dos tablas, con su propio dvh y su
-    /// propio DVV. Cada escritura pasa por un procedimiento distinto, asi que
-    /// las encadena esta clase.</para>
-    /// </summary>
     public class CarritoBLL_575_AV
     {
         private const string TABLA = "Carrito";
@@ -25,13 +14,11 @@ namespace Negocio_BLL
 
         private MP_Carrito_575_AV mpCarrito = new MP_Carrito_575_AV();
         private ArticuloBLL_575_AV articuloBLL = new ArticuloBLL_575_AV();
-        private BobinaBLL_575_AV bobinaBLL = new BobinaBLL_575_AV();
         private BitacoraBLL bitacora = new BitacoraBLL();
         private VerificadorIntegridadBLL verificador = new VerificadorIntegridadBLL();
 
         #region Consulta
 
-        /// <summary>Los carritos que el cajero puede tomar, con su detalle cargado.</summary>
         public List<CarritoBE_575_AV> ListarAbiertos()
         {
             List<CarritoBE_575_AV> carritos = mpCarrito.ListarAbiertos();
@@ -44,7 +31,6 @@ namespace Negocio_BLL
             return carritos;
         }
 
-        /// <summary>Renglones del carrito, con los datos de articulo ya resueltos.</summary>
         public List<DetalleCarritoBE_575_AV> ObtenerDetalle(int id_carrito)
         {
             return Completar(mpCarrito.ListarDetalle(id_carrito));
@@ -54,12 +40,12 @@ namespace Negocio_BLL
 
         #region Armado
 
-        /// <summary>Abre un carrito vacio a nombre del vendedor.</summary>
         public CarritoBE_575_AV CrearCarrito(string usuario)
         {
             if (string.IsNullOrWhiteSpace(usuario))
             {
-                throw new InvalidOperationException("No hay un vendedor identificado.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_SIN_VENDEDOR"));
             }
 
             CarritoBE_575_AV carrito = new CarritoBE_575_AV
@@ -74,8 +60,6 @@ namespace Negocio_BLL
 
             carrito.id_carrito = mpCarrito.CrearCarrito(carrito);
 
-            // La base fija la fecha con su propio redondeo: se relee antes de
-            // calcular el dvh.
             carrito = Releer(carrito.id_carrito);
 
             PersistirDigito(carrito);
@@ -84,11 +68,6 @@ namespace Negocio_BLL
             return carrito;
         }
 
-        /// <summary>
-        /// Agrega un renglon. Verifica la disponibilidad contra el gestor de
-        /// existencias y, si el articulo es fraccionable, reserva el metraje
-        /// sobre una bobina concreta y lo deja anotado en el renglon.
-        /// </summary>
         public CarritoBE_575_AV AgregarDetalle(CarritoBE_575_AV carrito,
                                                DetalleCarritoBE_575_AV detalle,
                                                string usuario)
@@ -98,48 +77,31 @@ namespace Negocio_BLL
             if (detalle == null) { throw new ArgumentNullException("detalle"); }
             if (detalle.cantidad <= 0)
             {
-                throw new InvalidOperationException("La cantidad tiene que ser mayor a cero.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_CANTIDAD"));
             }
 
             ArticuloBE_575_AV articulo = articuloBLL.ObtenerPorId(detalle.id_articulo);
             if (articulo == null)
             {
-                throw new InvalidOperationException("El articulo no existe.");
-            }
-
-            if (!GestorDeExistencias_575_AV.GetInstance
-                    .HayDisponibilidad(articulo.id_articulo, detalle.cantidad))
-            {
                 throw new InvalidOperationException(
-                    "No hay disponibilidad de " + articulo.descripcion +
-                    " para la cantidad pedida.");
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_NO_EXISTE"));
             }
 
-            // El renglon toma el precio y la unidad del articulo, no de la pantalla.
             detalle.id_carrito = carrito.id_carrito;
             detalle.id_unidad_medida = articulo.id_unidad_medida;
             detalle.precio_unitario = articulo.precio_unitario;
             detalle.subtotal = decimal.Round(articulo.precio_unitario * detalle.cantidad, 2);
 
-            if (articulo.fraccionable)
-            {
-                BobinaBE_575_AV bobina = bobinaBLL.Fraccionar(
-                    articulo.id_articulo, detalle.cantidad, usuario);
-                detalle.id_bobina = bobina.id_bobina;
-            }
-
             detalle.id_detalle_carrito = mpCarrito.AgregarDetalle(detalle);
-
             PersistirDigitoDetalle(detalle);
+
+            CarritoBE_575_AV actualizado = RecalcularTotal(carrito.id_carrito);
             bitacora.RegistrarBitacora(usuario, TipoAccion.AltaDetalleCarrito);
 
-            return RecalcularTotal(carrito.id_carrito, usuario);
+            return actualizado;
         }
 
-        /// <summary>
-        /// Quita un renglon y devuelve a la bobina el metraje que tenia
-        /// comprometido, si lo habia.
-        /// </summary>
         public CarritoBE_575_AV QuitarDetalle(CarritoBE_575_AV carrito,
                                               DetalleCarritoBE_575_AV detalle,
                                               string usuario)
@@ -148,37 +110,31 @@ namespace Negocio_BLL
 
             if (detalle == null || detalle.id_detalle_carrito <= 0)
             {
-                throw new InvalidOperationException("El renglon no esta identificado.");
-            }
-
-            if (detalle.id_bobina.HasValue)
-            {
-                bobinaBLL.Devolver(detalle.id_bobina.Value, detalle.cantidad, usuario);
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_RENGLON"));
             }
 
             mpCarrito.QuitarDetalle(detalle.id_detalle_carrito);
 
-            // DetalleCarrito perdio una fila: su DVV cambia.
             verificador.ActualizarDVV(TABLA_DETALLE);
+
+            CarritoBE_575_AV actualizado = RecalcularTotal(carrito.id_carrito);
             bitacora.RegistrarBitacora(usuario, TipoAccion.BajaDetalleCarrito);
 
-            return RecalcularTotal(carrito.id_carrito, usuario);
+            return actualizado;
         }
 
-        /// <summary>
-        /// Cierra el carrito y lo deja a la espera de la caja. Devuelve el
-        /// numero de carrito, que es lo que se le informa al cliente.
-        /// </summary>
         public string ConfirmarCarrito(CarritoBE_575_AV carrito, string usuario)
         {
             Validar(carrito);
 
             if (mpCarrito.ListarDetalle(carrito.id_carrito).Count == 0)
             {
-                throw new InvalidOperationException("El carrito no tiene articulos.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_VACIO"));
             }
 
-            mpCarrito.ConfirmarCarrito(carrito.id_carrito, carrito.nombre_cliente);
+            mpCarrito.ActualizarEstado(carrito.id_carrito, EstadoCarrito_575_AV.Confirmado);
 
             CarritoBE_575_AV guardado = Releer(carrito.id_carrito);
             PersistirDigito(guardado);
@@ -234,7 +190,6 @@ namespace Negocio_BLL
             verificador.ActualizarDVV(TABLA_DETALLE);
         }
 
-        /// <summary>Alias legible del anterior, para no confundir las dos sobrecargas.</summary>
         private void PersistirDigitoDetalle(DetalleCarritoBE_575_AV detalle)
         {
             PersistirDigito(detalle);
@@ -244,8 +199,7 @@ namespace Negocio_BLL
 
         #region Apoyo
 
-        /// <summary>Recalcula el total del carrito desde su detalle y lo persiste.</summary>
-        private CarritoBE_575_AV RecalcularTotal(int id_carrito, string usuario)
+        private CarritoBE_575_AV RecalcularTotal(int id_carrito)
         {
             decimal total = mpCarrito.ListarDetalle(id_carrito).Sum(d => d.subtotal);
             mpCarrito.ActualizarTotal(id_carrito, total);
@@ -264,13 +218,13 @@ namespace Negocio_BLL
 
             if (carrito == null)
             {
-                throw new InvalidOperationException("El carrito no existe.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_NO_EXISTE"));
             }
 
             return carrito;
         }
 
-        /// <summary>Completa los datos de articulo que la pantalla necesita mostrar.</summary>
         private List<DetalleCarritoBE_575_AV> Completar(List<DetalleCarritoBE_575_AV> detalles)
         {
             if (detalles.Count == 0) { return detalles; }
@@ -298,13 +252,14 @@ namespace Negocio_BLL
 
             if (carrito.id_carrito <= 0)
             {
-                throw new InvalidOperationException("El carrito no esta identificado.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_NO_IDENTIFICADO"));
             }
 
             if (!Releer(carrito.id_carrito).se_puede_editar)
             {
                 throw new InvalidOperationException(
-                    "El carrito ya fue confirmado y no admite cambios.");
+                    GestorDeIdioma.GetInstance.Traducir("CAR_ERR_CONFIRMADO"));
             }
         }
 

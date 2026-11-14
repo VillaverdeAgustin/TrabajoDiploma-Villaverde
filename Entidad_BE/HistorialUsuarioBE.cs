@@ -8,7 +8,6 @@ namespace Entidad_BE
 {
     public class HistorialUsuarioBE
     {
-
         private int _idHistorial;
 
         public int idHistorial

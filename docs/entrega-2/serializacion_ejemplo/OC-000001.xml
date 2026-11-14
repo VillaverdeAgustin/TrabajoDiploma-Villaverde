@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DocumentoOrdenCompra_575_AV xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <version>1.0</version>
+  <fecha_generacion>2026-11-06T20:40:43.5891409-03:00</fecha_generacion>
+  <usuario>compras</usuario>
+  <orden>
+    <id_orden_compra>1</id_orden_compra>
+    <nro_orden_compra>OC-000001</nro_orden_compra>
+    <id_proveedor>2</id_proveedor>
+    <fecha_emision>2026-11-06T20:36:06.173</fecha_emision>
+    <usuario_emisor>compras</usuario_emisor>
+    <estado>Recibida</estado>
+    <total>10463501.00</total>
+    <fecha_autorizacion>2026-11-06T20:36:09.23</fecha_autorizacion>
+    <usuario_autorizante>propietario</usuario_autorizante>
+    <activo>true</activo>
+    <dvh>8413642cd55fb5cb6d6058ae2f1c731084ffa819c243eedf1aa2eb83e6874b65</dvh>
+    <razon_social>FibraSur S.R.L.</razon_social>
+    <detalle>
+      <DetalleOrdenCompraBE_575_AV>
+        <id_detalle_orden_compra>1</id_detalle_orden_compra>
+        <id_orden_compra>1</id_orden_compra>
+        <id_articulo>1</id_articulo>
+        <cantidad>610.00</cantidad>
+        <id_unidad_medida>2</id_unidad_medida>
+        <precio_unitario>1250.00</precio_unitario>
+        <subtotal>762500.00</subtotal>
+        <cantidad_recibida>610.00</cantidad_recibida>
+        <dvh>fd5a0abb4e55319594edbd6082eab7b7a89083d0ab88212a43045fa1ef42b0df</dvh>
+        <codigo_articulo>CAB-UTP6-EXT</codigo_articulo>
+        <descripcion_articulo>Cable UTP Cat 6 exterior CMX</descripcion_articulo>
+        <abreviatura_unidad>m</abreviatura_unidad>
+        <fraccionable>true</fraccionable>
+      </DetalleOrdenCompraBE_575_AV>
+      <DetalleOrdenCompraBE_575_AV>
+        <id_detalle_orden_compra>2</id_detalle_orden_compra>
+        <id_orden_compra>1</id_orden_compra>
+        <id_articulo>5</id_articulo>
+        <cantidad>2.00</cantidad>
+        <id_unidad_medida>1</id_unidad_medida>
+        <precio_unitario>38500.50</precio_unitario>
+        <subtotal>77001.00</subtotal>
+        <cantidad_recibida>2.00</cantidad_recibida>
+        <dvh>504e0f53cbe43775fa0df034f0703293c5c4a9e1aee354793761c467e4857802</dvh>
+        <codigo_articulo>FIC-RJ45-C6</codigo_articulo>
+        <descripcion_articulo>Ficha RJ45 Cat 6, bolsa por 100</descripcion_articulo>
+        <abreviatura_unidad>u</abreviatura_unidad>
+        <fraccionable>false</fraccionable>
+      </DetalleOrdenCompraBE_575_AV>
+      <DetalleOrdenCompraBE_575_AV>
+        <id_detalle_orden_compra>3</id_detalle_orden_compra>
+        <id_orden_compra>1</id_orden_compra>
+        <id_articulo>4</id_articulo>
+        <cantidad>40.00</cantidad>
+        <id_unidad_medida>1</id_unidad_medida>
+        <precio_unitario>5650.00</precio_unitario>
+        <subtotal>226000.00</subtotal>
+        <cantidad_recibida>40.00</cantidad_recibida>
+        <dvh>8cfc5011f1e87d015101b7ad013202299a9339647fd07b8e676aa17d53b8fedd</dvh>
+        <codigo_articulo>JCK-RJ45-C6</codigo_articulo>
+        <descripcion_articulo>Jack RJ45 Cat 6 keystone</descripcion_articulo>
+        <abreviatura_unidad>u</abreviatura_unidad>
+        <fraccionable>false</fraccionable>
+      </DetalleOrdenCompraBE_575_AV>
+      <DetalleOrdenCompraBE_575_AV>
+        <id_detalle_orden_compra>4</id_detalle_orden_compra>
+        <id_orden_compra>1</id_orden_compra>
+        <id_articulo>6</id_articulo>
+        <cantidad>1.00</cantidad>
+        <id_unidad_medida>1</id_unidad_medida>
+        <precio_unitario>298000.00</precio_unitario>
+        <subtotal>298000.00</subtotal>
+        <cantidad_recibida>1.00</cantidad_recibida>
+        <dvh>9ad75db85feb8285bb4a1463b84d195959bab4dcea350b40c41a1d74b22bef66</dvh>
+        <codigo_articulo>RCK-12U-MUR</codigo_articulo>
+        <descripcion_articulo>Rack mural 12U de 570 mm</descripcion_articulo>
+        <abreviatura_unidad>u</abreviatura_unidad>
+        <fraccionable>false</fraccionable>
+      </DetalleOrdenCompraBE_575_AV>
+      <DetalleOrdenCompraBE_575_AV>
+        <id_detalle_orden_compra>5</id_detalle_orden_compra>
+        <id_orden_compra>1</id_orden_compra>
+        <id_articulo>8</id_articulo>
+        <cantidad>1.00</cantidad>
+        <id_unidad_medida>1</id_unidad_medida>
+        <precio_unitario>9100000.00</precio_unitario>
+        <subtotal>9100000.00</subtotal>
+        <cantidad_recibida>1.00</cantidad_recibida>
+        <dvh>89efb2646e9a7115896f917ba49448131bc0577b8f0a2c6702f46d7327bdf97a</dvh>
+        <codigo_articulo>CER-DSX-600</codigo_articulo>
+        <descripcion_articulo>Certificador de cableado DSX-600</descripcion_articulo>
+        <abreviatura_unidad>u</abreviatura_unidad>
+        <fraccionable>false</fraccionable>
+      </DetalleOrdenCompraBE_575_AV>
+    </detalle>
+  </orden>
+  <proveedor>
+    <id_proveedor>2</id_proveedor>
+    <razon_social>FibraSur S.R.L.</razon_social>
+    <cuit>30-71562948-4</cuit>
+    <condicion_iva>ResponsableInscripto</condicion_iva>
+    <rubro>Fibra optica y conectividad</rubro>
+    <telefono>221 482-3310</telefono>
+    <correo_electronico>vviFY7wfcVuXsZfKIoeI0aiUZLKJAJgBaS33HwLMnyGz2tXSJG45JJvtdSmQkO/X</correo_electronico>
+    <direccion>Calle 12 845, La Plata</direccion>
+    <activo>true</activo>
+    <dvh>3ad474035902c9ef40328275c6ffd4e5e863457a5356aa77e94bb43395264076</dvh>
+  </proveedor>
+</DocumentoOrdenCompra_575_AV>

@@ -30,56 +30,110 @@ namespace Presentacion_575_AV
         {
             try
             {
-                // T08 - El control de integridad entra como include del Login y
-                // cubre TODAS las tablas, no solo Usuarios.
-                List<string> tablasAfectadas = IntegridadBLL.VerificarIntegridadTotal();
-
-                if (tablasAfectadas.Count == 0)
-                {
-                    txtContra.boton = this.btnIniciar;
-                    lblError.Text = "";
-                    CargarMenuIdiomas();
-                    gestorIdioma.Suscribir(this);
-                    this.FormClosed += frmLogin_FormClosed;
-                }
-                else
-                {
-                    using (var formRecalcular = new frmRecalcular())
-                    {
-                        formRecalcular.IndicarTablasAfectadas(tablasAfectadas);
-
-                        if (formRecalcular.ShowDialog() != DialogResult.OK)
-                        {
-                            Application.Exit();
-                            return;
-                        }
-
-                        IntegridadBLL.RecalcularDVTotal();
-
-                        List<string> siguenAfectadas = IntegridadBLL.VerificarIntegridadTotal();
-                        if (siguenAfectadas.Count > 0)
-                        {
-                            MessageBox.Show(
-                                "No fue posible restaurar la integridad de: " +
-                                string.Join(", ", siguenAfectadas) + ".",
-                                "Integridad", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            Application.Exit();
-                            return;
-                        }
-
-                        MessageBox.Show("Integridad de la base de datos restaurada",
-                            "Integridad Restaurada", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        lblError.Text = "";
-                    }
-                }
+                txtContra.boton = this.btnIniciar;
+                lblError.Text = "";
+                CargarMenuIdiomas();
+                gestorIdioma.Suscribir(this);
+                this.FormClosed += frmLogin_FormClosed;
             }
             catch (Exception)
             {
-                // Los mensajes de la GUI no exponen detalle tecnico.
                 MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD"),
-                    "Integridad", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    gestorIdioma.Traducir("COMUN_ATENCION"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        #region T08 - Control de integridad al iniciar sesion
+
+        private void IngresarAlSistema()
+        {
+            UsuarioBE enSesion = SessionManager.GetInstance.UsuarioActual();
+            List<string> tablasAfectadas = IntegridadBLL.VerificarIntegridadTotal();
+
+            if (tablasAfectadas.Count > 0)
+            {
+                bool puedeSeguir = usuario.EsAdministrador(enSesion)
+                    ? ResolverIntegridad(enSesion, tablasAfectadas)
+                    : InformarSistemaNoDisponible(enSesion);
+
+                if (!puedeSeguir) { return; }
+            }
+
+            frmMenu frm = new frmMenu();
+            frm.Show();
+            this.Hide();
+            frm.FormClosing += frm_closing;
+        }
+
+        private bool ResolverIntegridad(UsuarioBE enSesion, List<string> tablasAfectadas)
+        {
+            DialogResult opcion;
+            while (true)
+            {
+                using (frmRecalcular pantalla = new frmRecalcular())
+                {
+                    pantalla.IndicarTablasAfectadas(tablasAfectadas);
+                    opcion = pantalla.ShowDialog(this);
+                }
+                if (opcion != DialogResult.Retry) { break; }
+
+                // T07 - Restaurar backup: si se restaura, la BLL ya recalculo los DV y cerro la sesion
+                bool restaurado;
+                using (frmRestore_575_AV restore = new frmRestore_575_AV())
+                {
+                    restore.StartPosition = FormStartPosition.CenterScreen;
+                    restore.ShowDialog(this);
+                    restaurado = restore.Restaurado;
+                }
+                if (restaurado)
+                {
+                    txtContra.Limpiar();
+                    txtUsuario.Enfocar();
+                    return false;
+                }
+            }
+
+            if (opcion != DialogResult.OK)
+            {
+                CerrarSesionYSalir();
+                return false;
+            }
+
+            IntegridadBLL.RecalcularDVTotal();
+            bitacora.RegistrarBitacora(enSesion.user, TipoAccion.RecalculoDigitoVerificador);
+
+            List<string> siguenAfectadas = IntegridadBLL.VerificarIntegridadTotal();
+            if (siguenAfectadas.Count > 0)
+            {
+                MessageBox.Show(
+                    string.Format(gestorIdioma.Traducir("LOGIN_MSG_INTEGRIDAD_NO_RESTAURADA"),
+                        string.Join(", ", siguenAfectadas)),
+                    gestorIdioma.Traducir("LOGIN_TIT_INTEGRIDAD"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CerrarSesionYSalir();
+                return false;
+            }
+
+            MessageBox.Show(gestorIdioma.Traducir("LOGIN_MSG_INTEGRIDAD_RESTAURADA"),
+                gestorIdioma.Traducir("LOGIN_TIT_INTEGRIDAD"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return true;
+        }
+
+        private bool InformarSistemaNoDisponible(UsuarioBE enSesion)
+        {
+            MessageBox.Show(gestorIdioma.Traducir("LOGIN_MSG_SISTEMA_NO_DISPONIBLE"),
+                gestorIdioma.Traducir("LOGIN_TIT_INTEGRIDAD"), MessageBoxButtons.OK, MessageBoxIcon.Stop);
+            bitacora.RegistrarBitacora(enSesion.user, TipoAccion.SistemaNoDisponible);
+            CerrarSesionYSalir();
+            return false;
+        }
+
+        private void CerrarSesionYSalir()
+        {
+            usuario.Logout();
+            Application.Exit();
+        }
+
+        #endregion
 
         private void frmLogin_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -96,6 +150,7 @@ namespace Presentacion_575_AV
             btnIniciar.Text = gestorIdioma.Traducir("LOGIN_BTN_INICIAR");
             btnCancelar.Text = gestorIdioma.Traducir("COMUN_CANCELAR");
             lblSinConexion.Text = gestorIdioma.Traducir("LOGIN_LNK_SIN_CONEXION");
+            lblPie.Text = gestorIdioma.Traducir("LOGIN_LBL_PIE");
             cambiarIdiomaToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CAMBIAR_IDIOMA");
             MarcarIdiomaActivo();
         }
@@ -113,7 +168,7 @@ namespace Presentacion_575_AV
                     cambiarIdiomaToolStripMenuItem.DropDownItems.Add(item);
                 }
             }
-            catch { }//Sin conexion a la BD no se ofrece el cambio de idioma
+            catch { }
         }
 
         private void MarcarIdiomaActivo()
@@ -132,14 +187,14 @@ namespace Presentacion_575_AV
                 gestorIdioma.CambiarIdioma((sender as ToolStripMenuItem).Tag.ToString());
                 bitacora.RegistrarBitacora("null", TipoAccion.CambioIdioma);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         #endregion
-
 
         private void txtContra_Load(object sender, EventArgs e)
         {
@@ -157,9 +212,10 @@ namespace Presentacion_575_AV
                     else { bitacora.RegistrarBitacora("null", TipoAccion.AppClose); }
                     Application.Exit();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show(ex.Message);
+                    MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else txtUsuario.Enfocar();
@@ -184,52 +240,35 @@ namespace Presentacion_575_AV
                     LoginResult authOK = usuario.Login(user);
                     if (authOK == LoginResult.LoginOK)
                     {
-                        bitacora.RegistrarBitacora(user.user, TipoAccion.Login);
-                        frmMenu frm = new frmMenu();
-                        frm.Show();
-                        this.Hide();
-
-                        frm.FormClosing += frm_closing;
+                        IngresarAlSistema();
                     }
                     else
                     {
-                        //Mensaje de label de Error
                         switch (authOK)
                         {
                             case LoginResult.UserInexistente:
-                                bitacora.RegistrarBitacora(user.user, TipoAccion.LoginFail);
                                 lblError.Text = gestorIdioma.Traducir("LOGIN_ERR_USER_INEXISTENTE");
                                 break;
                             case LoginResult.UserBloqueado:
-                                bitacora.RegistrarBitacora(user.user, TipoAccion.LoginFail);
                                 lblError.Text = gestorIdioma.Traducir("LOGIN_ERR_USER_BLOQUEADO");
                                 break;
                             case LoginResult.PassIncorrecta:
-                                bitacora.RegistrarBitacora(user.user, TipoAccion.LoginFail);
                                 lblError.Text = gestorIdioma.Traducir("LOGIN_ERR_PASS_INCORRECTA");
                                 break;
                             case LoginResult.UserInactivo:
-                                bitacora.RegistrarBitacora(user.user, TipoAccion.LoginFail);
                                 MessageBox.Show(string.Format(gestorIdioma.Traducir("LOGIN_MSG_USER_INACTIVO"), user.user), "", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                                 break;
                             case LoginResult.FinIntentos:
-                                bitacora.RegistrarBitacora(user.user, TipoAccion.BloqueoUsuario);
                                 MessageBox.Show(gestorIdioma.Traducir("LOGIN_MSG_FIN_INTENTOS"), "", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 Application.Exit();
                                 break;
                             case LoginResult.SesionIniciada:
-                                bitacora.RegistrarBitacora(user.user, TipoAccion.Login);
                                 MessageBox.Show(string.Format(gestorIdioma.Traducir("LOGIN_MSG_SESION_INICIADA"), user.user), "", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                                frmMenu frm = new frmMenu();
-                                frm.Show();
-                                this.Hide();
-
-                                frm.FormClosing += frm_closing;
+                                IngresarAlSistema();
                                 break;
                             case LoginResult.ExisteSesion:
                                 if (MessageBox.Show(gestorIdioma.Traducir("LOGIN_MSG_EXISTE_SESION"), " ", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                                 {
-                                    bitacora.RegistrarBitacora(user.user, TipoAccion.Logout);
                                     usuario.Logout();
                                     MessageBox.Show(gestorIdioma.Traducir("LOGIN_MSG_SESION_CERRADA"), " ", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 }
@@ -238,9 +277,10 @@ namespace Presentacion_575_AV
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message);
+                    MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             txtUsuario.Limpiar();
@@ -259,7 +299,6 @@ namespace Presentacion_575_AV
 
         private void lblSinConexion_MouseHover(object sender, EventArgs e)
         {
-            //Las fuentes son compartidas por toda la aplicacion: se intercambian, no se liberan.
             ((Label)sender).Font = EstiloConectAR_575_AV.FuenteEnlaceActivo;
             ((Label)sender).ForeColor = EstiloConectAR_575_AV.Cian;
         }

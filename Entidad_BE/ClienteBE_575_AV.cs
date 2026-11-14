@@ -3,14 +3,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Cliente de la distribuidora: integrador, instalador, empresa que amplia
-    /// su instalacion o consumidor final de mostrador.
-    ///
-    /// <para><c>correo_electronico</c> viaja y se guarda <b>cifrado</b> con
-    /// AES-256 (T03.2). La BLL lo cifra al dar de alta y lo descifra solo cuando
-    /// hay que mostrarlo, detras del boton protegido por clave.</para>
-    /// </summary>
     public class ClienteBE_575_AV : IVerificable
     {
         public int id_cliente { get; set; }
@@ -23,14 +15,17 @@ namespace Entidad_BE
         public string direccion { get; set; }
         public string telefono { get; set; }
 
-        /// <summary>Correo cifrado, tal como esta en la base.</summary>
         public string correo_electronico { get; set; }
 
         public DateTime fecha_actualizacion { get; set; }
         public bool activo { get; set; }
         public string dvh { get; set; }
 
-        /// <summary>Razon social si la tiene; si no, apellido y nombre.</summary>
+        public string documento_para_mostrar
+        {
+            get { return string.IsNullOrWhiteSpace(cuit) ? dni : cuit; }
+        }
+
         public string nombre_para_mostrar
         {
             get
@@ -43,11 +38,6 @@ namespace Entidad_BE
 
         public string digito { get { return dvh; } }
 
-        /// <summary>
-        /// El correo entra al digito <b>cifrado</b>, que es como esta guardado:
-        /// asi el control detecta que alguien lo cambio a mano en la base, sin
-        /// necesidad de descifrarlo para verificar.
-        /// </summary>
         public string ObtenerCamposDV()
         {
             return string.Join("|",

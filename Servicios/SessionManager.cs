@@ -11,7 +11,7 @@ namespace Servicios
     public class SessionManager
     {
         private static SessionManager _sesion = null;
-        private static object _lock = new object();//Bloquear acceso multihilo
+        private static object _lock = new object();
         private UsuarioBE _usuario;
         private bool logged = false;
 

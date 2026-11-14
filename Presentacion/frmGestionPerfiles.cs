@@ -14,7 +14,6 @@ namespace Presentacion_575_AV
         PerfilBLL permisoBLL;
         BitacoraBLL bitacoraBLL = new BitacoraBLL();
         GestorDeIdioma gestorIdioma = GestorDeIdioma.GetInstance;
-        //string PathFile = "GestionPerfiles";
 
         public frmGestionPerfiles()
         {
@@ -53,11 +52,11 @@ namespace Presentacion_575_AV
                 {
                     if (familiaRaiz.EsRol)
                     {
-                        tn.ForeColor = EstiloConectAR_575_AV.Navy; // Azul institucional para EsRol = true (familia)
+                        tn.ForeColor = EstiloConectAR_575_AV.Navy;
                     }
                     else
                     {
-                        tn.ForeColor = EstiloConectAR_575_AV.NavySuave; // Azul suave para EsRol = false (permiso simple)
+                        tn.ForeColor = EstiloConectAR_575_AV.NavySuave;
                     }
 
                     LoadTreeRecursive(familiaRaiz, tn);
@@ -75,11 +74,11 @@ namespace Presentacion_575_AV
                 {
                     if (familiaHijo.EsRol)
                     {
-                        permisoHijo.ForeColor = EstiloConectAR_575_AV.Navy; // Azul institucional para EsRol = true (familia)
+                        permisoHijo.ForeColor = EstiloConectAR_575_AV.Navy;
                     }
                     else
                     {
-                        permisoHijo.ForeColor = EstiloConectAR_575_AV.NavySuave; // Azul suave para EsRol = false (permiso simple)
+                        permisoHijo.ForeColor = EstiloConectAR_575_AV.NavySuave;
                     }
 
                     LoadTreeRecursive(familiaHijo, permisoHijo);
@@ -104,12 +103,12 @@ namespace Presentacion_575_AV
             gestorIdioma.Desuscribir(this);
         }
 
-        private void button5_Click(object sender, EventArgs e) // Agregar familia
+        private void button5_Click(object sender, EventArgs e)
         {
             try
             {
                 if (permisoBLL.ValidarNombre(textBox2.Text))
-                    throw new Exception("Nombre repetido");
+                    throw new InvalidOperationException(gestorIdioma.Traducir("PERF_MSG_NOMBRE_REPETIDO"));
 
                 List<string> items = new List<string>();
                 foreach (var CI in checkedListBox1.CheckedItems)
@@ -127,7 +126,7 @@ namespace Presentacion_575_AV
                     {
                         if (familiapermisos.Contains(pnombre))
                         {
-                            throw new Exception($"Permiso '{pnombre}' ya está asignado a '{fam}'");
+                            throw new InvalidOperationException(string.Format(gestorIdioma.Traducir("PERF_MSG_PERMISO_REPETIDO"), pnombre, fam));
                         }
                     }
                 }
@@ -156,9 +155,15 @@ namespace Presentacion_575_AV
                 CargarComboFamilias();
                 textBox2.Text = "";
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -199,7 +204,7 @@ namespace Presentacion_575_AV
             return false;
         }
 
-        private void button7_Click(object sender, EventArgs e) //Modificar familia
+        private void button7_Click(object sender, EventArgs e)
         {
             try
             {
@@ -212,7 +217,7 @@ namespace Presentacion_575_AV
 
                 if (VerificarReferenciaCircular(permisoBLL.ListaPermisosEnArbol().Find(x => x.Nombre == comboFamilias.SelectedItem.ToString()) as Familia, items))
                 {
-                    throw new Exception("Referencia circular detectada");
+                    throw new InvalidOperationException(gestorIdioma.Traducir("PERF_MSG_REFERENCIA_CIRCULAR"));
                 }
 
                 var familiasseleccionadas = checkedListBox1.CheckedItems.Cast<string>().ToList();
@@ -225,7 +230,7 @@ namespace Presentacion_575_AV
                     {
                         if (familiapermisos.Contains(pnombre))
                         {
-                            throw new Exception($"Permiso '{pnombre}' ya está asignado a '{fam}'");
+                            throw new InvalidOperationException(string.Format(gestorIdioma.Traducir("PERF_MSG_PERMISO_REPETIDO"), pnombre, fam));
                         }
                     }
                 }
@@ -246,9 +251,15 @@ namespace Presentacion_575_AV
                 button5.Enabled = true;
                 button7.Enabled = false;
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -313,24 +324,22 @@ namespace Presentacion_575_AV
                     button7.Enabled = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         public bool FamiliaContenida(string familiaAEliminar, Familia familiaActual)
         {
-            // Recorrer la lista de hijos de la familia actual
             foreach (Permiso hijo in familiaActual.RetornarListaHijos())
             {
-                // Si el hijo es la familia que se quiere eliminar, retornar true
                 if (hijo is Familia && hijo.Nombre == familiaAEliminar)
                 {
                     return true;
                 }
 
-                // Si el hijo es una familia, llamar recursivamente a la función
                 if (hijo is Familia)
                 {
                     if (FamiliaContenida(familiaAEliminar, (Familia)hijo))
@@ -354,13 +363,13 @@ namespace Presentacion_575_AV
                     {
                         if (FamiliaContenida(comboFamilias.SelectedItem.ToString(), familia))
                         {
-                            throw new Exception("La familia está en uso por otra familia");
+                            throw new InvalidOperationException(gestorIdioma.Traducir("PERF_MSG_FAMILIA_EN_USO"));
                         }
                     }
 
                     if (permisoBLL.PerfilEnUso(comboFamilias.SelectedItem.ToString()))
                     {
-                        throw new Exception($"El perfil está en uso: {comboFamilias.SelectedItem}");
+                        throw new InvalidOperationException(string.Format(gestorIdioma.Traducir("PERF_MSG_PERFIL_EN_USO"), comboFamilias.SelectedItem));
                     }
 
                     permisoBLL.EliminarFamilia(new Familia(comboFamilias.SelectedItem.ToString(), false));
@@ -374,9 +383,15 @@ namespace Presentacion_575_AV
                     button5.Enabled = true;
                 }
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.Message, gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -393,9 +408,10 @@ namespace Presentacion_575_AV
                 btnEliminar.Enabled = false;
                 button7.Enabled = false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

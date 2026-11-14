@@ -7,17 +7,12 @@ using System.Linq;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador del agregado Entrega. Atiende dos tablas, asi que cada una tiene
-    /// su propio ActualizarDVH.
-    /// </summary>
     public class MP_Entrega_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
 
         #region Consulta
 
-        /// <summary>Devuelve nulo si el comprobante todavia no se despacho.</summary>
         public EntregaBE_575_AV BuscarPorComprobante(int id_comprobante)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -27,7 +22,6 @@ namespace Acceso_DAL
                 .FirstOrDefault();
         }
 
-        /// <summary>Todas las entregas, para el control de integridad.</summary>
         public List<EntregaBE_575_AV> ListarEntregas()
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -44,7 +38,6 @@ namespace Acceso_DAL
             return ProyectarDetalle(conexDB.LeerTabla("SP_ExtDetalleEntrega", parametros));
         }
 
-        /// <summary>Todos los renglones, para el control de integridad.</summary>
         public List<DetalleEntregaBE_575_AV> ListarDetalles()
         {
             SqlParameter[] parametros = new SqlParameter[1];

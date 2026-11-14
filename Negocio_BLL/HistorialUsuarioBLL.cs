@@ -29,7 +29,7 @@ namespace Negocio_BLL
             HistorialUsuarioBE version = mpHistorial.ObtenerVersion(idHistorial);
             if (version == null) { throw new Exception("La versión seleccionada no existe."); }
 
-            UsuarioBE us = mpUsuario.ExtraerUsuario(version.usuario); // trae el estado actual (incluye pass, que no se toca)
+            UsuarioBE us = mpUsuario.ExtraerUsuario(version.usuario);
             if (us == null) { throw new Exception("El usuario ya no existe."); }
 
             us.dni = Convert.ToInt32(version.dni);

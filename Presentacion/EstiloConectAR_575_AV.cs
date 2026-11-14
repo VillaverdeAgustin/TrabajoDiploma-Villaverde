@@ -3,20 +3,12 @@ using System.Windows.Forms;
 
 namespace Presentacion_575_AV
 {
-    /// <summary>
-    /// Identidad visual de ConectAR S.R.L. Centraliza la paleta institucional,
-    /// la tipografia y el estilado de los controles para que todos los
-    /// formularios compartan el mismo aspecto.
-    /// </summary>
     public static class EstiloConectAR_575_AV
     {
         #region Paleta institucional (tomada del logotipo)
 
-        /// <summary>Azul institucional. Barras, titulos y acciones primarias.</summary>
         public static readonly Color Navy = Color.FromArgb(13, 59, 92);
-        /// <summary>Cian institucional. Acentos, foco y estados activos.</summary>
         public static readonly Color Cian = Color.FromArgb(0, 169, 224);
-        /// <summary>Azul intermedio de la bajada del logotipo.</summary>
         public static readonly Color NavySuave = Color.FromArgb(49, 88, 116);
 
         public static readonly Color Fondo = Color.FromArgb(242, 246, 249);
@@ -45,10 +37,6 @@ namespace Presentacion_575_AV
 
         #region Aplicacion
 
-        /// <summary>
-        /// Aplica la identidad de ConectAR a un formulario completo:
-        /// fondo, tipografia, icono y todos sus controles en forma recursiva.
-        /// </summary>
         public static void AplicarFormulario(Form frm)
         {
             if (frm == null) { return; }
@@ -56,18 +44,15 @@ namespace Presentacion_575_AV
             frm.BackColor = Fondo;
             frm.Font = FuenteBase;
             try { frm.Icon = Properties.Resources.IconoConectAR; }
-            catch { /* si falta el recurso se conserva el icono por defecto */ }
+            catch {  }
 
             AplicarControles(frm.Controls);
         }
 
-        /// <summary>Recorre el arbol de controles aplicando el estilo de cada tipo.</summary>
         public static void AplicarControles(Control.ControlCollection controles)
         {
             foreach (Control ctrl in controles)
             {
-                // ucAlfaNum se estila a si mismo: su caja de texto va sin borde,
-                // con el subrayado que marca la validacion.
                 if (ctrl is ucAlfaNum)
                 {
                     ((ucAlfaNum)ctrl).AplicarEstilo();
@@ -88,10 +73,6 @@ namespace Presentacion_575_AV
             }
         }
 
-        /// <summary>
-        /// Boton plano institucional. Los botones que ya venian en tonos rojizos
-        /// se interpretan como acciones destructivas y conservan ese significado.
-        /// </summary>
         public static void AplicarBoton(Button btn)
         {
             bool destructivo = btn.BackColor == Color.LightCoral
@@ -135,10 +116,6 @@ namespace Presentacion_575_AV
             btn.UseVisualStyleBackColor = false;
         }
 
-        /// <summary>
-        /// Habilita o deshabilita un boton manteniendo la paleta institucional:
-        /// azul solido cuando la accion esta disponible, apagado cuando no.
-        /// </summary>
         public static void EstadoBoton(Button btn, bool habilitado)
         {
             btn.Enabled = habilitado;
@@ -148,7 +125,6 @@ namespace Presentacion_575_AV
             btn.FlatAppearance.BorderColor = habilitado ? Navy : Borde;
         }
 
-        /// <summary>Resalta en cian el boton de la accion en curso.</summary>
         public static void BotonSeleccionado(Button btn)
         {
             btn.BackColor = Cian;
@@ -156,21 +132,18 @@ namespace Presentacion_575_AV
             btn.FlatAppearance.BorderColor = Cian;
         }
 
-        /// <summary>Campo disponible para edicion.</summary>
         public static void CampoEditable(TextBox txt)
         {
             txt.BackColor = Superficie;
             txt.ForeColor = Navy;
         }
 
-        /// <summary>Campo de solo lectura o sin datos cargados.</summary>
         public static void CampoBloqueado(TextBox txt)
         {
             txt.BackColor = Fondo;
             txt.ForeColor = TextoSuave;
         }
 
-        /// <summary>Campo que no supero la validacion.</summary>
         public static void CampoConError(TextBox txt)
         {
             txt.BackColor = Color.FromArgb(250, 235, 233);
@@ -186,7 +159,6 @@ namespace Presentacion_575_AV
                 return;
             }
 
-            // Las etiquetas subrayadas actuan como enlaces: conservan el subrayado.
             if (lbl.Font != null && lbl.Font.Underline)
             {
                 lbl.Font = FuenteEnlace;
@@ -260,9 +232,58 @@ namespace Presentacion_575_AV
             grilla.AlternatingRowsDefaultCellStyle.SelectionBackColor = Cian;
             grilla.AlternatingRowsDefaultCellStyle.SelectionForeColor = Color.White;
 
-            // Los formularios heredados definian tipografias sueltas por fila.
             grilla.RowsDefaultCellStyle.Font = FuenteBase;
             grilla.RowTemplate.Height = 28;
+        }
+
+        public static void MostrarColumnas(DataGridView grilla, params string[] columnas)
+        {
+            if (grilla.Columns.Count == 0) { return; }
+
+            foreach (DataGridViewColumn columna in grilla.Columns)
+            {
+                columna.Visible = false;
+            }
+
+            for (int i = 0; i < columnas.Length; i++)
+            {
+                DataGridViewColumn columna = grilla.Columns[columnas[i]];
+                if (columna == null) { continue; }
+
+                columna.Visible = true;
+                columna.DisplayIndex = i;
+            }
+        }
+
+        public static void FormatoNumero(DataGridView grilla, params string[] columnas)
+        {
+            foreach (string nombre in columnas)
+            {
+                DataGridViewColumn columna = grilla.Columns[nombre];
+                if (columna == null) { continue; }
+
+                columna.DefaultCellStyle.Format = "N2";
+                columna.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            }
+        }
+
+        public static void ColumnaElastica(DataGridView grilla, string columna)
+        {
+            foreach (DataGridViewColumn col in grilla.Columns)
+            {
+                if (!col.Visible || col.Name == columna) { continue; }
+
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                if (col.ValueType == typeof(System.DateTime) && string.IsNullOrEmpty(col.DefaultCellStyle.Format))
+                {
+                    col.DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+                }
+            }
+
+            if (grilla.Columns[columna] != null)
+            {
+                grilla.Columns[columna].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
         }
 
         public static void AplicarMenu(MenuStrip menu)
@@ -277,7 +298,6 @@ namespace Presentacion_575_AV
         #endregion
     }
 
-    /// <summary>Tabla de colores del menu principal, en la paleta de ConectAR.</summary>
     public class ColoresMenuConectAR_575_AV : ProfessionalColorTable
     {
         public override Color MenuStripGradientBegin { get { return EstiloConectAR_575_AV.Navy; } }
@@ -299,10 +319,6 @@ namespace Presentacion_575_AV
         public override Color SeparatorLight { get { return EstiloConectAR_575_AV.Borde; } }
     }
 
-    /// <summary>
-    /// Dibuja el menu principal con la identidad de ConectAR: barra azul,
-    /// texto blanco en el primer nivel y desplegables claros.
-    /// </summary>
     public class RenderizadorMenuConectAR_575_AV : ToolStripProfessionalRenderer
     {
         public RenderizadorMenuConectAR_575_AV() : base(new ColoresMenuConectAR_575_AV()) { }

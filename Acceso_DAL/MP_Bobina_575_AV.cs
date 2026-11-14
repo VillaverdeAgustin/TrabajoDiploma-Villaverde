@@ -6,10 +6,6 @@ using System.Data.SqlClient;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador de Bobina. El estado viaja como texto para que coincida con la
-    /// restriccion CK_Bobina_estado de la base y se lea directo en la tabla.
-    /// </summary>
     public class MP_Bobina_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
@@ -19,11 +15,6 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_ExtBobina", null));
         }
 
-        /// <summary>
-        /// Bobinas disponibles de un articulo, primero las abiertas y de menor
-        /// saldo: el fraccionamiento agota la que ya esta abierta antes de abrir
-        /// una nueva.
-        /// </summary>
         public List<BobinaBE_575_AV> ListarPorArticulo(int id_articulo)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -32,7 +23,6 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_ExtBobinaPorArticulo", parametros));
         }
 
-        /// <summary>Alta. Devuelve el id_bobina generado para calcular el dvh.</summary>
         public int CrearBobina(BobinaBE_575_AV bobina)
         {
             SqlParameter[] parametros = new SqlParameter[6];
@@ -48,7 +38,6 @@ namespace Acceso_DAL
             return id == null ? 0 : Convert.ToInt32(id);
         }
 
-        /// <summary>RFN1.8 - Persiste el saldo y el estado que resolvio la BLL.</summary>
         public void ActualizarSaldo(BobinaBE_575_AV bobina)
         {
             SqlParameter[] parametros = new SqlParameter[4];

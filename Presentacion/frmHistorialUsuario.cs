@@ -25,6 +25,8 @@ namespace Presentacion_575_AV
 
         private void frmHistorialUsuario_Load(object sender, EventArgs e)
         {
+            TextoTraducido_575_AV.Enum(cmbAccion, "ACC_");
+            TextoTraducido_575_AV.Enum(dgvHistorial, "accion", "ACC_");
             cmbAccion.DataSource = Enum.GetValues(typeof(TipoAccion));
             gestorIdioma.Suscribir(this);
             ActualizarTextos();
@@ -44,26 +46,46 @@ namespace Presentacion_575_AV
             {
                 dgvHistorial.Columns["idHistorial"].Visible = false;
                 dgvHistorial.Columns["usuarioId"].Visible = false;
-                dgvHistorial.Columns["fecha"].HeaderText = "Fecha";
-                dgvHistorial.Columns["accion"].HeaderText = "Acción";
-                dgvHistorial.Columns["usuarioResponsable"].HeaderText = "Responsable";
                 dgvHistorial.EnableHeadersVisualStyles = false;
+                TraducirColumnas();
+            }
+        }
+
+        private void TraducirColumnas()
+        {
+            Titulo("fecha", "COMUN_FECHA");
+            Titulo("accion", "COMUN_ACCION");
+            Titulo("usuarioResponsable", "HIST_COL_RESPONSABLE");
+            Titulo("nombre", "COMUN_NOMBRE");
+            Titulo("apellido", "COMUN_APELLIDO");
+            Titulo("dni", "USU_LBL_DNI");
+            Titulo("usuario", "COMUN_USUARIO");
+            Titulo("rol", "COMUN_ROL");
+            Titulo("direccion", "USU_LBL_DIRECCION");
+            Titulo("telefono", "USU_LBL_TELEFONO");
+            Titulo("email", "USU_LBL_EMAIL");
+            Titulo("activo", "USU_CHK_ACTIVO");
+            Titulo("bloqueado", "USU_CHK_BLOQUEADO");
+        }
+
+        private void Titulo(string columna, string clave)
+        {
+            if (dgvHistorial.Columns[columna] != null)
+            {
+                dgvHistorial.Columns[columna].HeaderText = gestorIdioma.Traducir(clave);
             }
         }
 
         private void CargarHistorial()
         {
-            var lista = historialBLL.BuscarHistorial((TipoAccion?)cmbAccion.SelectedItem, dtpDesde.Value, dtpHasta.Value);
-            dgvHistorial.DataSource = lista;
-
-            if (dgvHistorial.Columns.Count > 0)
+            try
             {
-                dgvHistorial.Columns["idHistorial"].Visible = false;
-                dgvHistorial.Columns["usuarioId"].Visible = false;
-                dgvHistorial.Columns["fecha"].HeaderText = "Fecha";
-                dgvHistorial.Columns["accion"].HeaderText = "Acción";
-                dgvHistorial.Columns["usuarioResponsable"].HeaderText = "Responsable";
-                dgvHistorial.EnableHeadersVisualStyles = false;
+                ConfigDGV(historialBLL.BuscarHistorial((TipoAccion?)cmbAccion.SelectedItem, dtpDesde.Value, dtpHasta.Value));
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -71,19 +93,35 @@ namespace Presentacion_575_AV
 
         private void btnRestaurar_Click(object sender, EventArgs e)
         {
-            var version = (HistorialUsuarioBE)dgvHistorial.CurrentRow.DataBoundItem;
+            var version = dgvHistorial.CurrentRow == null
+                ? null
+                : dgvHistorial.CurrentRow.DataBoundItem as HistorialUsuarioBE;
+            if (version == null)
+            {
+                MessageBox.Show(gestorIdioma.Traducir("HIST_MSG_ELEGIR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
             var confirmacion = MessageBox.Show(
-                $"¿Confirma restaurar al usuario '{version.usuario}' al estado del {version.fecha}?",
-                "Confirmar restauración",
+                string.Format(gestorIdioma.Traducir("HIST_MSG_CONFIRMA"), version.usuario, version.fecha),
+                gestorIdioma.Traducir("HIST_TIT_CONFIRMA"),
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (confirmacion == DialogResult.Yes)
             {
-                historialBLL.RestaurarVersion(version.idHistorial, SessionManager.GetInstance.UsuarioActual().user);
-                MessageBox.Show("Usuario restaurado correctamente.");
-                CargarHistorial();
+                try
+                {
+                    historialBLL.RestaurarVersion(version.idHistorial, SessionManager.GetInstance.UsuarioActual().user);
+                    MessageBox.Show(gestorIdioma.Traducir("HIST_MSG_RESTAURADO"));
+                    CargarHistorial();
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -96,6 +134,22 @@ namespace Presentacion_575_AV
             btnRestaurar.Text = gestorIdioma.Traducir("HIST_BTN_RESTAURAR");
             btnSalir.Text = gestorIdioma.Traducir("COMUN_SALIR");
             gbDetalle.Text = gestorIdioma.Traducir("HIST_GB_DETALLE");
+            lblAccion.Text = gestorIdioma.Traducir("COMUN_ACCION");
+            lblDesde.Text = gestorIdioma.Traducir("COMUN_DESDE");
+            lblHasta.Text = gestorIdioma.Traducir("COMUN_HASTA");
+            label1.Text = gestorIdioma.Traducir("COMUN_NOMBRE");
+            label2.Text = gestorIdioma.Traducir("COMUN_APELLIDO");
+            label3.Text = gestorIdioma.Traducir("COMUN_USUARIO");
+            label4.Text = gestorIdioma.Traducir("COMUN_ROL");
+            label5.Text = gestorIdioma.Traducir("USU_LBL_DNI");
+            lblTelefono.Text = gestorIdioma.Traducir("USU_LBL_TELEFONO");
+            lblDireccion.Text = gestorIdioma.Traducir("USU_LBL_DIRECCION");
+            lblEmail.Text = gestorIdioma.Traducir("USU_LBL_EMAIL");
+            chkBloqueado.Text = gestorIdioma.Traducir("USU_CHK_BLOQUEADO");
+            chkActivo.Text = gestorIdioma.Traducir("USU_CHK_ACTIVO");
+            TraducirColumnas();
+            TextoTraducido_575_AV.Refrescar(cmbAccion);
+            dgvHistorial.Invalidate();
         }
 
         #endregion
@@ -115,9 +169,9 @@ namespace Presentacion_575_AV
             txtApellido.Text = version.apellido;
             txtUsuario.Text = version.usuario;
             txtRol.Text = version.rol;
-            lblDireccion.Text = version.direccion;
-            lblTelefono.Text = version.telefono;
-            lblEmail.Text = version.email;
+            txtDireccion.Text = version.direccion;
+            txtTelefono.Text = version.telefono;
+            txtEmail.Text = version.email;
             chkActivo.Checked = version.activo;
             chkBloqueado.Checked = version.bloqueado;
 

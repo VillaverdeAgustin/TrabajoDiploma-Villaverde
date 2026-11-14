@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -12,34 +11,12 @@ namespace Acceso_DAL
     public class AccesoDatos
     {
         private SqlConnection _conexion;
-        private const string NOMBRE_CONEXION = "ConectAR";
-
-        private readonly string cadenaSQL = ObtenerCadenaConexion();
-
-        /// <summary>
-        /// Lee la cadena de conexion del archivo de configuracion de la aplicacion.
-        /// Si falta, se informa el problema de configuracion en lugar de fallar
-        /// con una referencia nula al primer uso.
-        /// </summary>
-        private static string ObtenerCadenaConexion()
-        {
-            ConnectionStringSettings config = ConfigurationManager.ConnectionStrings[NOMBRE_CONEXION];
-
-            if (config == null || string.IsNullOrWhiteSpace(config.ConnectionString))
-            {
-                throw new ConfigurationErrorsException(
-                    "No esta definida la cadena de conexion '" + NOMBRE_CONEXION +
-                    "' en el archivo de configuracion de la aplicacion.");
-            }
-
-            return config.ConnectionString;
-        }
 
         public SqlConnection conexion { get => _conexion; }
 
         public void AbrirConexion()
         {
-            _conexion = new SqlConnection(cadenaSQL);
+            _conexion = new SqlConnection(ConfiguracionConexion_575_AV.CadenaConexion());
             _conexion.Open();
         }
 
@@ -159,6 +136,24 @@ namespace Acceso_DAL
                 return result = Convert.ToInt32(cmd.Parameters["@Result"].Value);
             }
             catch (Exception) { throw; }
+            finally { CerrarConexion(); }
+        }
+
+        // T07 - BACKUP y RESTORE VERIFYONLY no se pueden ejecutar dentro de una transaccion y pueden tardar
+        public void EjecutarSinTransaccion(string sp, SqlParameter[] parametros, int segundosEspera)
+        {
+            try
+            {
+                AbrirConexion();
+                SqlCommand cmd = new SqlCommand(sp, conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandTimeout = segundosEspera;
+                if (parametros != null)
+                {
+                    cmd.Parameters.AddRange(parametros);
+                }
+                cmd.ExecuteNonQuery();
+            }
             finally { CerrarConexion(); }
         }
 

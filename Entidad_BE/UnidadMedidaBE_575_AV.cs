@@ -2,11 +2,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Unidad en la que se comercializa un articulo.
-    /// <para><c>fraccionable</c> habilita el circuito de bobina: "Unidad" va en
-    /// falso, "Metro lineal" en verdadero.</para>
-    /// </summary>
     public class UnidadMedidaBE_575_AV : IVerificable
     {
         public int id_unidad_medida { get; set; }

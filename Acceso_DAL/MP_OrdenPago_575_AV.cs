@@ -7,14 +7,10 @@ using System.Linq;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador de OrdenPago.
-    /// </summary>
     public class MP_OrdenPago_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
 
-        /// <summary>Numero de orden siguiente, con el formato OP-000000.</summary>
         public string ProximoNumero()
         {
             object numero = conexDB.ExtraerDato("SP_ProximoNumeroOrdenPago", null);
@@ -36,7 +32,6 @@ namespace Acceso_DAL
             return id == null ? 0 : Convert.ToInt32(id);
         }
 
-        /// <summary>Devuelve nulo si no existe.</summary>
         public OrdenPagoBE_575_AV BuscarPorNumero(string nro_orden_pago)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -46,7 +41,6 @@ namespace Acceso_DAL
                 .FirstOrDefault();
         }
 
-        /// <summary>Todas las ordenes, para el control de integridad de la tabla.</summary>
         public List<OrdenPagoBE_575_AV> ListarOrdenes()
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -55,7 +49,6 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_BuscarOrdenPago", parametros));
         }
 
-        /// <summary>Las ordenes que esperan cobro en la caja.</summary>
         public List<OrdenPagoBE_575_AV> ListarPendientes()
         {
             return Proyectar(conexDB.LeerTabla("SP_ExtOrdenPagoPendientes", null));

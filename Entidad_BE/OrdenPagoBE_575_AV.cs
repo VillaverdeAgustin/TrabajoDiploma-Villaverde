@@ -3,15 +3,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Orden de pago (CUN-002): el documento que emite el vendedor a partir del
-    /// carrito confirmado y con el que el cliente se presenta en la caja.
-    ///
-    /// <para>No es un comprobante: no descuenta existencias ni tiene valor
-    /// fiscal. Copia el nombre del cliente y el total del carrito, para
-    /// conservar lo que se emitio aunque despues cambie el precio del
-    /// articulo.</para>
-    /// </summary>
     public class OrdenPagoBE_575_AV : IVerificable
     {
         public int id_orden_pago { get; set; }
@@ -24,10 +15,8 @@ namespace Entidad_BE
         public bool activo { get; set; }
         public string dvh { get; set; }
 
-        /// <summary>Numero del carrito de origen, que resuelve la BLL para pantalla.</summary>
         public string nro_carrito { get; set; }
 
-        /// <summary>Se puede cobrar: activa y todavia pendiente.</summary>
         public bool se_puede_cobrar
         {
             get { return activo && estado == EstadoOrdenPago_575_AV.Pendiente; }

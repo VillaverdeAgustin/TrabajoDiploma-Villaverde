@@ -3,12 +3,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Cobro registrado sobre un comprobante (RFN1.5).
-    ///
-    /// <para>El codigo de autorizacion lo devuelve el autorizador de pagos, que
-    /// en el alcance de la entrega simula la respuesta de la entidad.</para>
-    /// </summary>
     public class PagoBE_575_AV : IVerificable
     {
         public int id_pago { get; set; }
@@ -20,7 +14,6 @@ namespace Entidad_BE
         public EstadoPago_575_AV estado { get; set; }
         public string dvh { get; set; }
 
-        /// <summary>Nombre del medio de pago, que resuelve la BLL para pantalla.</summary>
         public string nombre_medio_pago { get; set; }
 
         public string digito { get { return dvh; } }

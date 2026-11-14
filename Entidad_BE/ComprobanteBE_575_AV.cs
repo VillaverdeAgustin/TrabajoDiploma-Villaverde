@@ -4,16 +4,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Comprobante de la venta (CUN-004, RFN1.7).
-    ///
-    /// <para>Se emite como <b>comprobante no valido como factura</b>: no hay
-    /// integracion con ARCA, ni CAE, ni servicios web del organismo.</para>
-    ///
-    /// <para><c>tipo_comprobante</c> sale de la condicion del cliente frente al
-    /// IVA: "A" para responsable inscripto, con el impuesto discriminado, y "B"
-    /// para el resto.</para>
-    /// </summary>
     public class ComprobanteBE_575_AV : IVerificable
     {
         public int id_comprobante { get; set; }
@@ -28,18 +18,32 @@ namespace Entidad_BE
         public EstadoComprobante_575_AV estado { get; set; }
         public string dvh { get; set; }
 
-        /// <summary>Renglones del comprobante. Cada uno lleva su propio dvh.</summary>
         public List<DetalleComprobanteBE_575_AV> detalle { get; set; }
 
-        /// <summary>Nombre del cliente, que resuelve la BLL para pantalla.</summary>
         public string nombre_cliente { get; set; }
+
+        public string nro_orden_pago { get; set; }
+
+        public ClienteBE_575_AV cliente { get; set; }
+
+        public List<PagoBE_575_AV> pagos { get; set; }
 
         public ComprobanteBE_575_AV()
         {
             detalle = new List<DetalleComprobanteBE_575_AV>();
+            pagos = new List<PagoBE_575_AV>();
         }
 
-        /// <summary>Todavia no se retiro la mercaderia.</summary>
+        public bool es_consumidor_final
+        {
+            get { return cliente != null && cliente.condicion_iva == CondicionIva_575_AV.ConsumidorFinal; }
+        }
+
+        public decimal otros_impuestos_indirectos
+        {
+            get { return 0m; }
+        }
+
         public bool se_puede_entregar
         {
             get { return estado == EstadoComprobante_575_AV.Emitido; }

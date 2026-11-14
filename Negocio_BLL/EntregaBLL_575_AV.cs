@@ -7,16 +7,6 @@ using System.Linq;
 
 namespace Negocio_BLL
 {
-    /// <summary>
-    /// Entrega de mercaderia en deposito (CUN-005).
-    ///
-    /// <para>El cliente presenta el comprobante y el encargado despacha. No
-    /// mueve existencias: el stock ya bajo al emitirse el comprobante.</para>
-    ///
-    /// <para>Un comprobante se despacha una sola vez. Si lo que se entrega es
-    /// menos de lo facturado, la entrega queda marcada como Parcial y se deja
-    /// asentada como tal en la bitacora.</para>
-    /// </summary>
     public class EntregaBLL_575_AV
     {
         private const string TABLA = "Entrega";
@@ -30,18 +20,12 @@ namespace Negocio_BLL
 
         #region Validacion del comprobante
 
-        /// <summary>
-        /// Valida el comprobante que presenta el cliente y devuelve lo que hay
-        /// que entregar, con la ubicacion de deposito de cada articulo.
-        ///
-        /// <para>Rechaza el comprobante inexistente y el que ya se uso para
-        /// retirar mercaderia.</para>
-        /// </summary>
         public List<DetalleComprobanteBE_575_AV> ValidarComprobante(string nro_comprobante)
         {
             if (string.IsNullOrWhiteSpace(nro_comprobante))
             {
-                throw new InvalidOperationException("Hay que indicar el numero de comprobante.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("DEP_ERR_NRO"));
             }
 
             ComprobanteBE_575_AV comprobante =
@@ -50,19 +34,19 @@ namespace Negocio_BLL
             if (comprobante == null)
             {
                 throw new InvalidOperationException(
-                    "No existe el comprobante " + nro_comprobante.Trim() + ".");
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("DEP_ERR_NO_EXISTE"),
+                        nro_comprobante.Trim()));
             }
             if (!comprobante.se_puede_entregar)
             {
                 throw new InvalidOperationException(
-                    "El comprobante " + comprobante.nro_comprobante +
-                    " ya fue utilizado para retirar la mercaderia.");
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("DEP_ERR_YA_ENTREGADO"),
+                        comprobante.nro_comprobante));
             }
 
             return Completar(mpComprobante.ListarDetalle(comprobante.id_comprobante));
         }
 
-        /// <summary>Devuelve el comprobante listo para despachar, o nulo si no se puede.</summary>
         public ComprobanteBE_575_AV ObtenerComprobante(string nro_comprobante)
         {
             if (string.IsNullOrWhiteSpace(nro_comprobante)) { return null; }
@@ -80,12 +64,6 @@ namespace Negocio_BLL
 
         #region Registro
 
-        /// <summary>
-        /// Registra el despacho y marca el comprobante como entregado.
-        ///
-        /// <para>Ningun renglon puede superar lo facturado. Si el total
-        /// entregado es menor, la entrega queda como Parcial.</para>
-        /// </summary>
         public EntregaBE_575_AV RegistrarEntrega(ComprobanteBE_575_AV comprobante,
                                                  List<DetalleEntregaBE_575_AV> detalles,
                                                  string usuario)
@@ -93,26 +71,28 @@ namespace Negocio_BLL
             if (comprobante == null) { throw new ArgumentNullException("comprobante"); }
             if (detalles == null || detalles.Count == 0)
             {
-                throw new InvalidOperationException("No hay articulos para entregar.");
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("DEP_ERR_SIN_ARTICULOS"));
             }
 
-            // El comprobante se relee: no se despacha dos veces el mismo.
             ComprobanteBE_575_AV vigente = mpComprobante.ListarComprobantes()
                 .FirstOrDefault(c => c.id_comprobante == comprobante.id_comprobante);
 
             if (vigente == null)
             {
-                throw new InvalidOperationException("El comprobante no existe.");
+                throw new InvalidOperationException(
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("DEP_ERR_NO_EXISTE"),
+                        comprobante.nro_comprobante));
             }
             if (!vigente.se_puede_entregar)
             {
                 throw new InvalidOperationException(
-                    "El comprobante " + vigente.nro_comprobante +
-                    " ya fue utilizado para retirar la mercaderia.");
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("DEP_ERR_YA_ENTREGADO"),
+                        vigente.nro_comprobante));
             }
 
             List<DetalleComprobanteBE_575_AV> facturado =
-                mpComprobante.ListarDetalle(vigente.id_comprobante);
+                Completar(mpComprobante.ListarDetalle(vigente.id_comprobante));
 
             bool completa = ValidarCantidades(facturado, detalles);
 
@@ -126,8 +106,6 @@ namespace Negocio_BLL
 
             entrega.id_entrega = mpEntrega.CrearEntrega(entrega);
 
-            // La base fija la fecha con su propio redondeo: se relee antes de
-            // calcular el dvh.
             EntregaBE_575_AV registrada = mpEntrega.ListarEntregas()
                 .FirstOrDefault(e => e.id_entrega == entrega.id_entrega) ?? entrega;
 
@@ -142,7 +120,6 @@ namespace Negocio_BLL
                 registrada.detalle.Add(renglon);
             }
 
-            // El comprobante se consume: no sirve para un segundo retiro.
             mpComprobante.ActualizarEstado(vigente.id_comprobante, EstadoComprobante_575_AV.Entregado);
 
             ComprobanteBE_575_AV cerrado = mpComprobante.ListarComprobantes()
@@ -193,10 +170,6 @@ namespace Negocio_BLL
             verificador.ActualizarDVV(TABLA_DETALLE);
         }
 
-        /// <summary>
-        /// Calcula y persiste el dvh de una fila de las que toca esta clase, y
-        /// el DVV de su tabla.
-        /// </summary>
         private void PersistirDigito(IVerificable entidad, string tabla)
         {
             string dvh = VerificadorIntegridad.CalcularDVH(entidad);
@@ -215,7 +188,7 @@ namespace Negocio_BLL
             }
             else
             {
-                throw new InvalidOperationException("Tabla no contemplada: " + tabla);
+                throw new ArgumentException("Tabla no contemplada: " + tabla);
             }
 
             verificador.ActualizarDVV(tabla);
@@ -225,10 +198,6 @@ namespace Negocio_BLL
 
         #region Apoyo
 
-        /// <summary>
-        /// Controla lo entregado contra lo facturado. Devuelve verdadero si la
-        /// entrega cubre todo el comprobante.
-        /// </summary>
         private bool ValidarCantidades(List<DetalleComprobanteBE_575_AV> facturado,
                                        List<DetalleEntregaBE_575_AV> entregado)
         {
@@ -243,27 +212,25 @@ namespace Negocio_BLL
                 if (cantidad > renglon.cantidad)
                 {
                     throw new InvalidOperationException(
-                        "No se puede entregar mas de lo facturado del articulo " +
-                        renglon.id_articulo + ".");
+                        string.Format(GestorDeIdioma.GetInstance.Traducir("DEP_ERR_EXCEDE"),
+                            renglon.descripcion_articulo));
                 }
 
                 if (cantidad < renglon.cantidad) { completa = false; }
             }
 
-            // Ningun renglon entregado puede ser ajeno al comprobante.
             foreach (DetalleEntregaBE_575_AV renglon in entregado)
             {
                 if (!facturado.Any(f => f.id_articulo == renglon.id_articulo))
                 {
                     throw new InvalidOperationException(
-                        "Hay un articulo que no figura en el comprobante.");
+                        GestorDeIdioma.GetInstance.Traducir("DEP_ERR_AJENO"));
                 }
             }
 
             return completa;
         }
 
-        /// <summary>Completa los datos de articulo que necesita el despacho.</summary>
         private List<DetalleComprobanteBE_575_AV> Completar(List<DetalleComprobanteBE_575_AV> detalles)
         {
             if (detalles.Count == 0) { return detalles; }

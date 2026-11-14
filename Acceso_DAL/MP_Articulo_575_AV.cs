@@ -6,11 +6,6 @@ using System.Data.SqlClient;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador del agregado Articulo. Toda persistencia por stored procedure y
-    /// con parametros tipados; los criterios de busqueda no informados viajan
-    /// como DBNull y el SP los ignora.
-    /// </summary>
     public class MP_Articulo_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
@@ -20,10 +15,6 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_ExtArticulo", null));
         }
 
-        /// <summary>
-        /// RFN1.1 - Busqueda por descripcion, categoria, marca o codigo. Los
-        /// criterios en nulo no filtran.
-        /// </summary>
         public List<ArticuloBE_575_AV> BuscarArticulos(string descripcion, int? id_categoria,
                                                        int? id_marca, string codigo, bool solo_activos)
         {
@@ -41,7 +32,6 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_BuscarArticulo", parametros));
         }
 
-        /// <summary>Alta. Devuelve el id_articulo generado para calcular el dvh.</summary>
         public int CrearArticulo(ArticuloBE_575_AV articulo)
         {
             SqlParameter[] parametros = new SqlParameter[10];
@@ -83,7 +73,6 @@ namespace Acceso_DAL
             conexDB.Escribir("SP_ActualizarArticulo", parametros);
         }
 
-        /// <summary>Baja logica: nunca DELETE fisico.</summary>
         public void EliminarArticulo(int id_articulo)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -92,7 +81,6 @@ namespace Acceso_DAL
             conexDB.Escribir("SP_ElimArticulo", parametros);
         }
 
-        /// <summary>RFN1.6 - Movimiento de existencias. La cantidad es un delta con signo.</summary>
         public void ActualizarStock(int id_articulo, decimal cantidad)
         {
             SqlParameter[] parametros = new SqlParameter[2];
@@ -111,7 +99,6 @@ namespace Acceso_DAL
             conexDB.Escribir("SP_ActualizarEstadoArticulo", parametros);
         }
 
-        /// <summary>Persiste el dvh recalculado, sin tocar los datos del articulo.</summary>
         public void ActualizarDVH(int id_articulo, string dvh)
         {
             SqlParameter[] parametros = new SqlParameter[3];

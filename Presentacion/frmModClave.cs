@@ -56,7 +56,6 @@ namespace Presentacion_575_AV
 
         #endregion
 
-
         #region Modificadores Formulario
         public void CambiarEnabled()
         {
@@ -137,9 +136,6 @@ namespace Presentacion_575_AV
                         txtActual.Focus();
                         lblError.Text = string.Format(gestorIdioma.Traducir("CLAVE_ERR_INTENTOS"), usuario.maxIntentos.ToString());
                         bitacora.RegistrarBitacora(SessionManager.GetInstance.UsuarioActual().user, TipoAccion.LoginFail);
-                        //txtActual.Clear();
-                        //txtActual.Focus();
-                        //lblError.Text = $"Contraseña incorrecta, quedan {usuario.maxIntentos.ToString()} intentos";
                         break;
                     case 1:
                         btnLogin.Visible = false;
@@ -190,9 +186,10 @@ namespace Presentacion_575_AV
                             this.Close();
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
-                        MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message);
+                        MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                         this.Close();
                     }
                 }

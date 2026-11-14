@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- 575_AV - Correcciones al diccionario en espanol de Advanced Installer (se carga despues de ui_es.ail). -->
+<DICTIONARY type="singlelanguage" lang="es">
+  <STRING id="Control.Text.FolderDlg#Text" value="Para instalar en esta carpeta, haga clic en &quot;[Text_Next]&quot;. Para instalar en una carpeta diferente, introdúzcala abajo o haga clic en &quot;Examinar&quot;."/>
+  <STRING id="Property.ButtonText_Browse" value="Ex&amp;aminar"/>
+  <STRING id="Dialog.BasicUIDlg" value="[Setup] de [ProductName]"/>
+</DICTIONARY>

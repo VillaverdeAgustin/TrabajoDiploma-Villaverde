@@ -1,0 +1,21 @@
+﻿;aic
+SetProperty ProductName="ConectAR 575_AV"
+SetProperty Manufacturer="Villaverde Agustin"
+SetProperty UpgradeCode={6E4D9B57-5A3C-4F57-9C1A-575A0C0E2026}
+SetVersion 2.0.0
+SetPackageType x64 -buildname DefaultBuild
+SetAppdir -buildname DefaultBuild -path [ProgramFiles64Folder]ConectAR_575_AV
+SetShortcutdir -buildname DefaultBuild -path "[ProgramMenuFolder]ConectAR 575_AV"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\Presentacion_575_AV.exe"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\Presentacion_575_AV.exe.config"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\Entidad_BE.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\Acceso_DAL.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\Negocio_BLL.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\Servicios.dll"
+AddFolder APPDIR "%CONECTAR_ARCHIVOS%\db"
+NewShortcut -name "ConectAR 575_AV" -dir DesktopFolder -target APPDIR\Presentacion_575_AV.exe -wkdir APPDIR -desc "Sistema de gestion de ConectAR S.R.L."
+NewShortcut -name "ConectAR 575_AV" -dir SHORTCUTDIR -target APPDIR\Presentacion_575_AV.exe -wkdir APPDIR -desc "Sistema de gestion de ConectAR S.R.L."
+SetDotNetFrameworkLc -buildname DefaultBuild -version 4.7.2
+SetPackageName ConectAR_575_AV.msi -buildname DefaultBuild
+SetOutputLocation -buildname DefaultBuild -path "%CONECTAR_SALIDA%"
+Save

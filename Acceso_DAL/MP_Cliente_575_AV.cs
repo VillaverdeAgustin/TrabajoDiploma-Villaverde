@@ -7,10 +7,6 @@ using System.Linq;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador de Cliente. El correo viaja tal cual esta en la base, cifrado:
-    /// descifrarlo es tarea de la BLL, no de esta capa.
-    /// </summary>
     public class MP_Cliente_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
@@ -20,7 +16,6 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_ExtCliente", null));
         }
 
-        /// <summary>Entrada del circuito de caja. Devuelve nulo si no existe.</summary>
         public ClienteBE_575_AV BuscarPorDni(string dni)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -30,7 +25,6 @@ namespace Acceso_DAL
                 .FirstOrDefault();
         }
 
-        /// <summary>Devuelve nulo si no existe.</summary>
         public ClienteBE_575_AV BuscarPorCuit(string cuit)
         {
             SqlParameter[] parametros = new SqlParameter[3];
@@ -42,7 +36,6 @@ namespace Acceso_DAL
                 .FirstOrDefault();
         }
 
-        /// <summary>Alta. Devuelve el id_cliente generado para calcular el dvh.</summary>
         public int CrearCliente(ClienteBE_575_AV cliente)
         {
             SqlParameter[] parametros = new SqlParameter[10];

@@ -6,11 +6,6 @@ using System.Data.SqlClient;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador de los cuatro catalogos del dominio: categoria, marca, unidad
-    /// de medida y medio de pago. Van juntos porque son tablas chicas, de solo
-    /// lectura en el circuito de venta y sin logica propia.
-    /// </summary>
     public class MP_Catalogo_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
@@ -85,7 +80,6 @@ namespace Acceso_DAL
             return medios;
         }
 
-        /// <summary>Alta de marca desde el ABM de articulo. Devuelve el id generado.</summary>
         public int CrearMarca(string nombre)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -96,9 +90,6 @@ namespace Acceso_DAL
         }
 
         #region Digito verificador
-
-        // Este mapeador atiende cuatro tablas, asi que cada una tiene su propio
-        // ActualizarDVH. Todos llaman a SP_ActualizarDVHNegocio con su @tabla.
 
         public void ActualizarDVHCategoria(int id_categoria, string dvh)
         {

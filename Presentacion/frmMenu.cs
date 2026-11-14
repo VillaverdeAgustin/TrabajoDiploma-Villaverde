@@ -15,11 +15,6 @@ namespace Presentacion_575_AV
             AplicarIdentidad();
         }
 
-        /// <summary>
-        /// Ajustes propios del menu principal, posteriores al estilo general:
-        /// la etiqueta de usuario va sobre la barra azul y el area MDI lleva
-        /// el fondo institucional con el logotipo de la empresa como marca de agua.
-        /// </summary>
         private void AplicarIdentidad()
         {
             lblUsuario.BackColor = EstiloConectAR_575_AV.Navy;
@@ -80,19 +75,33 @@ namespace Presentacion_575_AV
             backupToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_BACKUP");
             restoreToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_RESTORE");
             bitacoraToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_BITACORA");
+            conexionToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CONEXION");
             tsUsuario.Text = gestorIdioma.Traducir("COMUN_USUARIO");
             cambiarClaveToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CAMBIAR_CLAVE");
             cambiarIdiomaToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CAMBIAR_IDIOMA");
             tsVentas.Text = gestorIdioma.Traducir("MENU_TS_VENTAS");
-            llenarCarritoToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_LLENAR_CARRITO");
-            realizarVentaToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_REALIZAR_VENTA");
+            tsCaja.Text = gestorIdioma.Traducir("MENU_TS_CAJA");
+            tsDeposito.Text = gestorIdioma.Traducir("MENU_TS_DEPOSITO");
+            ordenPagoToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_ORDEN_PAGO");
+            entregaDepositoToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_ENTREGA_DEPOSITO");
+            carritoComprasToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CARRITO_COMPRAS");
+            validarCobrarToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_VALIDAR_COBRAR");
+            consultarComprobantesToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CONSULTAR_COMPROBANTES");
             tsGestion.Text = gestorIdioma.Traducir("MENU_TS_GESTION");
             clienteToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CLIENTE");
-            productosToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_PRODUCTOS");
+            articulosToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_ARTICULOS");
             proveedoresToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_PROVEEDORES");
+            tsCompras.Text = gestorIdioma.Traducir("MENU_TS_COMPRAS");
+            importarListaToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_IMPORTAR_LISTA");
+            compararPreciosToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_COMPARAR_PRECIOS");
+            ordenesCompraToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_ORDENES_COMPRA");
+            autorizacionesToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_AUTORIZACIONES");
+            recepcionToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_RECEPCION");
+            reporteComprasToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_REPORTE_COMPRAS");
+            serializacionToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_SERIALIZACION");
             tsReportes.Text = gestorIdioma.Traducir("MENU_TS_REPORTES");
             tsAyuda.Text = gestorIdioma.Traducir("MENU_TS_AYUDA");
-            hToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_HISTORIAL");
+            historialToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_HISTORIAL");
 
             if (SessionManager.Logged() && SessionManager.GetInstance.UsuarioActual() != null)
             {
@@ -118,7 +127,7 @@ namespace Presentacion_575_AV
                     cambiarIdiomaToolStripMenuItem.DropDownItems.Add(item);
                 }
             }
-            catch { }//Sin conexion a la BD no se ofrece el cambio de idioma
+            catch { }
         }
 
         private void MarcarIdiomaActivo()
@@ -138,54 +147,76 @@ namespace Presentacion_575_AV
                 string user = SessionManager.Logged() ? SessionManager.GetInstance.UsuarioActual().user : "null";
                 bitacora.RegistrarBitacora(user, TipoAccion.CambioIdioma);
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
-                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD") + ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_ERROR_BD"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         #endregion
 
-
         #region Set Formulario
         public void FormConectado()
         {
             UsuarioBE usActual = SessionManager.GetInstance.UsuarioActual();
-            lblUsuario.Text = "Usuario: " + usActual.user;
+            lblUsuario.Text = gestorIdioma.Traducir("MENU_LBL_USUARIO") + usActual.user;
             iniciarSesionToolStripMenuItem.Enabled = false;
             cerrarSesionToolStripMenuItem.Enabled = true;
             tsAdmin.Enabled = true;
             tsReportes.Enabled = true;
             tsGestion.Enabled = true;
+            tsVentas.Enabled = true;
             cambiarClaveToolStripMenuItem.Enabled = true;
 
             AplicarPermisos(usActual.rol);
+            conexionToolStripMenuItem.Enabled = usuario.EsAdministrador(usActual);
         }
 
         private void AplicarPermisos(string rol)
         {
             gestionDeUsuariosToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionUsuarios.ToString());
+            historialToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionUsuarios.ToString());
             tsPerfiles.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionPerfiles.ToString());
             backupToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionBackup.ToString());
             restoreToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionBackup.ToString());
             bitacoraToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionBitacora.ToString());
-            llenarCarritoToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.CompletarCarrito.ToString());
-            realizarVentaToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ValidarPedidoYCobrar.ToString());
-            productosToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionArticulos.ToString());
+            carritoComprasToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.CompletarCarrito.ToString());
+            validarCobrarToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ValidarPedidoYCobrar.ToString());
+            consultarComprobantesToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ValidarPedidoYCobrar.ToString());
+            articulosToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionArticulos.ToString());
+            ordenPagoToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GenerarOrdenPago.ToString());
+            entregaDepositoToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.EntregarArticulos.ToString());
+            tsCaja.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ValidarPedidoYCobrar.ToString());
+            tsDeposito.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.EntregarArticulos.ToString());
+            proveedoresToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.RegistrarProveedor.ToString());
+            importarListaToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ImportarListaPrecios.ToString());
+            compararPreciosToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.CompararPrecios.ToString());
+            ordenesCompraToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GenerarOrdenCompra.ToString());
+            autorizacionesToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.AutorizarOrdenCompra.ToString());
+            recepcionToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.RegistrarRecepcion.ToString());
+            reporteComprasToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ReporteCompras.ToString());
+            serializacionToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.SerializarOrdenCompra.ToString());
+            tsCompras.Enabled = proveedoresToolStripMenuItem.Enabled || importarListaToolStripMenuItem.Enabled
+                || compararPreciosToolStripMenuItem.Enabled || ordenesCompraToolStripMenuItem.Enabled
+                || autorizacionesToolStripMenuItem.Enabled || recepcionToolStripMenuItem.Enabled
+                || reporteComprasToolStripMenuItem.Enabled || serializacionToolStripMenuItem.Enabled;
 
-            // El alta de cliente no se abre desde el menu: entra por DNI desde la
-            // caja, como extend de CUN-004.
             clienteToolStripMenuItem.Visible = false;
         }
 
         public void FormDesconectado()
         {
-            lblUsuario.Text = "Usuario: Sin Conexion";
+            lblUsuario.Text = gestorIdioma.Traducir("MENU_LBL_SIN_CONEXION");
             iniciarSesionToolStripMenuItem.Enabled = true;
             cerrarSesionToolStripMenuItem.Visible = false;
             tsAdmin.Visible = false;
             tsReportes.Visible = false;
             tsGestion.Visible = false;
+            tsVentas.Visible = false;
+            tsCaja.Visible = false;
+            tsDeposito.Visible = false;
+            tsCompras.Visible = false;
             cambiarClaveToolStripMenuItem.Visible = false;
         }
 
@@ -268,20 +299,113 @@ namespace Presentacion_575_AV
         {
             frmGestionPerfiles frmperfil = new frmGestionPerfiles();
             frmperfil.ShowDialog();
-            //OpenForm(tsPerfiles, new frmGestionPerfiles());
         }
 
-        private void hToolStripMenuItem_Click(object sender, System.EventArgs e)
+        private void historialToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             frmHistorialUsuario frmhistorial = new frmHistorialUsuario();
             frmhistorial.ShowDialog();
         }
 
+        #region RFN1 - Gestion de Venta por mostrador
+
+        private void articulosToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsGestion, new frmGestionArticulos_575_AV());
+        }
+
+        private void carritoComprasToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsVentas, new frmCarritoCompras_575_AV());
+        }
+
+        private void ordenPagoToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsVentas, new frmOrdenPago_575_AV());
+        }
+
+        private void validarCobrarToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCaja, new frmValidarCobrar_575_AV());
+        }
+
+        private void consultarComprobantesToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCaja, new frmConsultaComprobantes_575_AV());
+        }
+
+        private void proveedoresToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmProveedor_575_AV());
+        }
+
+        private void importarListaToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmImportarListaPrecios_575_AV());
+        }
+
+        private void compararPreciosToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmCompararPrecios_575_AV());
+        }
+
+        private void conexionToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            using (frmConexion_575_AV conexion = new frmConexion_575_AV(true))
+            {
+                conexion.ShowDialog(this);
+            }
+        }
+
+        private void ordenesCompraToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmOrdenCompra_575_AV());
+        }
+
+        private void autorizacionesToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmAutorizarOrdenCompra_575_AV());
+        }
+
+        private void recepcionToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmRecepcionMercaderia_575_AV());
+        }
+
+        private void backupToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsAdmin, new frmBackup_575_AV());
+        }
+
+        // T07 - Despues de un restore la sesion ya esta cerrada: se cierra el menu y se vuelve al login
+        private void restoreToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            frmRestore_575_AV frm = new frmRestore_575_AV();
+            frm.RestauracionRealizada += (s, a) => this.BeginInvoke(new System.Action(this.Close));
+            OpenForm(tsAdmin, frm);
+        }
+
+        private void reporteComprasToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmReporteCompras_575_AV());
+        }
+
+        private void serializacionToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsCompras, new frmSerializacion_575_AV());
+        }
+
+        private void entregaDepositoToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsDeposito, new frmEntregaDeposito_575_AV());
+        }
+
+        #endregion
+
         private void idiomasToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             frmIdiomas frmIdiomas = new frmIdiomas();
             frmIdiomas.ShowDialog();
-            //Puede haberse dado de alta un idioma: se rearma el menu de idiomas
             CargarMenuIdiomas();
             MarcarIdiomaActivo();
         }

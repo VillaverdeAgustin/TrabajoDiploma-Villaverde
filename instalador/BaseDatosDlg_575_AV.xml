@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  575_AV - Filas que generar_instalador.ps1 agrega al .aip despues de crear el proyecto con el .aic.
+  Son las partes que ni la linea de comandos ni la automatizacion COM de Advanced Installer exponen:
+  controles, eventos y condiciones del dialogo "Base de datos", la DLL de acciones y sus secuencias.
+  Cada COMPONENT se suma al componente del mismo cid del proyecto (mismas columnas que las tablas MSI).
+-->
+<FRAGMENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <!-- Diccionario propio despues de ui_es.ail: texto de la pantalla de carpeta, boton Examinar y titulo de BasicUIDlg. -->
+    <ROW Path="ConectAR_575_AV_es.ail"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="AccionesInstalador_575_AV.dll" SourcePath="archivos\acciones\AccionesInstalador_575_AV.dll"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <!-- Tipo 1: funcion de una DLL guardada en la tabla Binary. 1025 = diferida, con la cuenta de quien instala. -->
+    <ROW Action="ListarInstancias_575_AV" Type="1" Source="AccionesInstalador_575_AV.dll" Target="ListarInstancias"/>
+    <ROW Action="ProbarConexion_575_AV" Type="1" Source="AccionesInstalador_575_AV.dll" Target="ProbarConexion" WithoutSeq="true"/>
+    <ROW Action="PrepararBaseDatos_575_AV" Type="1" Source="AccionesInstalador_575_AV.dll" Target="PrepararBaseDatos"/>
+    <ROW Action="CrearBaseDatos_575_AV" Type="1025" Source="AccionesInstalador_575_AV.dll" Target="CrearBaseDatos"/>
+    <!-- Tipo 51: fija una propiedad. Carpetas de cada tipo de instalacion y opcion propuesta en "Instalar para". -->
+    <ROW Action="CarpetaTodos_575_AV" Type="51" Source="CONECTAR_DIR_TODOS" Target="[%ProgramW6432]\ConectAR_575_AV\"/>
+    <ROW Action="CarpetaSoloYo_575_AV" Type="51" Source="CONECTAR_DIR_SOLO_YO" Target="[LocalAppDataFolder]Programs\ConectAR_575_AV\"/>
+    <ROW Action="SoloYoSiNoEsAdmin_575_AV" Type="51" Source="AI_INSTALLPERUSER" Target="1"/>
+    <!-- Menu Inicio de cada tipo de instalacion. SHORTCUTDIR es publica: el cliente la resuelve en CostFinalize y
+         viaja asi al servidor, por eso Siguiente la fija segun la opcion elegida. -->
+    <ROW Action="AccesosTodos_575_AV" Type="51" Source="CONECTAR_ACCESOS_TODOS" Target="[CommonAppDataFolder]Microsoft\Windows\Start Menu\Programs\ConectAR 575_AV\"/>
+    <ROW Action="AccesosSoloYo_575_AV" Type="51" Source="CONECTAR_ACCESOS_SOLO_YO" Target="[AppDataFolder]Microsoft\Windows\Start Menu\Programs\ConectAR 575_AV\"/>
+    <!-- Instalacion por usuario sin interfaz (ALLUSERS vacio): no pasa por la pantalla de carpeta y APPDIR queda en Program Files. -->
+    <ROW Action="CarpetaSoloYoSinInterfaz_575_AV" Type="51" Source="APPDIR" Target="[CONECTAR_DIR_SOLO_YO]"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="ListarInstancias_575_AV" Condition="NOT Installed" Sequence="1001"/>
+    <ROW Action="CarpetaTodos_575_AV" Condition="NOT Installed" Sequence="1002"/>
+    <ROW Action="CarpetaSoloYo_575_AV" Condition="NOT Installed" Sequence="1003"/>
+    <ROW Action="SoloYoSiNoEsAdmin_575_AV" Condition="NOT Installed AND NOT AdminUser" Sequence="1004"/>
+    <ROW Action="AccesosTodos_575_AV" Condition="NOT Installed" Sequence="1005"/>
+    <ROW Action="AccesosSoloYo_575_AV" Condition="NOT Installed" Sequence="1006"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <!-- Misma propiedad que el dialogo estandar InstallTypeDlg: 0 = todos los usuarios, 1 = solo para mi. -->
+    <ROW Property="AI_INSTALLPERUSER" Value="0"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRadioButtonComponent">
+    <ROW Property="AI_INSTALLPERUSER" Order="1" Value="0" X="0" Y="0" Width="140" Height="12" Text="&amp;Todos los usuarios"/>
+    <ROW Property="AI_INSTALLPERUSER" Order="2" Value="1" X="150" Y="0" Width="150" Height="12" Text="Solo para &amp;mí"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <!-- Antes de InstallFinalize (6600) y despues de InstallFiles (4000): los scripts ya estan en APPDIR\db.
+         No corre en desinstalacion ni reparacion: desinstalar no toca ConectAR_DB. -->
+    <ROW Action="CarpetaTodos_575_AV" Condition="NOT Installed" Sequence="751"/>
+    <ROW Action="CarpetaSoloYo_575_AV" Condition="NOT Installed" Sequence="752"/>
+    <ROW Action="CarpetaSoloYoSinInterfaz_575_AV" Condition="NOT Installed AND NOT ALLUSERS AND APPDIR &gt;&lt; &quot;Program Files&quot;" Sequence="753"/>
+    <ROW Action="PrepararBaseDatos_575_AV" Condition="NOT Installed AND NOT REMOVE" Sequence="6590"/>
+    <ROW Action="CrearBaseDatos_575_AV" Condition="NOT Installed AND NOT REMOVE" Sequence="6591"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="FolderDlg" Control="LblInstalarPara" Type="Text" X="20" Y="156" Width="100" Height="10" Attributes="196611" Text="Instalar para:" Order="1400"/>
+    <ROW Dialog_="FolderDlg" Control="InstallTypeRadioButtonGroup" Type="RadioButtonGroup" X="25" Y="170" Width="320" Height="14" Attributes="3" Property="AI_INSTALLPERUSER" Order="1500"/>
+    <ROW Dialog_="FolderDlg" Control="TxtSoloYo" Type="Text" X="25" Y="190" Width="330" Height="30" Attributes="196611" Text="Solo para mí instala en [LocalAppDataFolder]Programs\ConectAR_575_AV sin pedir permisos de administrador. Todos los usuarios instala en Program Files y pide confirmación de administrador." Order="1600"/>
+    <ROW Dialog_="BaseDatosDlg" Control="LblInstancia" Type="Text" X="25" Y="58" Width="320" Height="12" Attributes="196611" Text="Instancia de SQL Server (autenticación de Windows):" Order="1000"/>
+    <ROW Dialog_="BaseDatosDlg" Control="CmbInstancia" Type="ComboBox" X="25" Y="73" Width="228" Height="16" Attributes="3" Property="CONECTAR_INSTANCIA" Text="{128}" Order="1100"/>
+    <ROW Dialog_="BaseDatosDlg" Control="BtnProbar" Type="PushButton" X="260" Y="72" Width="85" Height="17" Attributes="3" Text="&amp;Probar conexión" Order="1200"/>
+    <ROW Dialog_="BaseDatosDlg" Control="TxtResultado" Type="Text" X="25" Y="96" Width="320" Height="22" Attributes="196611" Property="CONECTAR_RESULTADO" Text="[CONECTAR_RESULTADO]" Order="1300"/>
+    <ROW Dialog_="BaseDatosDlg" Control="ChkSinBase" Type="CheckBox" X="25" Y="122" Width="320" Height="20" Attributes="3" Property="CONECTAR_SIN_BASE" Text="&amp;Continuar sin crear la base: ConectAR la crea la primera vez que se inicie." Order="1400"/>
+    <ROW Dialog_="BaseDatosDlg" Control="TxtAyuda" Type="Text" X="25" Y="160" Width="320" Height="60" Attributes="196611" Text="La base ConectAR_DB se crea durante la instalación con la cuenta de Windows de quien instala, ejecutando los scripts db\01 a db\11 contra master. Si la base ya existe en esa instancia, se conserva con sus datos y no se ejecuta ningún script. La instancia elegida queda guardada para el programa." Order="1500"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <!-- Siguiente en la pantalla de carpeta aplica "Instalar para" antes de SetTargetPath (200): paquete de doble
+         proposito (ALLUSERS=2). Solo para mi = ALLUSERS vacio + MSIINSTALLPERUSER=1, sin UAC. -->
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[ALLUSERS]" Argument="{}" Condition="AI_INSTALLPERUSER = &quot;1&quot;" Ordering="101"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[MSIINSTALLPERUSER]" Argument="1" Condition="AI_INSTALLPERUSER = &quot;1&quot;" Ordering="102"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[APPDIR]" Argument="[CONECTAR_DIR_SOLO_YO]" Condition="AI_INSTALLPERUSER = &quot;1&quot; AND APPDIR ~= CONECTAR_DIR_TODOS" Ordering="103"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[ALLUSERS]" Argument="1" Condition="AI_INSTALLPERUSER = &quot;0&quot;" Ordering="104"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[MSIINSTALLPERUSER]" Argument="{}" Condition="AI_INSTALLPERUSER = &quot;0&quot;" Ordering="105"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[APPDIR]" Argument="[CONECTAR_DIR_TODOS]" Condition="AI_INSTALLPERUSER = &quot;0&quot; AND APPDIR ~= CONECTAR_DIR_SOLO_YO" Ordering="106"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[SHORTCUTDIR]" Argument="[CONECTAR_ACCESOS_SOLO_YO]" Condition="AI_INSTALLPERUSER = &quot;1&quot;" Ordering="107"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="[SHORTCUTDIR]" Argument="[CONECTAR_ACCESOS_TODOS]" Condition="AI_INSTALLPERUSER = &quot;0&quot;" Ordering="108"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="SetTargetPath" Argument="SHORTCUTDIR" Condition="1" Ordering="109"/>
+    <ROW Dialog_="BaseDatosDlg" Control_="BtnProbar" Event="DoAction" Argument="ProbarConexion_575_AV" Condition="1" Ordering="1"/>
+    <ROW Dialog_="BaseDatosDlg" Control_="BtnProbar" Event="[CONECTAR_RESULTADO]" Argument="[CONECTAR_RESULTADO]" Condition="1" Ordering="2"/>
+    <!-- Siguiente vuelve a probar la instancia escrita, salvo que se haya elegido continuar sin la base. -->
+    <ROW Dialog_="BaseDatosDlg" Control_="Next" Event="DoAction" Argument="ProbarConexion_575_AV" Condition="CONECTAR_SIN_BASE &lt;&gt; &quot;1&quot;" Ordering="1"/>
+    <ROW Dialog_="BaseDatosDlg" Control_="Next" Event="[CONECTAR_RESULTADO]" Argument="[CONECTAR_RESULTADO]" Condition="1" Ordering="2"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlConditionComponent">
+    <ROW Dialog_="BaseDatosDlg" Control_="ChkSinBase" Action="Show" Condition="CONECTAR_PRUEBA = &quot;0&quot; OR CONECTAR_SIN_BASE = &quot;1&quot;"/>
+    <ROW Dialog_="BaseDatosDlg" Control_="ChkSinBase" Action="Hide" Condition="NOT (CONECTAR_PRUEBA = &quot;0&quot; OR CONECTAR_SIN_BASE = &quot;1&quot;)"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCheckBoxComponent">
+    <ROW Property="CONECTAR_SIN_BASE" Value="1"/>
+  </COMPONENT>
+
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiComboBoxComponent">
+    <!-- Garantiza que la tabla ComboBox exista: ListarInstancias_575_AV le agrega filas temporales en ejecucion. -->
+    <ROW Property="CONECTAR_TABLA_COMBO" Order="1" Value="-" Text="-"/>
+  </COMPONENT>
+</FRAGMENT>

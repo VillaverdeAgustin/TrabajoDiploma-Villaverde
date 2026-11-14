@@ -2,9 +2,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>
-    /// Categoria de articulo: cable de red, fibra optica, conectividad, etc.
-    /// </summary>
     public class CategoriaBE_575_AV : IVerificable
     {
         public int id_categoria { get; set; }

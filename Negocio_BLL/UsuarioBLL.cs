@@ -12,6 +12,7 @@ namespace Negocio_BLL
 {
     public class UsuarioBLL
     {
+        private const string ROL_ADMINISTRADOR = "Admin";
         public int maxIntentos = 3;
         private UsuarioBE usuario;
         private MP_Usuario mpUsuario = new MP_Usuario();
@@ -27,62 +28,59 @@ namespace Negocio_BLL
         {
             LoginResult AuthOK;
             us.pass = Encriptador.EncriptarIrrev(us.pass);
-            if (!SessionManager.Logged())
-            {
-                AuthOK = mpUsuario.Login(us);
-                if (AuthOK == LoginResult.LoginOK)
-                {
-                    us = mpUsuario.ExtraerUsuario(us.user);
-                    SessionManager.GetInstance.Login(us);
-                    bitacora.RegistrarBitacora(us.user, TipoAccion.Login);
-                    maxIntentos = 3;
-                }
-            }
-            else
+
+            if (SessionManager.Logged())
             {
                 usuario = SessionManager.GetInstance.UsuarioActual();
                 if ((usuario.user == us.user) && (usuario.pass == us.pass))
                 {
-                    AuthOK = LoginResult.SesionIniciada;
                     maxIntentos = 3;
+                    return LoginResult.SesionIniciada;
                 }
-                else { AuthOK = LoginResult.ExisteSesion; }
+                return LoginResult.ExisteSesion;
             }
-            if (AuthOK != LoginResult.LoginOK && AuthOK != LoginResult.SesionIniciada)
+
+            AuthOK = mpUsuario.Login(us);
+
+            if (AuthOK == LoginResult.LoginOK)
             {
-                if(AuthOK != LoginResult.ExisteSesion){ maxIntentos--; }
+                us = mpUsuario.ExtraerUsuario(us.user);
+                SessionManager.GetInstance.Login(us);
+                bitacora.RegistrarBitacora(us.user, TipoAccion.Login);
+                maxIntentos = 3;
+                return AuthOK;
             }
+
+            maxIntentos--;
             if (maxIntentos == 0)
             {
-                usuario = new UsuarioBE();
                 usuario = mpUsuario.ExtraerUsuario(us.user);
-                if (!string.IsNullOrEmpty(usuario.user))
+                if (usuario != null && !string.IsNullOrEmpty(usuario.user))
                 {
                     usuario.bloq = true;
-                    usuario.pass = " ";
-                    usuario.pass = Encriptador.EncriptarIrrev(usuario.pass);
+                    usuario.pass = Encriptador.EncriptarIrrev(" ");
                     usuario.dvh = VerificadorIntegridad.CalcularDVH(usuario);
                     mpUsuario.ActualizarBloqueo(usuario);
+                    integridad.ActualizarDVV();
                 }
                 bitacora.RegistrarBitacora(us.user, TipoAccion.BloqueoUsuario);
-                integridad.ActualizarDVV();
                 AuthOK = LoginResult.FinIntentos;
             }
             bitacora.RegistrarBitacora(us.user, TipoAccion.LoginFail);
             return AuthOK;
         }
 
-        public int VerifUsuario(UsuarioBE us, int tipo)//tipo 0 = Verificar Actual -- tipo == 1 Verificar Nueva
+        public int VerifUsuario(UsuarioBE us, int tipo)
         {
             string encPass = Encriptador.EncriptarIrrev(us.pass);
             if (SessionManager.GetInstance.UsuarioActual().pass == encPass)
             {
                 maxIntentos = 3;
-                return 1;//Usuario Verificado OK -- Nueva = Anterior
+                return 1;
             }
             else
             {
-                if (tipo == 1)//Verificar Nueva
+                if (tipo == 1)
                 {
                     UsuarioBE aux = SessionManager.GetInstance.UsuarioActual();
                     aux.pass = encPass;
@@ -90,19 +88,19 @@ namespace Negocio_BLL
                     mpUsuario.CambiarPass(aux);
                     maxIntentos = 3;
                     bitacora.RegistrarBitacora(aux.user, TipoAccion.CambioClave);
-                    return 2;//Cambio de pass ok
+                    return 2;
                 }
                 maxIntentos--;
                 if (maxIntentos == 0)
                 {
-                    if (tipo == 0)//Verificar Actual
+                    if (tipo == 0)
                     {
                         UsuarioBE aux = SessionManager.GetInstance.UsuarioActual();
                         aux.bloq = true;
                         aux.dvh = VerificadorIntegridad.CalcularDVH(aux);
                         mpUsuario.ActualizarBloqueo(aux);
                         bitacora.RegistrarBitacora(aux.user, TipoAccion.BloqueoUsuario);
-                        return 2; //Falla Verificacion, Bloquea usuario
+                        return 2;
                     }
                     else
                     {
@@ -111,8 +109,13 @@ namespace Negocio_BLL
                     }
                 }
                 bitacora.RegistrarBitacora(SessionManager.GetInstance.UsuarioActual().user, TipoAccion.LoginFail);
-                return 0; //Reintentar
+                return 0;
             }
+        }
+
+        public bool EsAdministrador(UsuarioBE usuario)
+        {
+            return usuario != null && usuario.rol == ROL_ADMINISTRADOR;
         }
 
         public void Logout()

@@ -26,7 +26,6 @@ namespace Entidad_BE
         ModificacionIdioma = 16,
         RestauracionUsuario = 17,
 
-        // Negocio - RFN1 Gestion de Ventas
         GestionArticulosAbierta = 18,
         AltaArticulo = 19,
         ModificacionArticulo = 20,
@@ -37,8 +36,6 @@ namespace Entidad_BE
         BloqueoArticulo = 25,
         LiberacionArticulo = 26,
         AltaCliente = 27,
-        // 28 y 29 quedan reservados: el ABM de cliente no entra en la Entrega 1,
-        // pero la bitacora guarda el entero y la numeracion no se mueve.
         ModificacionCliente = 28,
         BajaCliente = 29,
         CarritoComprasAbierto = 30,
@@ -55,6 +52,34 @@ namespace Entidad_BE
         EmisionComprobante = 41,
         DepositoAbierto = 42,
         EntregaRegistrada = 43,
-        EntregaParcial = 44
+        EntregaParcial = 44,
+        DesencriptacionCorreo = 45,
+
+        RecalculoDigitoVerificador = 46,
+        SistemaNoDisponible = 47,
+        GestionProveedoresAbierta = 48,
+        AltaProveedor = 49,
+        ModificacionProveedor = 50,
+        ImportarListaAbierta = 51,
+        ImportacionListaPrecios = 52,
+        CompararPreciosAbierta = 53,
+        AltaOrdenCompra = 54,
+        AltaDetalleOrdenCompra = 55,
+        OrdenesCompraAbierta = 56,
+        AutorizacionesAbierta = 57,
+        AutorizacionOrdenCompra = 58,
+        RechazoOrdenCompra = 59,
+        RecepcionAbierta = 60,
+        RecepcionMercaderia = 61,
+        RecepcionParcial = 62,
+        ImportacionListaRevertida = 63,
+        EmisionOrdenCompra = 64,
+
+        ConsultaComprobante = 67,
+        ConsultaReporteCompras = 68,
+        SerializacionOrdenCompra = 69,
+        DeserializacionOrdenCompra = 70,
+        BackupGenerado = 71,
+        RestoreRealizado = 72
     }
 }

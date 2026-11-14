@@ -7,18 +7,12 @@ using System.Linq;
 
 namespace Acceso_DAL
 {
-    /// <summary>
-    /// Mapeador del agregado Comprobante. Atiende tres tablas, asi que cada una
-    /// tiene su propio ActualizarDVH: Comprobante, DetalleComprobante y Pago
-    /// llevan cada cual su fila en DigitoVertical.
-    /// </summary>
     public class MP_Comprobante_575_AV
     {
         AccesoDatos conexDB = new AccesoDatos();
 
         #region Consulta
 
-        /// <summary>Numero siguiente para el tipo de comprobante indicado.</summary>
         public string ProximoNumero(string tipo_comprobante)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -28,7 +22,6 @@ namespace Acceso_DAL
             return numero == null ? tipo_comprobante + "-0001-00000001" : numero.ToString();
         }
 
-        /// <summary>Devuelve nulo si no existe.</summary>
         public ComprobanteBE_575_AV BuscarPorNumero(string nro_comprobante)
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -38,7 +31,6 @@ namespace Acceso_DAL
                 .FirstOrDefault();
         }
 
-        /// <summary>Todos los comprobantes, para el control de integridad.</summary>
         public List<ComprobanteBE_575_AV> ListarComprobantes()
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -55,7 +47,6 @@ namespace Acceso_DAL
             return ProyectarDetalle(conexDB.LeerTabla("SP_ExtDetalleComprobante", parametros));
         }
 
-        /// <summary>Todos los renglones, para el control de integridad.</summary>
         public List<DetalleComprobanteBE_575_AV> ListarDetalles()
         {
             SqlParameter[] parametros = new SqlParameter[1];
@@ -64,7 +55,6 @@ namespace Acceso_DAL
             return ProyectarDetalle(conexDB.LeerTabla("SP_ExtDetalleComprobante", parametros));
         }
 
-        /// <summary>Todos los pagos, para el control de integridad.</summary>
         public List<PagoBE_575_AV> ListarPagos()
         {
             SqlParameter[] parametros = new SqlParameter[1];

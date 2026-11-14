@@ -13,7 +13,6 @@ namespace Acceso_DAL
     {
         AccesoDatos conexDB = new AccesoDatos();
 
-
         public List<HistorialUsuarioBE> ListarHistorial()
         {
             List<HistorialUsuarioBE> historial = new List<HistorialUsuarioBE>();

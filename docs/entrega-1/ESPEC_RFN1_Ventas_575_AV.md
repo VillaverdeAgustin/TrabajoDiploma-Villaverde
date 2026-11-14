@@ -3,7 +3,7 @@
 **Proyecto:** ConectAR — Trabajo de Diploma (T1-23-32), Villaverde Agustín
 **Destino:** implementación de CUN-001 a CUN-005 y de los requisitos RFN1.1 a RFN1.9
 **Fuente:** `TD-Proyecto_Villaverde_ConectAR.docx`, secciones G02.1 y N02.1
-**Versión:** 3.1 — 25/09/2026. Contrato diagrama ↔ código (sección 5); alcance de cliente acotado a la Entrega 1.
+**Versión:** 3.3 — 25/09/2026. Sección 5.4 regenerada desde el código. Contrato diagrama ↔ código (sección 5); cliente acotado a la Entrega 1; **sin reservas**.
 
 > **Qué cambió respecto de la versión 1.** El mapa de casos de uso se rehízo: desapareció
 > "Seleccionar Producto", apareció "Generar Orden de Pago", se fusionaron facturación y
@@ -19,6 +19,12 @@
 > el código tiene que respetar. Se cambiaron además tres cosas del modelo: **cada SP
 > escribe una sola tabla** (sección 2), `Entrega.id_comprobante` deja de ser único
 > (entregas parciales) y se agrega `AutorizadorPago_575_AV`.
+
+> **Versión 3.2: se eliminan las reservas.** Ante un faltante, el vendedor ofrece un
+> artículo equivalente y no se registra nada. Desaparecen la tabla `Reserva`, sus SP,
+> `ReservaBE_575_AV`, `EstadoReserva_575_AV`, `MP_Reserva_575_AV` y `ReservaBLL_575_AV`.
+> `Bloquear` / `Liberar` del gestor de existencias y el estado `Bloqueado` quedan como
+> están en la Fase 1, pero ningún caso de uso de la Entrega 1 los usa.
 
 ---
 
@@ -64,7 +70,7 @@ este requerimiento son **Ventas**, **Caja** y **Depósito**.
 
 ## 1. Modelo de datos
 
-Dieciséis tablas. Todas llevan `dvh varchar(64)` y se registran en `DigitoVertical`.
+Quince tablas. Todas llevan `dvh varchar(64)` y se registran en `DigitoVertical`.
 
 ### Catálogos
 
@@ -108,11 +114,11 @@ Bobina
 ```
 
 **`cantidad_disponible` es `decimal`, no `int`.** Es la particularidad del rubro: no
-alcanza un contador entero. **`estado_articulo`** es nuevo y sostiene el bloqueo que
-pidió el docente: cuando se reserva un artículo faltante, queda bloqueado hasta que la
-compra se concrete.
+alcanza un contador entero. **`estado_articulo`** distingue `Disponible`, `SinStock` y
+`Bloqueado`. Este último queda disponible en el gestor de existencias, pero ningún caso
+de uso de la Entrega 1 bloquea artículos.
 
-### Carrito, reserva y orden de pago
+### Carrito y orden de pago
 
 ```
 Carrito                             DetalleCarrito
@@ -123,19 +129,19 @@ Carrito                             DetalleCarrito
   fecha_apertura   datetime           id_unidad_medida   int FK
   estado           varchar(15)        precio_unitario    decimal(12,2)
   precio_total     decimal(12,2)      subtotal           decimal(12,2)
-  activo           bit                id_bobina          int FK NULL
+  activo           bit
   dvh              varchar(64)        dvh                varchar(64)
 
-Reserva                             OrdenPago
-  id_reserva       int PK             id_orden_pago    int PK
-  id_articulo      int FK             nro_orden_pago   varchar(15) UNIQUE
-  id_cliente       int FK NULL        id_carrito       int FK
-  nombre_cliente   varchar(100)       nombre_cliente   varchar(100)
-  cantidad         decimal(12,2)      fecha_emision    datetime
-  fecha_reserva    datetime           precio_total     decimal(12,2)
-  plazo_entrega    int                estado           varchar(15)
-  estado           varchar(15)        activo           bit
-  dvh              varchar(64)        dvh              varchar(64)
+OrdenPago
+  id_orden_pago    int PK
+  nro_orden_pago   varchar(15) UNIQUE
+  id_carrito       int FK
+  nombre_cliente   varchar(100)
+  fecha_emision    datetime
+  precio_total     decimal(12,2)
+  estado           varchar(15)
+  activo           bit
+  dvh              varchar(64)
 ```
 
 `Carrito.estado` toma `Abierto`, `Confirmado`, `Facturado` o `Anulado`.
@@ -201,10 +207,10 @@ Convención existente de `db/02_procedimientos.sql`: `SP_Ext…`, `SP_Crear…`,
 | Bobina | `SP_ExtBobinaPorArticulo`, `SP_CrearBobina`, `SP_ActualizarSaldoBobina` |
 | Cliente | `SP_ExtCliente`, `SP_BuscarClientePorDni`, `SP_BuscarCliente`, `SP_CrearCliente` |
 | Carrito | `SP_ExtCarrito`, `SP_ExtCarritoAbiertos`, `SP_ExtDetalleCarrito`, `SP_ProximoNumeroCarrito`, `SP_CrearCarrito`, `SP_AgregarDetalleCarrito`, `SP_QuitarDetalleCarrito`, `SP_ActualizarTotalCarrito`, `SP_ActualizarEstadoCarrito` |
-| Reserva | `SP_CrearReserva`, `SP_ExtReservaPorArticulo`, `SP_ActualizarEstadoReserva` |
 | Orden de pago | `SP_ProximoNumeroOrdenPago`, `SP_CrearOrdenPago`, `SP_ExtOrdenPagoPendientes`, `SP_BuscarOrdenPago`, `SP_ActualizarEstadoOrdenPago` |
 | Comprobante y pago | `SP_ProximoNumeroComprobante`, `SP_CrearComprobante`, `SP_AgregarDetalleComprobante`, `SP_BuscarComprobante`, `SP_ExtDetalleComprobante`, `SP_RegistrarPago`, `SP_ActualizarEstadoComprobante` |
-| Entrega | `SP_CrearEntrega`, `SP_AgregarDetalleEntrega`, `SP_ExtEntregaPorComprobante` |
+| Entrega | `SP_CrearEntrega`, `SP_AgregarDetalleEntrega`, `SP_ExtEntregaPorComprobante`, `SP_ExtDetalleEntrega` |
+| Apoyo (control de integridad y ABM de artículos) | `SP_ActualizarDVHNegocio`, `SP_ExtBobina`, `SP_ExtPago`, `SP_CrearMarca` |
 
 **Cada SP escribe una sola tabla.** Reemplaza a la regla de la versión 2, que pedía
 SP transaccionales que tocaban varias tablas (`SP_CrearReserva` bloqueaba el artículo,
@@ -228,7 +234,7 @@ fila. Los diagramas de secuencia muestran exactamente ese orden.
 
 `ClienteBE_575_AV` · `ArticuloBE_575_AV` · `BobinaBE_575_AV` · `CategoriaBE_575_AV` ·
 `MarcaBE_575_AV` · `UnidadMedidaBE_575_AV` · `MedioPagoBE_575_AV` ·
-`CarritoBE_575_AV` · `DetalleCarritoBE_575_AV` · `ReservaBE_575_AV` ·
+`CarritoBE_575_AV` · `DetalleCarritoBE_575_AV` ·
 `OrdenPagoBE_575_AV` · `ComprobanteBE_575_AV` · `DetalleComprobanteBE_575_AV` ·
 `PagoBE_575_AV` · `EntregaBE_575_AV` · `DetalleEntregaBE_575_AV`
 
@@ -236,13 +242,13 @@ fila. Los diagramas de secuencia muestran exactamente ese orden.
 se persiste y por eso no implementa `IVerificable`.
 
 Enumeraciones: `CondicionIva_575_AV`, `EstadoArticulo_575_AV`, `EstadoCarrito_575_AV`,
-`EstadoOrdenPago_575_AV`, `EstadoComprobante_575_AV`, `EstadoReserva_575_AV`,
+`EstadoOrdenPago_575_AV`, `EstadoComprobante_575_AV`,
 `EstadoBobina_575_AV`.
 
 ### Acceso_DAL — un mapeador por agregado
 
 `MP_Cliente_575_AV` · `MP_Articulo_575_AV` · `MP_Bobina_575_AV` · `MP_Carrito_575_AV` ·
-`MP_Reserva_575_AV` · `MP_OrdenPago_575_AV` · `MP_Comprobante_575_AV` ·
+`MP_OrdenPago_575_AV` · `MP_Comprobante_575_AV` ·
 `MP_Entrega_575_AV` · `MP_Catalogo_575_AV`
 
 Mismo patrón que `MP_Bitacora`: `AccesoDatos` para ejecutar, `SqlParameter` para todo
@@ -257,7 +263,6 @@ sobre la BE.
 | `ArticuloBLL_575_AV` | Consulta y búsqueda con filtro por categoría (RFN1.1). `ValidarDisponibilidad` resuelve RFN1.2 contra `cantidad_disponible` y los saldos de bobina. |
 | `BobinaBLL_575_AV` | `Fraccionar(articulo, medida)` resuelve RFN1.8: elige la bobina abierta con saldo suficiente o abre una nueva, descuenta y la cierra al agotarse. |
 | `CarritoBLL_575_AV` | Crea el carrito, agrega y quita renglones, recalcula el total y lo confirma (CUN-001). |
-| `ReservaBLL_575_AV` | Registra la reserva del faltante, **bloquea el artículo** y **emite el movimiento de reposición hacia el RFN2**. |
 | `OrdenPagoBLL_575_AV` | Emite la orden de pago a partir del carrito confirmado (CUN-002, RFN1.4). |
 | `VentaBLL_575_AV` | Valida el pedido contra la orden de pago, registra el cobro, descuenta stock, dispara el fraccionamiento y emite el comprobante (CUN-004; RFN1.5, RFN1.6, RFN1.7). |
 | `EntregaBLL_575_AV` | Valida el comprobante, registra la entrega y lo marca como entregado (CUN-005, RFN1.9). |
@@ -280,7 +285,7 @@ reutiliza como está.
 
 | Formulario | CU | Qué hace |
 |---|---|---|
-| `frmCarritoCompras_575_AV` | CUN-001 | Buscador con **filtro por categoría**, grilla de resultados resaltando los sin stock, grilla del carrito, cantidad, "Agregar", "Quitar" y "Confirmar carrito". Ante faltante, ofrece reservar. **No se llama "Llenar carrito".** |
+| `frmCarritoCompras_575_AV` | CUN-001 | Buscador con **filtro por categoría**, grilla de resultados resaltando los sin stock, grilla del carrito, cantidad, "Agregar", "Quitar" y "Confirmar carrito". Ante un faltante muestra "Sin disponibilidad" y el vendedor busca un equivalente. **No se llama "Llenar carrito".** |
 | `frmOrdenPago_575_AV` | CUN-002 | Detalle del carrito confirmado, nombre del cliente, botón "Emitir". Muestra "Se generó la orden de pago Nro. xxx". |
 | `frmRegistrarCliente_575_AV` | CUN-003 | Alta de cliente. Se abre desde CUN-004 cuando el DNI no existe. |
 | `frmValidarCobrar_575_AV` | CUN-004 | Ingreso de DNI, detalle de la orden de pago, medios de pago, autorización, emisión del comprobante. |
@@ -297,7 +302,7 @@ engancharlos y **renombrar las claves de traducción** que hablan de "llenar car
 1. **Catálogos y artículo.** Tablas, SP, BE, DAL, BLL y ABM de artículo. Incluye
    `Bobina`, el fraccionamiento y el `GestorDeExistencias_575_AV`.
 2. **Cliente**, junto con `EncriptadorReversible_575_AV`, que cierra T03.2.
-3. **Carrito y reserva** (CUN-001), con el bloqueo de artículo.
+3. **Carrito** (CUN-001).
 4. **Orden de pago** (CUN-002).
 5. **Validar y cobrar** (CUN-004), que arrastra CUN-003.
 6. **Entrega** (CUN-005).
@@ -381,7 +386,7 @@ bitácora guarda el entero, así que no se renumera nada que ya exista.
 | `AltaDetalleCarrito` | 32 | `CarritoBLL.AgregarDetalle` |
 | `BajaDetalleCarrito` | 33 | `CarritoBLL.QuitarDetalle` |
 | `ConfirmacionCarrito` | 34 | `CarritoBLL.ConfirmarCarrito` |
-| `AltaReserva` | 35 | `ReservaBLL.RegistrarReserva` |
+| `AltaReserva` | 35 | Reservado: las reservas se eliminaron en la v3.2 |
 | `OrdenPagoAbierta` | 36 | `frmOrdenPago_575_AV` al abrir |
 | `EmisionOrdenPago` | 37 | `OrdenPagoBLL.GenerarOrdenPago` |
 | `CajaAbierta` | 38 | `frmValidarCobrar_575_AV` al abrir |
@@ -393,29 +398,98 @@ bitácora guarda el entero, así que no se renumera nada que ya exista.
 | `EntregaParcial` | 44 | `EntregaBLL.RegistrarEntrega`, entrega parcial |
 | `DesencriptacionCorreo` | 45 | `ClienteBLL.DesencriptarCorreo`, al mostrar el correo descifrado (T03.2) |
 
-Los que ya existen y aparecen en los DS: `MovimientoStock` (22),
-`FraccionamientoBobina` (24) y `BloqueoArticulo` (25). Si `frmBitacora` o el filtro de
+Los que ya existen y aparecen en los DS: `MovimientoStock` (22) y
+`FraccionamientoBobina` (24). Si `frmBitacora` o el filtro de
 eventos traducen las acciones, agregar las claves de traducción de los valores nuevos.
 
-### 5.4 Métodos públicos, exactamente como en los diagramas
+### 5.4 Métodos, exactamente como en los diagramas
 
-Están en notación de diagrama: `Nombre(parametro : Tipo) : Retorno` equivale en C# a
-`Retorno Nombre(Tipo parametro)`. Las clases de la Fase 1 (`ArticuloBLL_575_AV`,
-`BobinaBLL_575_AV`, `MP_Articulo_575_AV`, `MP_Bobina_575_AV`, `MP_Catalogo_575_AV`,
-`GestorDeExistencias_575_AV`) ya coinciden con los diagramas. Lo único que se les
-agrega es lo del punto 5.5.
+**Actualizada el 25/09/2026 a partir del código ya programado.** Es la interfaz real de cada clase, la misma que muestran los diagramas de clases `N02.1.2.x.c`. Están en notación de diagrama: `Nombre(parametro : Tipo) : Retorno` equivale en C# a `Retorno Nombre(Tipo parametro)`; `+` es público y `-` privado. Cualquier método que se agregue, se quite o se renombre desde ahora hay que avisarlo, para actualizar el diagrama.
+
+**`ArticuloBLL_575_AV`**
+
+```
++ ListarCategorias() : List<CategoriaBE_575_AV>
++ ListarMarcas() : List<MarcaBE_575_AV>
++ ListarUnidadesMedida() : List<UnidadMedidaBE_575_AV>
++ ListarMediosPago() : List<MedioPagoBE_575_AV>
++ ListarArticulos() : List<ArticuloBE_575_AV>
++ BuscarArticulos(descripcion : string, id_categoria : int?, id_marca : int?, codigo : string, solo_activos : bool) : List<ArticuloBE_575_AV>
++ ObtenerPorId(id_articulo : int) : ArticuloBE_575_AV
++ ValidarDisponibilidad(id_articulo : int, cantidad : decimal) : bool
++ CrearArticulo(articulo : ArticuloBE_575_AV, usuario : string) : int
++ ActualizarArticulo(articulo : ArticuloBE_575_AV, usuario : string)
++ EliminarArticulo(id_articulo : int, usuario : string)
++ ObtenerArticulo(id_articulo : int) : ArticuloBE_575_AV
++ HaySaldoDeBobina(id_articulo : int, cantidad : decimal) : bool
++ MoverCantidad(id_articulo : int, cantidad : decimal, usuario : string)
++ CambiarEstado(id_articulo : int, estado : EstadoArticulo_575_AV, usuario : string)
++ VerificarIntegridad() : bool
++ RecalcularDV()
++ VerificarIntegridadCatalogos() : List<string>
++ RecalcularDVCatalogos()
+- PersistirDigito(articulo : ArticuloBE_575_AV)
+- Completar(articulos : List<ArticuloBE_575_AV>) : List<ArticuloBE_575_AV>
+- Validar(articulo : ArticuloBE_575_AV)
+```
+
+**`BobinaBLL_575_AV`**
+
+```
++ ListarPorArticulo(id_articulo : int) : List<BobinaBE_575_AV>
++ SaldoDisponible(id_articulo : int) : decimal
++ ExisteSaldoSuficiente(id_articulo : int, cantidad : decimal) : bool
++ CrearBobina(bobina : BobinaBE_575_AV, usuario : string) : int
++ Fraccionar(id_articulo : int, cantidad : decimal, usuario : string) : BobinaBE_575_AV
++ VerificarIntegridad() : bool
++ RecalcularDV()
+- PersistirDigito(bobina : BobinaBE_575_AV)
+```
+
+**`CarritoBLL_575_AV`**
+
+```
++ ListarAbiertos() : List<CarritoBE_575_AV>
++ ObtenerDetalle(id_carrito : int) : List<DetalleCarritoBE_575_AV>
++ CrearCarrito(usuario : string) : CarritoBE_575_AV
++ AgregarDetalle(carrito : CarritoBE_575_AV, detalle : DetalleCarritoBE_575_AV, usuario : string) : CarritoBE_575_AV
++ QuitarDetalle(carrito : CarritoBE_575_AV, detalle : DetalleCarritoBE_575_AV, usuario : string) : CarritoBE_575_AV
++ ConfirmarCarrito(carrito : CarritoBE_575_AV, usuario : string) : string
++ VerificarIntegridad() : bool
++ RecalcularDV()
+- PersistirDigito(carrito : CarritoBE_575_AV)
+- PersistirDigito(detalle : DetalleCarritoBE_575_AV)
+- PersistirDigitoDetalle(detalle : DetalleCarritoBE_575_AV)
+- RecalcularTotal(id_carrito : int) : CarritoBE_575_AV
+- Releer(id_carrito : int) : CarritoBE_575_AV
+- Completar(detalles : List<DetalleCarritoBE_575_AV>) : List<DetalleCarritoBE_575_AV>
+- Validar(carrito : CarritoBE_575_AV)
+```
+
+**`OrdenPagoBLL_575_AV`**
+
+```
++ ListarPendientes() : List<OrdenPagoBE_575_AV>
++ BuscarOrdenPago(nro_orden_pago : string) : OrdenPagoBE_575_AV
++ GenerarOrdenPago(carrito : CarritoBE_575_AV, nombre_cliente : string, usuario : string) : OrdenPagoBE_575_AV
++ VerificarIntegridad() : bool
++ RecalcularDV()
+- PersistirDigito(orden : OrdenPagoBE_575_AV)
+- Completar(ordenes : List<OrdenPagoBE_575_AV>) : List<OrdenPagoBE_575_AV>
+- Validar(carrito : CarritoBE_575_AV)
+```
 
 **`ClienteBLL_575_AV`**
 
 ```
 + BuscarPorDni(dni : string) : ClienteBE_575_AV
-+ CrearCliente(cliente : ClienteBE_575_AV, usuario : string) : int
 + DesencriptarCorreo(cliente : ClienteBE_575_AV, clave : string, usuario : string) : string
++ CrearCliente(cliente : ClienteBE_575_AV, usuario : string) : int
 + VerificarIntegridad() : bool
 + RecalcularDV()
+- PersistirDigito(cliente : ClienteBE_575_AV)
 - Validar(cliente : ClienteBE_575_AV)
 - ValidarCuit(cuit : string) : bool
-- PersistirDigito(cliente : ClienteBE_575_AV)
 ```
 
 **T03.2 — botón de desencriptar protegido por clave.** En `frmValidarCobrar_575_AV`, los
@@ -427,41 +501,6 @@ coincide, lanza una excepción y no descifra; si coincide, devuelve
 `TipoAccion.DesencriptacionCorreo`. No reutiliza `UsuarioBLL.VerifUsuario`, que bloquea
 al usuario y cambia la clave según el caso.
 
-**`CarritoBLL_575_AV`**
-
-```
-+ CrearCarrito(usuario : string) : CarritoBE_575_AV
-+ AgregarDetalle(carrito : CarritoBE_575_AV, detalle : DetalleCarritoBE_575_AV, usuario : string) : CarritoBE_575_AV
-+ QuitarDetalle(carrito : CarritoBE_575_AV, detalle : DetalleCarritoBE_575_AV, usuario : string) : CarritoBE_575_AV
-+ ConfirmarCarrito(carrito : CarritoBE_575_AV, usuario : string) : string
-+ ObtenerDetalle(id_carrito : int) : List<DetalleCarritoBE_575_AV>
-+ VerificarIntegridad() : bool
-+ RecalcularDV()
-- Validar(carrito : CarritoBE_575_AV)
-- PersistirDigito(carrito : CarritoBE_575_AV)
-- PersistirDigito(detalle : DetalleCarritoBE_575_AV)
-```
-
-**`ReservaBLL_575_AV`**
-
-```
-+ RegistrarReserva(reserva : ReservaBE_575_AV, usuario : string) : ReservaBE_575_AV
-+ VerificarIntegridad() : bool
-+ RecalcularDV()
-- PersistirDigito(reserva : ReservaBE_575_AV)
-```
-
-**`OrdenPagoBLL_575_AV`**
-
-```
-+ GenerarOrdenPago(carrito : CarritoBE_575_AV, nombre_cliente : string, usuario : string) : OrdenPagoBE_575_AV
-+ BuscarOrdenPago(nro_orden_pago : string) : OrdenPagoBE_575_AV
-+ VerificarIntegridad() : bool
-+ RecalcularDV()
-- Validar(carrito : CarritoBE_575_AV)
-- PersistirDigito(orden : OrdenPagoBE_575_AV)
-```
-
 **`VentaBLL_575_AV`**
 
 ```
@@ -469,46 +508,122 @@ al usuario y cambia la clave según el caso.
 + VerificarIntegridad() : bool
 + RecalcularDV()
 - PersistirDigito(entidad : IVerificable, tabla : string)
+- ArmarComprobante(orden : OrdenPagoBE_575_AV, cliente : ClienteBE_575_AV) : ComprobanteBE_575_AV
+- Validar(orden : OrdenPagoBE_575_AV, cliente : ClienteBE_575_AV, detalles : List<DetalleCarritoBE_575_AV>)
 ```
 
 **`EntregaBLL_575_AV`**
 
 ```
 + ValidarComprobante(nro_comprobante : string) : List<DetalleComprobanteBE_575_AV>
++ ObtenerComprobante(nro_comprobante : string) : ComprobanteBE_575_AV
 + RegistrarEntrega(comprobante : ComprobanteBE_575_AV, detalles : List<DetalleEntregaBE_575_AV>, usuario : string) : EntregaBE_575_AV
 + VerificarIntegridad() : bool
 + RecalcularDV()
 - PersistirDigito(entidad : IVerificable, tabla : string)
+- ValidarCantidades(facturado : List<DetalleComprobanteBE_575_AV>, entregado : List<DetalleEntregaBE_575_AV>) : bool
+- Completar(detalles : List<DetalleComprobanteBE_575_AV>) : List<DetalleComprobanteBE_575_AV>
 ```
 
-**`MP_Cliente_575_AV`**
+**`VerificadorIntegridadBLL`**
 
 ```
-+ BuscarPorDni(dni : string) : ClienteBE_575_AV
-+ BuscarPorCuit(cuit : string) : ClienteBE_575_AV
-+ CrearCliente(cliente : ClienteBE_575_AV) : int
-+ ActualizarDVH(id_cliente : int, dvh : string)
++ ExtraerDVH() : List<string>
++ ExtraerDVV() : string
++ ActualizarDVV()
++ VerificarIntegridad() : bool
++ VerificarIntegridadTotal() : List<string>
++ RecalcularDVTotal()
++ ActualizarDVV(tabla : string)
++ VerificarIntegridad(entidades : IEnumerable<IVerificable>, tabla : string) : bool
++ RecalcularDV()
+```
+
+**`GestorDeExistencias_575_AV`**
+
+```
++ {static} GetInstance : GestorDeExistencias_575_AV
++ Configurar(origen : IExistencias_575_AV)
++ HayDisponibilidad(id_articulo : int, cantidad : decimal) : bool
++ Descontar(id_articulo : int, cantidad : decimal, usuario : string)
++ Reponer(id_articulo : int, cantidad : decimal, usuario : string)
++ Bloquear(id_articulo : int, usuario : string)
++ Liberar(id_articulo : int, usuario : string)
+- Origen() : IExistencias_575_AV
+- HayDisponibilidadSinCandado(id_articulo : int, cantidad : decimal) : bool
+- AvisarSiQuedoBajoMinimo(id_articulo : int)
+```
+
+**`AutorizadorPago_575_AV`**
+
+```
++ Autorizar(medio_pago : MedioPagoBE_575_AV, datos_pago : string, monto : decimal) : ResultadoPago_575_AV
+- {static} GenerarCodigo() : string
+```
+
+**`EncriptadorReversible_575_AV`**
+
+```
++ {static} Encriptar(texto : string) : string
++ {static} Desencriptar(cifrado : string) : string
+- {static} CrearAes() : Aes
+- {static} DerivarClave() : byte[]
+```
+
+**`MP_Articulo_575_AV`**
+
+```
++ ListarArticulos() : List<ArticuloBE_575_AV>
++ BuscarArticulos(descripcion : string, id_categoria : int?, id_marca : int?, codigo : string, solo_activos : bool) : List<ArticuloBE_575_AV>
++ CrearArticulo(articulo : ArticuloBE_575_AV) : int
++ ActualizarArticulo(articulo : ArticuloBE_575_AV)
++ EliminarArticulo(id_articulo : int)
++ ActualizarStock(id_articulo : int, cantidad : decimal)
++ ActualizarEstado(id_articulo : int, estado : EstadoArticulo_575_AV)
++ ActualizarDVH(id_articulo : int, dvh : string)
+```
+
+**`MP_Bobina_575_AV`**
+
+```
++ ListarBobinas() : List<BobinaBE_575_AV>
++ ListarPorArticulo(id_articulo : int) : List<BobinaBE_575_AV>
++ CrearBobina(bobina : BobinaBE_575_AV) : int
++ ActualizarSaldo(bobina : BobinaBE_575_AV)
++ ActualizarDVH(id_bobina : int, dvh : string)
+```
+
+**`MP_Catalogo_575_AV`**
+
+```
++ ListarCategorias() : List<CategoriaBE_575_AV>
++ ListarMarcas() : List<MarcaBE_575_AV>
++ ListarUnidadesMedida() : List<UnidadMedidaBE_575_AV>
++ ListarMediosPago() : List<MedioPagoBE_575_AV>
++ CrearMarca(nombre : string) : int
++ ActualizarDVHCategoria(id_categoria : int, dvh : string)
++ ActualizarDVHMarca(id_marca : int, dvh : string)
++ ActualizarDVHUnidadMedida(id_unidad_medida : int, dvh : string)
++ ActualizarDVHMedioPago(id_medio_pago : int, dvh : string)
+- ActualizarDVH(tabla : string, id : int, dvh : string)
 ```
 
 **`MP_Carrito_575_AV`**
 
 ```
++ ListarCarritos() : List<CarritoBE_575_AV>
++ ListarAbiertos() : List<CarritoBE_575_AV>
++ ListarDetalle(id_carrito : int) : List<DetalleCarritoBE_575_AV>
++ ListarDetalles() : List<DetalleCarritoBE_575_AV>
 + ProximoNumero() : string
 + CrearCarrito(carrito : CarritoBE_575_AV) : int
 + AgregarDetalle(detalle : DetalleCarritoBE_575_AV) : int
 + QuitarDetalle(id_detalle_carrito : int)
 + ActualizarTotal(id_carrito : int, precio_total : decimal)
 + ActualizarEstado(id_carrito : int, estado : EstadoCarrito_575_AV)
-+ ListarDetalle(id_carrito : int) : List<DetalleCarritoBE_575_AV>
 + ActualizarDVH(id_carrito : int, dvh : string)
 + ActualizarDVHDetalle(id_detalle_carrito : int, dvh : string)
-```
-
-**`MP_Reserva_575_AV`**
-
-```
-+ CrearReserva(reserva : ReservaBE_575_AV) : int
-+ ActualizarDVH(id_reserva : int, dvh : string)
+- ActualizarDVH(tabla : string, id : int, dvh : string)
 ```
 
 **`MP_OrdenPago_575_AV`**
@@ -517,45 +632,54 @@ al usuario y cambia la clave según el caso.
 + ProximoNumero() : string
 + CrearOrdenPago(orden : OrdenPagoBE_575_AV) : int
 + BuscarPorNumero(nro_orden_pago : string) : OrdenPagoBE_575_AV
++ ListarOrdenes() : List<OrdenPagoBE_575_AV>
++ ListarPendientes() : List<OrdenPagoBE_575_AV>
 + ActualizarEstado(id_orden_pago : int, estado : EstadoOrdenPago_575_AV)
 + ActualizarDVH(id_orden_pago : int, dvh : string)
+```
+
+**`MP_Cliente_575_AV`**
+
+```
++ ListarClientes() : List<ClienteBE_575_AV>
++ BuscarPorDni(dni : string) : ClienteBE_575_AV
++ BuscarPorCuit(cuit : string) : ClienteBE_575_AV
++ CrearCliente(cliente : ClienteBE_575_AV) : int
++ ActualizarDVH(id_cliente : int, dvh : string)
 ```
 
 **`MP_Comprobante_575_AV`**
 
 ```
-+ ProximoNumero() : string
++ ProximoNumero(tipo_comprobante : string) : string
++ BuscarPorNumero(nro_comprobante : string) : ComprobanteBE_575_AV
++ ListarComprobantes() : List<ComprobanteBE_575_AV>
++ ListarDetalle(id_comprobante : int) : List<DetalleComprobanteBE_575_AV>
++ ListarDetalles() : List<DetalleComprobanteBE_575_AV>
++ ListarPagos() : List<PagoBE_575_AV>
++ ListarPagosPorComprobante(id_comprobante : int) : List<PagoBE_575_AV>
 + CrearComprobante(comprobante : ComprobanteBE_575_AV) : int
 + AgregarDetalle(detalle : DetalleComprobanteBE_575_AV) : int
 + RegistrarPago(pago : PagoBE_575_AV) : int
-+ BuscarPorNumero(nro_comprobante : string) : ComprobanteBE_575_AV
-+ ListarDetalle(id_comprobante : int) : List<DetalleComprobanteBE_575_AV>
 + ActualizarEstado(id_comprobante : int, estado : EstadoComprobante_575_AV)
 + ActualizarDVH(id_comprobante : int, dvh : string)
 + ActualizarDVHDetalle(id_detalle_comprobante : int, dvh : string)
 + ActualizarDVHPago(id_pago : int, dvh : string)
+- ActualizarDVH(tabla : string, id : int, dvh : string)
 ```
 
 **`MP_Entrega_575_AV`**
 
 ```
++ BuscarPorComprobante(id_comprobante : int) : EntregaBE_575_AV
++ ListarEntregas() : List<EntregaBE_575_AV>
++ ListarDetalle(id_entrega : int) : List<DetalleEntregaBE_575_AV>
++ ListarDetalles() : List<DetalleEntregaBE_575_AV>
 + CrearEntrega(entrega : EntregaBE_575_AV) : int
 + AgregarDetalle(detalle : DetalleEntregaBE_575_AV) : int
 + ActualizarDVH(id_entrega : int, dvh : string)
 + ActualizarDVHDetalle(id_detalle_entrega : int, dvh : string)
-```
-
-**`EncriptadorReversible_575_AV`**
-
-```
-+ {static} Encriptar(texto : string) : string
-+ {static} Desencriptar(cifrado : string) : string
-```
-
-**`AutorizadorPago_575_AV`**
-
-```
-+ Autorizar(medio_pago : MedioPagoBE_575_AV, datos_pago : string, monto : decimal) : ResultadoPago_575_AV
+- ActualizarDVH(tabla : string, id : int, dvh : string)
 ```
 
 ### 5.5 Integridad de **todas** las tablas al iniciar sesión — corregir ya

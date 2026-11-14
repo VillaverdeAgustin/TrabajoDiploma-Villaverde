@@ -41,6 +41,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComparacionPrecio_575_AV.cs" />
+    <Compile Include="DetalleOrdenCompraBE_575_AV.cs" />
+    <Compile Include="DetalleRecepcionBE_575_AV.cs" />
+    <Compile Include="AvanceInstalacion_575_AV.cs" />
+    <Compile Include="EstadoConexion_575_AV.cs" />
+    <Compile Include="EstadoOrdenCompra_575_AV.cs" />
+    <Compile Include="ItemListaPrecioBE_575_AV.cs" />
+    <Compile Include="ListaPrecioBE_575_AV.cs" />
+    <Compile Include="OrdenCompraBE_575_AV.cs" />
+    <Compile Include="DocumentoOrdenCompra_575_AV.cs" />
+    <Compile Include="OrdenReporteCompra_575_AV.cs" />
+    <Compile Include="ReporteComprasBE_575_AV.cs" />
+    <Compile Include="ResultadoSerializacion_575_AV.cs" />
+    <Compile Include="ResultadoVerificacion_575_AV.cs" />
+    <Compile Include="ResumenProveedorCompra_575_AV.cs" />
+    <Compile Include="ProveedorBE_575_AV.cs" />
+    <Compile Include="RecepcionBE_575_AV.cs" />
+    <Compile Include="ResultadoImportacion_575_AV.cs" />
+    <Compile Include="ResumenImportacion_575_AV.cs" />
     <Compile Include="EventoBE.cs" />
     <Compile Include="Familia.cs" />
     <Compile Include="HistorialUsuarioBE.cs" />
@@ -65,9 +84,7 @@
     <Compile Include="CondicionIva_575_AV.cs" />
     <Compile Include="CarritoBE_575_AV.cs" />
     <Compile Include="DetalleCarritoBE_575_AV.cs" />
-    <Compile Include="ReservaBE_575_AV.cs" />
     <Compile Include="EstadoCarrito_575_AV.cs" />
-    <Compile Include="EstadoReserva_575_AV.cs" />
     <Compile Include="OrdenPagoBE_575_AV.cs" />
     <Compile Include="EstadoOrdenPago_575_AV.cs" />
     <Compile Include="ComprobanteBE_575_AV.cs" />
@@ -79,6 +96,8 @@
     <Compile Include="EntregaBE_575_AV.cs" />
     <Compile Include="DetalleEntregaBE_575_AV.cs" />
     <Compile Include="EstadoEntrega_575_AV.cs" />
+    <Compile Include="BackupBE_575_AV.cs" />
+    <Compile Include="ResultadoRestore_575_AV.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -41,6 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ListaPrecioBLL_575_AV.cs" />
+    <Compile Include="OrdenCompraBLL_575_AV.cs" />
+    <Compile Include="ProveedorBLL_575_AV.cs" />
+    <Compile Include="ConexionBLL_575_AV.cs" />
+    <Compile Include="RecepcionBLL_575_AV.cs" />
+    <Compile Include="ReporteComprasBLL_575_AV.cs" />
+    <Compile Include="SerializacionOrdenCompraBLL_575_AV.cs" />
     <Compile Include="BitacoraBLL.cs" />
     <Compile Include="GestorDeIdioma.cs" />
     <Compile Include="HistorialUsuarioBLL.cs" />
@@ -50,10 +57,11 @@
     <Compile Include="ArticuloBLL_575_AV.cs" />
     <Compile Include="ClienteBLL_575_AV.cs" />
     <Compile Include="CarritoBLL_575_AV.cs" />
-    <Compile Include="ReservaBLL_575_AV.cs" />
     <Compile Include="OrdenPagoBLL_575_AV.cs" />
     <Compile Include="VentaBLL_575_AV.cs" />
+    <Compile Include="ComprobanteBLL_575_AV.cs" />
     <Compile Include="EntregaBLL_575_AV.cs" />
+    <Compile Include="BackupBLL_575_AV.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VerificadorIntegridadBLL.cs" />
   </ItemGroup>

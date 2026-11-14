@@ -2,7 +2,6 @@ using System.Globalization;
 
 namespace Entidad_BE
 {
-    /// <summary>Renglon del despacho: cuanto se entrego de cada articulo.</summary>
     public class DetalleEntregaBE_575_AV : IVerificable
     {
         public int id_detalle_entrega { get; set; }
@@ -12,13 +11,10 @@ namespace Entidad_BE
         public int id_unidad_medida { get; set; }
         public string dvh { get; set; }
 
-        /// <summary>Codigo del articulo, que resuelve la BLL para pantalla.</summary>
         public string codigo_articulo { get; set; }
 
-        /// <summary>Descripcion del articulo, que resuelve la BLL para pantalla.</summary>
         public string descripcion_articulo { get; set; }
 
-        /// <summary>Abreviatura de la unidad, para mostrar junto a la cantidad.</summary>
         public string abreviatura_unidad { get; set; }
 
         public string digito { get { return dvh; } }

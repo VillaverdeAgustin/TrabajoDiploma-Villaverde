@@ -104,16 +104,13 @@ namespace Negocio_BLL
         {
             List<Permiso> permisosEnArbol = ListaPermisosEnArbol();
 
-            // Verificar si permisosEnArbol no es nulo
             if (permisosEnArbol == null)
             {
                 return new List<Permiso>();
             }
 
-            // Encontrar la familia con el nombre dado
             Familia familia = permisosEnArbol.OfType<Familia>().FirstOrDefault(f => f.Nombre == nombreFamilia);
 
-            // Devolver los hijos si se encuentra la familia, de lo contrario una lista vac�a
             return familia?.RetornarListaHijos() ?? new List<Permiso>();
         }
 

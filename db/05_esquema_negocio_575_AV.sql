@@ -1,28 +1,4 @@
--- =============================================================================
--- ConectAR S.R.L. - Trabajo de Diploma - Villaverde, Agustin (575_AV)
--- 05 - Esquema de negocio, fase 1: catalogos, articulo y bobina (RFN1)
---
--- Cubre los catalogos del dominio, el articulo y el circuito de bobina, que es
--- la particularidad del rubro: los articulos fraccionables se venden por metro
--- lineal a partir de una caja o rollo y hay que llevar el saldo remanente de
--- cada bobina abierta. Por eso cantidad_disponible es decimal y no int.
---
--- Convencion de nombres: columnas en minuscula con guion bajo. El termino del
--- dominio es Articulo, no Producto.
---
--- estado_articulo sostiene el bloqueo: cuando se reserva un articulo faltante
--- queda bloqueado hasta que la compra se concrete. Se persiste 'SinStock' sin
--- espacio para que el enum EstadoArticulo_575_AV mapee directo; el texto que ve
--- el usuario sale de la tabla Traduccion (T05).
---
--- Toda tabla de negocio lleva dvh y se controla por DVV (T08), y toda alta,
--- modificacion y baja se registra en bitacora desde la BLL (T06).
---
--- El usuario es un servicio, no una entidad de negocio: ninguna tabla de aca
--- lleva FK a Usuarios.
---
--- Orden de ejecucion: 01 -> 02 -> 03 -> 04 -> 05 -> 06
--- =============================================================================
+﻿-- 05 - Esquema de negocio - 575_AV
 
 USE [ConectAR_DB];
 GO
@@ -32,9 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
--- -----------------------------------------------------------------------------
 -- Catalogos
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Categoria', 'U') IS NULL
 CREATE TABLE [dbo].[Categoria](
     [id_categoria] [int] IDENTITY(1,1) NOT NULL,
@@ -82,11 +56,7 @@ CREATE TABLE [dbo].[MedioPago](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Articulo. cantidad_disponible y punto_reposicion son decimal, no int: un
--- articulo fraccionable tiene N bobinas y su disponibilidad es la suma de los
--- saldos.
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Articulo', 'U') IS NULL
 CREATE TABLE [dbo].[Articulo](
     [id_articulo]         [int] IDENTITY(1,1) NOT NULL,
@@ -109,10 +79,7 @@ CREATE TABLE [dbo].[Articulo](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Bobina. identificador es la etiqueta fisica de la bobina o caja.
--- estado: Cerrada (sin abrir) / Abierta (con saldo) / Agotada (saldo 0).
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Bobina', 'U') IS NULL
 CREATE TABLE [dbo].[Bobina](
     [id_bobina]      [int] IDENTITY(1,1) NOT NULL,
@@ -131,17 +98,7 @@ CREATE TABLE [dbo].[Bobina](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Cliente.
---
--- correo_electronico es el campo del requisito T03.2: se guarda cifrado con
--- AES-256 reversible (Servicios.EncriptadorReversible_575_AV) y se descifra solo
--- al mostrarlo, con el boton protegido por clave. Por eso el campo es ancho: el
--- texto cifrado en Base64 ocupa bastante mas que el correo original.
---
--- El dni entra al circuito de caja: es por donde se busca al cliente (CUN-004),
--- y el alta va como extend cuando no existe.
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Cliente', 'U') IS NULL
 CREATE TABLE [dbo].[Cliente](
     [id_cliente]          [int] IDENTITY(1,1) NOT NULL,
@@ -165,16 +122,7 @@ CREATE TABLE [dbo].[Cliente](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Carrito y su detalle (CUN-001).
---
--- El carrito lo arma el vendedor en el salon, antes de que el cajero
--- identifique al cliente: por eso guarda nombre_cliente como texto y todavia
--- no hay id_cliente.
---
--- id_bobina en el detalle queda en nulo salvo que el articulo se haya
--- fraccionado de una bobina concreta.
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Carrito', 'U') IS NULL
 CREATE TABLE [dbo].[Carrito](
     [id_carrito]       [int] IDENTITY(1,1) NOT NULL,
@@ -203,53 +151,13 @@ CREATE TABLE [dbo].[DetalleCarrito](
     [id_unidad_medida]   [int]          NOT NULL,
     [precio_unitario]    [decimal](12,2) NOT NULL,
     [subtotal]           [decimal](12,2) NOT NULL,
-    [id_bobina]          [int]          NULL,
     [dvh]                [varchar](64)  COLLATE Modern_Spanish_CI_AS NULL,
     CONSTRAINT [PK_DetalleCarrito] PRIMARY KEY CLUSTERED ([id_detalle_carrito] ASC),
     CONSTRAINT [CK_DetalleCarrito_cantidad] CHECK ([cantidad] > 0)
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
--- Reserva del faltante (CUN-001).
---
--- Compromete un articulo que no alcanza a cubrir el pedido e informa el plazo
--- estimado de reposicion. Al registrarse, el articulo queda BLOQUEADO hasta que
--- la compra se concrete, y el movimiento de reposicion pasa al RFN2.
---
--- id_cliente queda en nulo cuando el cliente todavia no esta registrado: el
--- alta entra recien en la caja.
--- -----------------------------------------------------------------------------
-IF OBJECT_ID('dbo.Reserva', 'U') IS NULL
-CREATE TABLE [dbo].[Reserva](
-    [id_reserva]     [int] IDENTITY(1,1) NOT NULL,
-    [id_articulo]    [int]          NOT NULL,
-    [id_cliente]     [int]          NULL,
-    [nombre_cliente] [varchar](100) COLLATE Modern_Spanish_CI_AS NULL,
-    [cantidad]       [decimal](12,2) NOT NULL,
-    [fecha_reserva]  [datetime]     NOT NULL,
-    [plazo_entrega]  [int]          NOT NULL,
-    [estado]         [varchar](15)  COLLATE Modern_Spanish_CI_AS NOT NULL
-                     CONSTRAINT [DF_Reserva_estado] DEFAULT ('Pendiente'),
-    [dvh]            [varchar](64)  COLLATE Modern_Spanish_CI_AS NULL,
-    CONSTRAINT [PK_Reserva] PRIMARY KEY CLUSTERED ([id_reserva] ASC),
-    CONSTRAINT [CK_Reserva_cantidad] CHECK ([cantidad] > 0),
-    CONSTRAINT [CK_Reserva_estado] CHECK ([estado] IN
-        ('Pendiente', 'EnCompra', 'Cumplida', 'Anulada'))
-) ON [PRIMARY];
-GO
-
--- -----------------------------------------------------------------------------
 -- Orden de pago (CUN-002).
---
--- Es el documento que el vendedor emite a partir del carrito confirmado y con
--- el que el cliente se presenta en la caja. Todavia no es un comprobante: no
--- descuenta existencias ni tiene valor fiscal.
---
--- Copia nombre_cliente y precio_total del carrito en lugar de leerlos por la
--- FK, porque la orden tiene que conservar lo que se emitio aunque despues
--- cambie el precio del articulo.
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.OrdenPago', 'U') IS NULL
 CREATE TABLE [dbo].[OrdenPago](
     [id_orden_pago]  [int] IDENTITY(1,1) NOT NULL,
@@ -269,21 +177,7 @@ CREATE TABLE [dbo].[OrdenPago](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Comprobante, su detalle y el pago (CUN-004).
---
--- El comprobante se emite como COMPROBANTE NO VALIDO COMO FACTURA: no hay
--- integracion con ARCA, ni CAE, ni servicios web del organismo.
---
--- tipo_comprobante sale de la condicion del cliente frente al IVA: 'A' para
--- responsable inscripto, con el impuesto discriminado, y 'B' para el resto.
---
--- El detalle copia cantidad y precio en lugar de leerlos del carrito: el
--- comprobante tiene que conservar lo que se emitio.
---
--- estado impide que un mismo comprobante se use dos veces para retirar
--- mercaderia: pasa a Entregado cuando el deposito lo despacha.
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Comprobante', 'U') IS NULL
 CREATE TABLE [dbo].[Comprobante](
     [id_comprobante]   [int] IDENTITY(1,1) NOT NULL,
@@ -320,9 +214,6 @@ CREATE TABLE [dbo].[DetalleComprobante](
 ) ON [PRIMARY];
 GO
 
--- El codigo de autorizacion lo devuelve el autorizador de pagos, que en el
--- alcance de la entrega simula la respuesta de la entidad: no hay integracion
--- bancaria posible.
 IF OBJECT_ID('dbo.Pago', 'U') IS NULL
 CREATE TABLE [dbo].[Pago](
     [id_pago]             [int] IDENTITY(1,1) NOT NULL,
@@ -339,16 +230,7 @@ CREATE TABLE [dbo].[Pago](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Entrega en deposito y su detalle (CUN-005).
---
--- El cliente presenta el comprobante y el encargado despacha la mercaderia.
--- No mueve existencias: el stock ya bajo al emitirse el comprobante.
---
--- id_comprobante es UNIQUE: un comprobante se despacha una sola vez. Si lo que
--- se entrega es menos que lo facturado, la entrega queda marcada como Parcial,
--- pero el comprobante se consume igual.
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.Entrega', 'U') IS NULL
 CREATE TABLE [dbo].[Entrega](
     [id_entrega]       [int] IDENTITY(1,1) NOT NULL,
@@ -377,9 +259,7 @@ CREATE TABLE [dbo].[DetalleEntrega](
 ) ON [PRIMARY];
 GO
 
--- -----------------------------------------------------------------------------
 -- Integridad referencial
--- -----------------------------------------------------------------------------
 IF OBJECT_ID('dbo.FK_Articulo_Categoria', 'F') IS NULL
     ALTER TABLE [dbo].[Articulo] WITH CHECK ADD CONSTRAINT [FK_Articulo_Categoria]
         FOREIGN KEY([id_categoria]) REFERENCES [dbo].[Categoria]([id_categoria]);
@@ -413,21 +293,6 @@ GO
 IF OBJECT_ID('dbo.FK_DetalleCarrito_UnidadMedida', 'F') IS NULL
     ALTER TABLE [dbo].[DetalleCarrito] WITH CHECK ADD CONSTRAINT [FK_DetalleCarrito_UnidadMedida]
         FOREIGN KEY([id_unidad_medida]) REFERENCES [dbo].[UnidadMedida]([id_unidad_medida]);
-GO
-
-IF OBJECT_ID('dbo.FK_DetalleCarrito_Bobina', 'F') IS NULL
-    ALTER TABLE [dbo].[DetalleCarrito] WITH CHECK ADD CONSTRAINT [FK_DetalleCarrito_Bobina]
-        FOREIGN KEY([id_bobina]) REFERENCES [dbo].[Bobina]([id_bobina]);
-GO
-
-IF OBJECT_ID('dbo.FK_Reserva_Articulo', 'F') IS NULL
-    ALTER TABLE [dbo].[Reserva] WITH CHECK ADD CONSTRAINT [FK_Reserva_Articulo]
-        FOREIGN KEY([id_articulo]) REFERENCES [dbo].[Articulo]([id_articulo]);
-GO
-
-IF OBJECT_ID('dbo.FK_Reserva_Cliente', 'F') IS NULL
-    ALTER TABLE [dbo].[Reserva] WITH CHECK ADD CONSTRAINT [FK_Reserva_Cliente]
-        FOREIGN KEY([id_cliente]) REFERENCES [dbo].[Cliente]([id_cliente]);
 GO
 
 IF OBJECT_ID('dbo.FK_OrdenPago_Carrito', 'F') IS NULL
@@ -490,10 +355,7 @@ IF OBJECT_ID('dbo.FK_DetalleEntrega_UnidadMedida', 'F') IS NULL
         FOREIGN KEY([id_unidad_medida]) REFERENCES [dbo].[UnidadMedida]([id_unidad_medida]);
 GO
 
--- -----------------------------------------------------------------------------
 -- Datos minimos de catalogo. Idempotente: solo inserta lo que falta.
--- El dvh queda en NULL y se calcula desde Recalcular Digitos (CUS-012).
--- -----------------------------------------------------------------------------
 INSERT INTO [dbo].[UnidadMedida] ([nombre], [abreviatura], [fraccionable])
 SELECT v.[nombre], v.[abreviatura], v.[fraccionable]
 FROM (VALUES
@@ -535,25 +397,7 @@ FROM (VALUES
 WHERE NOT EXISTS (SELECT 1 FROM [dbo].[MedioPago] m WHERE m.[nombre] = v.[nombre]);
 GO
 
--- =============================================================================
 -- T08 - Digito verificador de los datos sembrados
---
--- Mismo criterio que 03_datos_seguridad.sql: los valores van como literales, ya
--- calculados, para que una base recien instalada pase el control del login sin
--- pedir Recalcular Digitos.
---
--- Cada dvh es el SHA-256 de ObtenerCamposDV() de su entidad, con los campos
--- unidos por '|' y los bit renderizados como 'True'/'False'. Por ejemplo, para
--- Categoria:  id_categoria|nombre|activo
--- El DVV de cada tabla es el SHA-256 de sus dvh unidos por '|'; en una tabla
--- vacia equivale al SHA-256 de la cadena vacia.
---
--- Se aplican solo donde dvh quedo en NULL, es decir sobre la siembra recien
--- insertada: nunca pisan un valor ya recalculado en una base en uso.
---
--- Si se agrega, quita o edita una fila sembrada, estos literales dejan de valer
--- y hay que regenerarlos con Recalcular Digitos (CUS-012).
--- =============================================================================
 
 UPDATE c SET c.[dvh] = v.[dvh]
 FROM [dbo].[Categoria] c
@@ -607,8 +451,6 @@ JOIN (VALUES
 WHERE p.[dvh] IS NULL;
 GO
 
--- DVV por tabla. Articulo y Bobina nacen vacias: su DVV es el SHA-256 de la
--- cadena vacia, y cambia con la primera alta.
 MERGE INTO [dbo].[DigitoVertical] AS destino
 USING (VALUES
     (N'Categoria',    N'207a428cc6b7ada718b491d1512f9ee918e58c2138a643deab2128c50ca25399'),
@@ -620,7 +462,6 @@ USING (VALUES
     (N'Cliente',        N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
     (N'Carrito',        N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
     (N'DetalleCarrito', N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
-    (N'Reserva',        N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
     (N'OrdenPago',          N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
     (N'Comprobante',        N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),
     (N'DetalleComprobante', N'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'),

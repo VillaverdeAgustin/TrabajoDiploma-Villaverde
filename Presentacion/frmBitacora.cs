@@ -26,6 +26,8 @@ namespace Presentacion_575_AV
 
         private void frmBitacora_Load(object sender, EventArgs e)
         {
+            TextoTraducido_575_AV.Enum(cmbEvento, "ACC_");
+            TextoTraducido_575_AV.Enum(dgvBitacora, "accion", "ACC_");
             dgvBitacora.DataSource = bitacora.ListarBitacora();
             TraducirColumnas();
             dgvBitacora.EnableHeadersVisualStyles = false;
@@ -47,9 +49,20 @@ namespace Presentacion_575_AV
         public void ActualizarTextos()
         {
             this.Text = gestorIdioma.Traducir("BIT_TITULO");
-            label1.Text = gestorIdioma.Traducir("BIT_LBL_TITULO");
+            label1.Text = gestorIdioma.Traducir("BIT_LBL_BITACORA");
+            label7.Text = gestorIdioma.Traducir("BIT_LBL_TITULO");
+            groupBox1.Text = gestorIdioma.Traducir("BIT_GB_BUSQUEDA");
+            label2.Text = gestorIdioma.Traducir("COMUN_USUARIO");
+            label4.Text = gestorIdioma.Traducir("BIT_LBL_EVENTO");
+            label5.Text = gestorIdioma.Traducir("BIT_LBL_INTERVALO");
+            label3.Text = gestorIdioma.Traducir("COMUN_DESDE");
+            label6.Text = gestorIdioma.Traducir("COMUN_HASTA");
+            btnBuscar.Text = gestorIdioma.Traducir("COMUN_BUSCAR");
+            btnLimpiar.Text = gestorIdioma.Traducir("COMUN_LIMPIAR");
             btnSalir.Text = gestorIdioma.Traducir("COMUN_SALIR");
             TraducirColumnas();
+            TextoTraducido_575_AV.Refrescar(cmbEvento);
+            dgvBitacora.Invalidate();
         }
 
         private void TraducirColumnas()
@@ -63,14 +76,10 @@ namespace Presentacion_575_AV
 
         #endregion
 
-
         private void CargarDGV(List<EventoBE> ev)
         {
             dgvBitacora.DataSource = ev;
-            dgvBitacora.Columns[0].HeaderText = "ID Registro";
-            dgvBitacora.Columns[1].HeaderText = "Usuario";
-            dgvBitacora.Columns[2].HeaderText = "Accion";
-            dgvBitacora.Columns[3].HeaderText = "Fecha";
+            TraducirColumnas();
             dgvBitacora.EnableHeadersVisualStyles = false;
             dgvBitacora.ColumnHeadersDefaultCellStyle.Font = new Font(dgvBitacora.Font, FontStyle.Bold);
             dgvBitacora.ReadOnly = true;
@@ -81,10 +90,6 @@ namespace Presentacion_575_AV
             try
             {
                 CargarDGV(bitacora.ListarBitacora());
-                dgvBitacora.Columns[0].HeaderText = "ID Registro";
-                dgvBitacora.Columns[1].HeaderText = "Usuario";
-                dgvBitacora.Columns[2].HeaderText = "Accion";
-                dgvBitacora.Columns[3].HeaderText = "Fecha";
                 dgvBitacora.EnableHeadersVisualStyles = false;
                 dgvBitacora.ColumnHeadersDefaultCellStyle.Font = new Font(dgvBitacora.Font, FontStyle.Bold);
                 dgvBitacora.ReadOnly = true;
@@ -95,9 +100,10 @@ namespace Presentacion_575_AV
                 cmbEvento.SelectedIndex = -1;
                 txtUsuario.Text = "";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -128,12 +134,12 @@ namespace Presentacion_575_AV
                 if (cmbEvento.SelectedIndex == -1) { acc = null; }
                 else { acc = (TipoAccion)cmbEvento.SelectedValue; }
 
-
                 CargarDGV(bitacora.BuscarEventos(us, acc, fIni, fFin));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(gestorIdioma.Traducir("COMUN_MSG_ERROR"), gestorIdioma.Traducir("COMUN_ATENCION"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

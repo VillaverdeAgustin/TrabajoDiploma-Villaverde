@@ -1,20 +1,4 @@
-﻿-- =============================================================================
--- ConectAR S.R.L. - Trabajo de Diploma - Villaverde, Agustin (575_AV)
--- 02 - Stored procedures transversales
---
--- Toda persistencia pasa por stored procedures y consultas parametrizadas.
--- Las firmas de cada SP estan atadas a los parametros que arma la DAL
--- (Acceso_DAL/MP_*.cs, IdiomaDAL.cs, PerfilDAL.cs): si se cambia un nombre
--- de parametro aca, hay que cambiarlo tambien alli.
---
--- Se usa el patron DROP + CREATE en lugar de CREATE OR ALTER: es
--- idempotente igual, pero portable a versiones de SQL Server anteriores
--- a 2016 SP1, que es lo que necesita el instalador de D01.
---
--- Los tres SPs de nombre dinamico (SP_ExtTabla, SP_ExtraerDVH, SP_ExtraerDVV)
--- validan el nombre de tabla contra sys.tables y lo escapan con QUOTENAME
--- antes de concatenarlo, para no dejar una via de SQL Injection abierta.
--- =============================================================================
+﻿-- 02 - Stored procedures transversales - 575_AV
 
 USE [ConectAR_DB];
 GO
@@ -24,9 +8,7 @@ GO
 SET QUOTED_IDENTIFIER ON;
 GO
 
--- =============================================================================
 -- Genericos
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtTabla', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtTabla];
@@ -48,13 +30,8 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- T02 - Usuarios
--- =============================================================================
 
--- LoginResult (Entidad_BE/LoginResult.cs):
---   0 = usuario inexistente | 1 = OK | 2 = bloqueado
---   3 = contrasena incorrecta | 4 = inactivo
 IF OBJECT_ID('dbo.SP_Login', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_Login];
 GO
@@ -99,9 +76,6 @@ BEGIN
 END
 GO
 
--- Alta de usuario con registro en la tabla espejo.
--- Devuelve el Codigo generado: la BLL lo necesita para calcular el DVH
--- y persistirlo enseguida con SP_ActualizarUs.
 IF OBJECT_ID('dbo.SP_CrearUsuario', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_CrearUsuario];
 GO
@@ -143,8 +117,6 @@ BEGIN
 END
 GO
 
--- Actualizacion sin historial. La BLL la usa para persistir el DVH recalculado,
--- que no es un cambio de datos del usuario y no debe ensuciar la tabla espejo.
 IF OBJECT_ID('dbo.SP_ActualizarUs', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ActualizarUs];
 GO
@@ -300,9 +272,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- T06.B - Historial de usuario
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ListarHistorialUsuario', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ListarHistorialUsuario];
@@ -345,9 +315,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- T06 - Bitacora de eventos
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtBitacora', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtBitacora];
@@ -403,9 +371,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- T08 - Digito verificador
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtraerDVH', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtraerDVH];
@@ -422,11 +388,6 @@ BEGIN
         RETURN;
     END
 
-    -- El orden debe coincidir con el OrderBy de VerificadorIntegridadBLL: el
-    -- DVV se calcula sobre la secuencia de DVH. Se ordena por la clave primaria
-    -- de la tabla, que en Usuarios es Codigo y en las tablas de negocio es su
-    -- propio IdXxx. Se deduce de sys en lugar de fijarla, para que sirva igual
-    -- en las tablas transversales y en las de negocio.
     DECLARE @clave NVARCHAR(128) = (
         SELECT TOP 1 c.name
         FROM sys.indexes i
@@ -490,9 +451,7 @@ BEGIN
 END
 GO
 
--- =============================================================================
 -- T05 - Idiomas
--- =============================================================================
 
 IF OBJECT_ID('dbo.SP_ExtIdiomas', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtIdiomas];
@@ -517,50 +476,64 @@ BEGIN
 END
 GO
 
--- Un idioma nuevo nace clonando el diccionario de un idioma base, para que
--- ninguna clave quede sin traducir mientras se lo completa.
-IF OBJECT_ID('dbo.SP_CrearIdioma', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_CrearIdioma];
+-- T07 - Backup y Restore
+-- El archivo .bak lo escribe y lo lee el servicio de SQL Server, no el usuario: por eso la carpeta
+-- predeterminada es la de backups de la instancia. El restore NO tiene stored procedure: no se puede
+-- reemplazar una base desde adentro de ella, asi que MP_Backup_575_AV lo ejecuta como comando
+-- parametrizado contra master (excepcion documentada a la regla de "toda persistencia por SP").
+
+IF OBJECT_ID('dbo.SP_RutaBackups', 'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[SP_RutaBackups];
 GO
-CREATE PROCEDURE [dbo].[SP_CrearIdioma]
-(
-    @Codigo     NVARCHAR(5),
-    @Nombre     NVARCHAR(50),
-    @CodigoBase NVARCHAR(5)
-)
+CREATE PROCEDURE [dbo].[SP_RutaBackups]
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    DECLARE @IdBase INT = (SELECT Id FROM Idioma WHERE Codigo = @CodigoBase);
-    DECLARE @IdNuevo INT;
-
-    INSERT INTO Idioma (Codigo, Nombre) VALUES (@Codigo, @Nombre);
-    SET @IdNuevo = SCOPE_IDENTITY();
-
-    INSERT INTO Traduccion (IdIdioma, Clave, Texto)
-    SELECT @IdNuevo, Clave, Texto
-    FROM Traduccion
-    WHERE IdIdioma = @IdBase;
+    SELECT CONVERT(NVARCHAR(400), SERVERPROPERTY('InstanceDefaultBackupPath')) AS ruta;
 END
 GO
 
-IF OBJECT_ID('dbo.SP_ActualizarTraduccion', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_ActualizarTraduccion];
+IF OBJECT_ID('dbo.SP_GenerarBackup', 'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[SP_GenerarBackup];
 GO
-CREATE PROCEDURE [dbo].[SP_ActualizarTraduccion]
-(
-    @IdIdioma INT,
-    @Clave    NVARCHAR(100),
-    @Texto    NVARCHAR(300)
-)
+CREATE PROCEDURE [dbo].[SP_GenerarBackup]
+    @ruta NVARCHAR(400)
 AS
 BEGIN
     SET NOCOUNT ON;
+    DECLARE @base SYSNAME = DB_NAME();
+    BACKUP DATABASE @base TO DISK = @ruta
+        WITH CHECKSUM, INIT, NAME = N'ConectAR_DB - backup completo', DESCRIPTION = N'ConectAR 575_AV';
+END
+GO
 
-    UPDATE Traduccion
-    SET Texto = @Texto
-    WHERE IdIdioma = @IdIdioma AND Clave = @Clave;
+IF OBJECT_ID('dbo.SP_VerificarBackup', 'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[SP_VerificarBackup];
+GO
+CREATE PROCEDURE [dbo].[SP_VerificarBackup]
+    @ruta NVARCHAR(400)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    -- Valida que el archivo se pueda leer completo; si el backup tiene checksums, tambien los verifica.
+    RESTORE VERIFYONLY FROM DISK = @ruta;
+END
+GO
+
+-- Backups completos a disco de esta base registrados en msdb (el archivo puede ya no existir)
+IF OBJECT_ID('dbo.SP_ListarBackups', 'P') IS NOT NULL
+    DROP PROCEDURE [dbo].[SP_ListarBackups];
+GO
+CREATE PROCEDURE [dbo].[SP_ListarBackups]
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT bs.backup_finish_date AS fecha, CONVERT(BIGINT, bs.backup_size) AS tamano,
+           bmf.physical_device_name AS ruta, bs.database_name AS base_datos
+    FROM msdb.dbo.backupset bs
+         JOIN msdb.dbo.backupmediafamily bmf ON bmf.media_set_id = bs.media_set_id
+    WHERE bs.database_name = DB_NAME() AND bs.type = 'D' AND bmf.device_type IN (2, 102)
+    ORDER BY bs.backup_finish_date DESC;
 END
 GO
 
