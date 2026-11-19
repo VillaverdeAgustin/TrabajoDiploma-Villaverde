@@ -66,20 +66,20 @@ namespace Entidad_BE
         AltaOrdenCompra = 54,
         AltaDetalleOrdenCompra = 55,
         OrdenesCompraAbierta = 56,
-        AutorizacionesAbierta = 57,
-        AutorizacionOrdenCompra = 58,
-        RechazoOrdenCompra = 59,
+
         RecepcionAbierta = 60,
         RecepcionMercaderia = 61,
         RecepcionParcial = 62,
         ImportacionListaRevertida = 63,
         EmisionOrdenCompra = 64,
-
+        RestauracionArticulo = 65,
+        BitacoraCambiosAbierta = 66,
         ConsultaComprobante = 67,
         ConsultaReporteCompras = 68,
         SerializacionOrdenCompra = 69,
         DeserializacionOrdenCompra = 70,
         BackupGenerado = 71,
-        RestoreRealizado = 72
+        RestoreRealizado = 72,
+        ExportacionReporteCompras = 73
     }
 }

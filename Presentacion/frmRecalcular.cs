@@ -13,6 +13,7 @@ namespace Presentacion_575_AV
         public frmRecalcular()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "login");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonPrimario(btnRecalcular);
             EstiloConectAR_575_AV.BotonSecundario(btnRestaurar);

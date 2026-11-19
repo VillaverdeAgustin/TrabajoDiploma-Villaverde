@@ -21,6 +21,7 @@ namespace Presentacion_575_AV
         public frmSerializacion_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "serializacion");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonPrimario(btnSerializar);
             EstiloConectAR_575_AV.BotonPrimario(btnAbrir);

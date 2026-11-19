@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Login - Ayuda de ConectAR</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">Ayuda de ConectAR</span><a class="idioma" href="../en/login.htm">English</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Volver al índice</a></p>
+<h1>Login</h1>
+<h2>Para qué sirve</h2>
+<p>Identifica al usuario al abrir el sistema y, antes de entrar, controla la integridad de la base (dígito verificador). Es la primera pantalla del programa.</p>
+<h2>Quién la usa</h2>
+<p>Todos los usuarios</p>
+<h2>Paso a paso</h2>
+<ol>
+<li>Escriba su usuario y su contraseña.</li>
+<li>Presione <b>Iniciar</b>.</li>
+<li>Se verifica el usuario y la integridad de la base. Si todo está bien, se abre el menú principal con las opciones que permite su rol.</li>
+<li>Si la base tiene tablas alteradas y usted es administrador, se abre la pantalla <b>Integridad de la base de datos</b>: puede recalcular los dígitos, restaurar una copia o salir. Si no es administrador, el sistema informa que no está disponible.</li>
+</ol>
+<h2>Campos y botones</h2>
+<table>
+<tr><th>En pantalla</th><th>Qué significa</th></tr>
+<tr><td><b>Usuario</b></td><td>Nombre de usuario que le asignó el administrador.</td></tr>
+<tr><td><b>Contraseña</b></td><td>Su contraseña. Después de 3 intentos fallidos el usuario se bloquea.</td></tr>
+<tr><td><b>Iniciar</b></td><td>Inicia la sesión.</td></tr>
+<tr><td><b>Recalcular</b></td><td>(solo administrador) Recalcula los dígitos verificadores de todas las tablas.</td></tr>
+<tr><td><b>Restaurar copia</b></td><td>(solo administrador) Abre la restauración de una copia de seguridad.</td></tr>
+</table>
+<h2>Mensajes frecuentes</h2>
+<table class="mensajes">
+<tr><th>Mensaje</th><th>Qué hacer</th></tr>
+<tr><td>El usuario ingresado no existe</td><td>Revise cómo escribió el usuario.</td></tr>
+<tr><td>La contraseña ingresada es incorrecta</td><td>Vuelva a escribirla con cuidado: al tercer error el usuario se bloquea.</td></tr>
+<tr><td>El usuario se encuentra bloqueado. Contacte al administrador</td><td>Pida al administrador que lo desbloquee desde Gestión de Usuarios.</td></tr>
+<tr><td>Sistema no disponible. Contacte al administrador.</td><td>La base fue alterada. Avise al administrador para que la revise.</td></tr>
+</table>
+<h2>Ver también</h2>
+<ul>
+<li><a href="menu.htm">Menú principal</a></li>
+<li><a href="backup_restore.htm">Copia de seguridad y restauración</a></li>
+</ul>
+<p class="nota">En cualquier pantalla, presione F1 para abrir el tema de esa pantalla.</p>
+</div>
+<footer>ConectAR S.R.L. · Sistema de gestión · Ayuda en línea</footer>
+</body>
+</html>

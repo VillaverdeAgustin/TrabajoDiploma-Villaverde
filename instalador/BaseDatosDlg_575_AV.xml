@@ -71,7 +71,7 @@
     <ROW Dialog_="BaseDatosDlg" Control="BtnProbar" Type="PushButton" X="260" Y="72" Width="85" Height="17" Attributes="3" Text="&amp;Probar conexión" Order="1200"/>
     <ROW Dialog_="BaseDatosDlg" Control="TxtResultado" Type="Text" X="25" Y="96" Width="320" Height="22" Attributes="196611" Property="CONECTAR_RESULTADO" Text="[CONECTAR_RESULTADO]" Order="1300"/>
     <ROW Dialog_="BaseDatosDlg" Control="ChkSinBase" Type="CheckBox" X="25" Y="122" Width="320" Height="20" Attributes="3" Property="CONECTAR_SIN_BASE" Text="&amp;Continuar sin crear la base: ConectAR la crea la primera vez que se inicie." Order="1400"/>
-    <ROW Dialog_="BaseDatosDlg" Control="TxtAyuda" Type="Text" X="25" Y="160" Width="320" Height="60" Attributes="196611" Text="La base ConectAR_DB se crea durante la instalación con la cuenta de Windows de quien instala, ejecutando los scripts db\01 a db\11 contra master. Si la base ya existe en esa instancia, se conserva con sus datos y no se ejecuta ningún script. La instancia elegida queda guardada para el programa." Order="1500"/>
+    <ROW Dialog_="BaseDatosDlg" Control="TxtAyuda" Type="Text" X="25" Y="160" Width="320" Height="60" Attributes="196611" Text="La base ConectAR_DB se crea durante la instalación con la cuenta de Windows de quien instala, ejecutando los scripts db\01 a db\13 contra master. Si la base ya existe en esa instancia, se respalda y se actualiza conservando sus datos. La instancia elegida queda guardada para el programa." Order="1500"/>
   </COMPONENT>
 
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">

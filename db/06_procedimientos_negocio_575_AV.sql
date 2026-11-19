@@ -123,6 +123,7 @@ IF OBJECT_ID('dbo.SP_ExtArticulo', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ExtArticulo];
 GO
 CREATE PROCEDURE [dbo].[SP_ExtArticulo]
+    @id_articulo INT = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -130,6 +131,7 @@ BEGIN
            precio_unitario, cantidad_disponible, punto_reposicion, deposito_ubicacion,
            estado_articulo, activo, dvh
     FROM Articulo
+    WHERE @id_articulo IS NULL OR id_articulo = @id_articulo
     ORDER BY id_articulo;
 END
 GO
@@ -158,90 +160,6 @@ BEGIN
       AND (@codigo       IS NULL OR codigo       = @codigo)
       AND (@solo_activos = 0     OR activo       = 1)
     ORDER BY id_articulo;
-END
-GO
-
-IF OBJECT_ID('dbo.SP_CrearArticulo', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_CrearArticulo];
-GO
-CREATE PROCEDURE [dbo].[SP_CrearArticulo]
-(
-    @codigo              VARCHAR(25),
-    @descripcion         VARCHAR(200),
-    @id_categoria        INT,
-    @id_marca            INT,
-    @id_unidad_medida    INT,
-    @precio_unitario     DECIMAL(12,2),
-    @cantidad_disponible DECIMAL(12,2),
-    @punto_reposicion    DECIMAL(12,2),
-    @deposito_ubicacion  VARCHAR(30) = NULL,
-    @estado_articulo     VARCHAR(15) = 'Disponible'
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    INSERT INTO Articulo
-        (codigo, descripcion, id_categoria, id_marca, id_unidad_medida,
-         precio_unitario, cantidad_disponible, punto_reposicion,
-         deposito_ubicacion, estado_articulo, activo, dvh)
-    VALUES
-        (@codigo, @descripcion, @id_categoria, @id_marca, @id_unidad_medida,
-         @precio_unitario, @cantidad_disponible, @punto_reposicion,
-         @deposito_ubicacion, @estado_articulo, 1, NULL);
-
-    SELECT SCOPE_IDENTITY();
-END
-GO
-
-IF OBJECT_ID('dbo.SP_ActualizarArticulo', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_ActualizarArticulo];
-GO
-CREATE PROCEDURE [dbo].[SP_ActualizarArticulo]
-(
-    @id_articulo         INT,
-    @codigo              VARCHAR(25),
-    @descripcion         VARCHAR(200),
-    @id_categoria        INT,
-    @id_marca            INT,
-    @id_unidad_medida    INT,
-    @precio_unitario     DECIMAL(12,2),
-    @cantidad_disponible DECIMAL(12,2),
-    @punto_reposicion    DECIMAL(12,2),
-    @deposito_ubicacion  VARCHAR(30),
-    @estado_articulo     VARCHAR(15),
-    @activo              BIT
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    UPDATE Articulo
-    SET codigo              = @codigo,
-        descripcion         = @descripcion,
-        id_categoria        = @id_categoria,
-        id_marca            = @id_marca,
-        id_unidad_medida    = @id_unidad_medida,
-        precio_unitario     = @precio_unitario,
-        cantidad_disponible = @cantidad_disponible,
-        punto_reposicion    = @punto_reposicion,
-        deposito_ubicacion  = @deposito_ubicacion,
-        estado_articulo     = @estado_articulo,
-        activo              = @activo
-    WHERE id_articulo = @id_articulo;
-END
-GO
-
--- Baja logica: nunca DELETE fisico.
-IF OBJECT_ID('dbo.SP_ElimArticulo', 'P') IS NOT NULL
-    DROP PROCEDURE [dbo].[SP_ElimArticulo];
-GO
-CREATE PROCEDURE [dbo].[SP_ElimArticulo]
-    @id_articulo INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    UPDATE Articulo SET activo = 0 WHERE id_articulo = @id_articulo;
 END
 GO
 

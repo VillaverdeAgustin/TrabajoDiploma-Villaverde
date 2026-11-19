@@ -56,6 +56,7 @@ namespace Negocio_BLL
             falladas.AddRange(articuloBLL.VerificarIntegridadCatalogos());
 
             if (!articuloBLL.VerificarIntegridad()) { falladas.Add("Articulo"); }
+            if (!new ArticuloHistorialBLL_575_AV().VerificarIntegridad()) { falladas.Add("ArticuloHistorial_575_AV"); }
             if (!bobinaBLL.VerificarIntegridad()) { falladas.Add("Bobina"); }
             if (!clienteBLL.VerificarIntegridad()) { falladas.Add("Cliente"); }
             if (!carritoBLL.VerificarIntegridad()) { falladas.Add("Carrito"); }
@@ -85,6 +86,7 @@ namespace Negocio_BLL
 
             articuloBLL.RecalcularDVCatalogos();
             articuloBLL.RecalcularDV();
+            new ArticuloHistorialBLL_575_AV().RecalcularDV();
             bobinaBLL.RecalcularDV();
             clienteBLL.RecalcularDV();
             carritoBLL.RecalcularDV();

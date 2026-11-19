@@ -20,6 +20,7 @@ namespace Presentacion_575_AV
         public frmComprobante_575_AV(int idComprobante)
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "consultar_comprobantes");
             this.idComprobante = idComprobante;
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonPrimario(btnCerrar);

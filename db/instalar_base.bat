@@ -57,6 +57,8 @@ call :ejecutar 08_usuarios_prueba_575_AV.sql || goto fallo
 call :ejecutar 09_esquema_compras_575_AV.sql || goto fallo
 call :ejecutar 10_procedimientos_compras_575_AV.sql || goto fallo
 call :ejecutar 11_datos_prueba_compras_575_AV.sql || goto fallo
+call :ejecutar 12_bitacora_cambios_575_AV.sql || goto fallo
+call :ejecutar 13_actualizacion_E3_575_AV.sql || goto fallo
 
 echo.
 echo Base instalada

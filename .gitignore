@@ -370,3 +370,5 @@ instalador/salida/
 instalador/ConectAR_575_AV-SetupFiles/
 instalador/ConectAR_575_AV-backups/
 instalador/ConectAR_575_AV-cache/
+# Capturas e informes de pruebas: quedan fuera del repositorio (como en entrega-2)
+docs/

@@ -21,6 +21,7 @@ namespace Presentacion_575_AV
         public frmRecepcionMercaderia_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "recepcion");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);
         }
@@ -58,11 +59,11 @@ namespace Presentacion_575_AV
 
         private void TraducirColumnas()
         {
-            Titulo(dgvOrdenes, "nro", "AUT_COL_NRO");
+            Titulo(dgvOrdenes, "nro", "RCP_COL_NRO");
             Titulo(dgvOrdenes, "proveedor", "CMP_COL_PROVEEDOR");
             Titulo(dgvOrdenes, "estado", "RCP_COL_ESTADO");
-            Titulo(dgvOrdenes, "autorizada", "RCP_COL_AUTORIZACION");
-            Titulo(dgvOrdenes, "total", "AUT_COL_TOTAL");
+            Titulo(dgvOrdenes, "emitida", "RCP_COL_EMISION");
+            Titulo(dgvOrdenes, "total", "RCP_COL_TOTAL");
 
             Titulo(dgvRenglones, "codigo", "ART_COL_CODIGO");
             Titulo(dgvRenglones, "descripcion", "ART_COL_DESCRIPCION");
@@ -93,17 +94,17 @@ namespace Presentacion_575_AV
                 nro = o.nro_orden_compra,
                 proveedor = o.razon_social,
                 estado = gestorIdioma.Traducir("OC_EST_" + o.estado.ToString().ToUpperInvariant()),
-                autorizada = o.fecha_autorizacion,
+                emitida = o.fecha_emision,
                 total = o.total
             }).ToList();
 
             dgvOrdenes.DataSource = ordenes;
-            EstiloConectAR_575_AV.MostrarColumnas(dgvOrdenes, "nro", "proveedor", "estado", "autorizada", "total");
+            EstiloConectAR_575_AV.MostrarColumnas(dgvOrdenes, "nro", "proveedor", "estado", "emitida", "total");
             EstiloConectAR_575_AV.FormatoNumero(dgvOrdenes, "total");
             EstiloConectAR_575_AV.ColumnaElastica(dgvOrdenes, "proveedor");
-            if (dgvOrdenes.Columns["autorizada"] != null)
+            if (dgvOrdenes.Columns["emitida"] != null)
             {
-                dgvOrdenes.Columns["autorizada"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+                dgvOrdenes.Columns["emitida"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
             }
             TraducirColumnas();
 
@@ -239,7 +240,7 @@ namespace Presentacion_575_AV
             public string nro { get; set; }
             public string proveedor { get; set; }
             public string estado { get; set; }
-            public DateTime? autorizada { get; set; }
+            public DateTime? emitida { get; set; }
             public decimal total { get; set; }
         }
 

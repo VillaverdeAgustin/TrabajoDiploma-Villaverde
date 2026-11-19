@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Bitácora de cambios de artículos - Ayuda de ConectAR</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">Ayuda de ConectAR</span><a class="idioma" href="../en/bitacora_cambios.htm">English</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Volver al índice</a></p>
+<h1>Bitácora de cambios de artículos</h1>
+<h2>Para qué sirve</h2>
+<p>Muestra cada cambio de los datos de un artículo (alta, modificación, baja y restauración) con el valor anterior y el posterior, y permite volver a una versión (CUS-016 y CUS-017). El stock y el estado no se restauran.</p>
+<h2>Quién la usa</h2>
+<p>Administrador</p>
+<h2>Dónde está</h2>
+<p class="ruta"><b>Admin</b> → <b>Bitácora de cambios</b></p>
+<h2>Paso a paso</h2>
+<ol>
+<li>Abra <b>Admin</b> → <b>Bitácora de cambios</b>.</li>
+<li>Elija el artículo, la operación y las fechas, y presione <b>Buscar</b>.</li>
+<li>Seleccione un cambio: a la derecha se comparan los valores, con los campos modificados resaltados.</li>
+<li>Para volver a una versión, elija <b>Versión anterior</b> o <b>Versión posterior</b>, presione <b>Restaurar versión</b> y confirme.</li>
+</ol>
+<h2>Campos y botones</h2>
+<table>
+<tr><th>En pantalla</th><th>Qué significa</th></tr>
+<tr><td><b>Artículo</b></td><td>Artículo a consultar, o todos.</td></tr>
+<tr><td><b>Operación</b></td><td>Alta, modificación, baja o restauración.</td></tr>
+<tr><td><b>Valor anterior / Valor posterior</b></td><td>Valor anterior y posterior de cada dato del artículo.</td></tr>
+<tr><td><b>Restaurar versión</b></td><td>Devuelve el artículo a la versión elegida.</td></tr>
+</table>
+<h2>Mensajes frecuentes</h2>
+<table class="mensajes">
+<tr><th>Mensaje</th><th>Qué hacer</th></tr>
+<tr><td>La fecha desde no puede ser posterior a la fecha hasta.</td><td>Corrija las fechas.</td></tr>
+<tr><td>El artículo ya tiene esos datos.</td><td>Esa versión es igual a la actual: no hay nada que restaurar.</td></tr>
+<tr><td>El código … ya lo usa otro artículo.</td><td>Otro artículo usa ese código: cámbielo antes de restaurar.</td></tr>
+<tr><td>La bitácora de cambios no está disponible: falló el control de integridad.</td><td>El historial fue alterado: recalcule los dígitos verificadores desde el login.</td></tr>
+</table>
+<h2>Ver también</h2>
+<ul>
+<li><a href="bitacora.htm">Bitacora de Eventos</a></li>
+</ul>
+<p class="nota">En cualquier pantalla, presione F1 para abrir el tema de esa pantalla.</p>
+</div>
+<footer>ConectAR S.R.L. · Sistema de gestión · Ayuda en línea</footer>
+</body>
+</html>

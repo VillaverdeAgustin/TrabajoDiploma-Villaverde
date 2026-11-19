@@ -11,7 +11,6 @@ namespace Negocio_BLL
     {
         private const string TABLA = "OrdenCompra";
         private const string TABLA_DETALLE = "DetalleOrdenCompra";
-        private const int LARGO_OBSERVACIONES = 300;
 
         private MP_OrdenCompra_575_AV mpOrden = new MP_OrdenCompra_575_AV();
         private ArticuloBLL_575_AV articuloBLL = new ArticuloBLL_575_AV();
@@ -142,16 +141,11 @@ namespace Negocio_BLL
 
         #region Consulta
 
-        public List<OrdenCompraBE_575_AV> ListarPendientes()
-        {
-            return ConDetalle(mpOrden.ListarPorEstado(new[] { EstadoOrdenCompra_575_AV.PendienteAutorizacion }));
-        }
-
         public List<OrdenCompraBE_575_AV> ListarParaRecepcion()
         {
             return ConDetalle(mpOrden.ListarPorEstado(new[]
             {
-                EstadoOrdenCompra_575_AV.Autorizada,
+                EstadoOrdenCompra_575_AV.Emitida,
                 EstadoOrdenCompra_575_AV.RecibidaParcial
             }));
         }
@@ -161,9 +155,7 @@ namespace Negocio_BLL
         {
             return ConDetalle(mpOrden.ListarPorEstado(new[]
             {
-                EstadoOrdenCompra_575_AV.PendienteAutorizacion,
-                EstadoOrdenCompra_575_AV.Autorizada,
-                EstadoOrdenCompra_575_AV.Rechazada,
+                EstadoOrdenCompra_575_AV.Emitida,
                 EstadoOrdenCompra_575_AV.RecibidaParcial,
                 EstadoOrdenCompra_575_AV.Recibida
             }));
@@ -204,51 +196,6 @@ namespace Negocio_BLL
                 orden.detalle = ObtenerDetalle(orden.id_orden_compra);
             }
             return ordenes;
-        }
-
-        #endregion
-
-        #region Autorizacion (CUN-011)
-
-        public void Autorizar(OrdenCompraBE_575_AV orden, string usuario)
-        {
-            OrdenCompraBE_575_AV pendiente = Pendiente(orden);
-
-            pendiente.estado = EstadoOrdenCompra_575_AV.Autorizada;
-            pendiente.usuario_autorizante = usuario;
-            mpOrden.RegistrarAutorizacion(pendiente);
-
-            PersistirDigito(Releer(pendiente.id_orden_compra), TABLA);
-            bitacora.RegistrarBitacora(usuario, TipoAccion.AutorizacionOrdenCompra);
-        }
-
-        public void Rechazar(OrdenCompraBE_575_AV orden, string motivo, string usuario)
-        {
-            if (string.IsNullOrWhiteSpace(motivo))
-            {
-                throw new InvalidOperationException(GestorDeIdioma.GetInstance.Traducir("OC_ERR_MOTIVO"));
-            }
-
-            OrdenCompraBE_575_AV pendiente = Pendiente(orden);
-
-            motivo = motivo.Trim();
-            pendiente.estado = EstadoOrdenCompra_575_AV.Rechazada;
-            pendiente.usuario_autorizante = usuario;
-            pendiente.observaciones = motivo.Length > LARGO_OBSERVACIONES ? motivo.Substring(0, LARGO_OBSERVACIONES) : motivo;
-            mpOrden.RegistrarAutorizacion(pendiente);
-
-            PersistirDigito(Releer(pendiente.id_orden_compra), TABLA);
-            bitacora.RegistrarBitacora(usuario, TipoAccion.RechazoOrdenCompra);
-        }
-
-        private OrdenCompraBE_575_AV Pendiente(OrdenCompraBE_575_AV orden)
-        {
-            OrdenCompraBE_575_AV guardada = orden == null ? null : Releer(orden.id_orden_compra);
-            if (guardada == null || guardada.estado != EstadoOrdenCompra_575_AV.PendienteAutorizacion)
-            {
-                throw new InvalidOperationException(GestorDeIdioma.GetInstance.Traducir("OC_ERR_NO_PENDIENTE"));
-            }
-            return guardada;
         }
 
         #endregion

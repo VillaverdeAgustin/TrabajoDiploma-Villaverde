@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AyudaFormulario_575_AV.cs" />
     <Compile Include="EstiloConectAR_575_AV.cs" />
     <Compile Include="TextoTraducido_575_AV.cs" />
     <Compile Include="frmGestionArticulos_575_AV.cs">
@@ -91,12 +92,6 @@
     </Compile>
     <Compile Include="frmOrdenCompra_575_AV.Designer.cs">
       <DependentUpon>frmOrdenCompra_575_AV.cs</DependentUpon>
-    </Compile>
-    <Compile Include="frmAutorizarOrdenCompra_575_AV.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmAutorizarOrdenCompra_575_AV.Designer.cs">
-      <DependentUpon>frmAutorizarOrdenCompra_575_AV.cs</DependentUpon>
     </Compile>
     <Compile Include="frmRecepcionMercaderia_575_AV.cs">
       <SubType>Form</SubType>
@@ -277,6 +272,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Content Include="Ayuda\**\*.htm;Ayuda\estilo.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="..\db\*.sql">
       <Link>db\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -16,6 +16,7 @@ namespace Presentacion_575_AV
         public frmConsultaComprobantes_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "consultar_comprobantes");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonPrimario(btnBuscar);
             EstiloConectAR_575_AV.BotonSecundario(btnLimpiar);

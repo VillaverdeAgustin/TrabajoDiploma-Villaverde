@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Validate Order and Charge - ConectAR Help</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">ConectAR Help</span><a class="idioma" href="../es/validar_cobrar.htm">Español</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Back to contents</a></p>
+<h1>Validate Order and Charge</h1>
+<h2>What it is for</h2>
+<p>Validates the order against the payment order, identifies the customer by ID number, collects the payment with the chosen method and issues the invoice (CUN-004). If the customer is not registered, they are added from here (CUN-003, Register customer).</p>
+<h2>Who uses it</h2>
+<p>Cashier</p>
+<h2>Where it is</h2>
+<p class="ruta"><b>Checkout</b> → <b>Validate and Charge</b></p>
+<h2>Step by step</h2>
+<ol>
+<li>Open <b>Checkout</b> → <b>Validate and Charge</b> and choose the customer payment order.</li>
+<li>Type the ID number and press <b>Find customer</b>. If the customer does not exist, press <b>Register</b>, fill in their data and save it.</li>
+<li>Check the order detail against the request.</li>
+<li>Choose the payment method, fill in the data it asks for and press <b>Charge and issue receipt</b>.</li>
+<li>If the payment is approved, stock is deducted and the invoice is issued and shown on screen. Give a copy to the customer.</li>
+</ol>
+<h2>Fields and buttons</h2>
+<table>
+<tr><th>On screen</th><th>Meaning</th></tr>
+<tr><td><b>Pending payment orders</b></td><td>Payment orders waiting to be paid.</td></tr>
+<tr><td><b>ID number</b></td><td>Customer ID number. Identifies the registered customer.</td></tr>
+<tr><td><b>Find customer</b></td><td>Looks up the customer by ID number.</td></tr>
+<tr><td><b>VAT status</b></td><td>Defines the invoice type. Registered taxpayers and small taxpayers require a CUIT.</td></tr>
+<tr><td><b>Payment method</b></td><td>Cash, card or another enabled method.</td></tr>
+<tr><td><b>Show email</b></td><td>Shows the customer e-mail, which is stored encrypted; it asks for the authorization key.</td></tr>
+<tr><td><b>Charge and issue receipt</b></td><td>Collects the order and issues the invoice.</td></tr>
+</table>
+<h2>Common messages</h2>
+<table class="mensajes">
+<tr><th>Message</th><th>What to do</th></tr>
+<tr><td>There is no customer with ID number …. Do you want to register it?</td><td>Register the customer with <b>Register</b>.</td></tr>
+<tr><td>Identify the customer before charging.</td><td>Look up the customer by ID number before collecting.</td></tr>
+<tr><td>The payment was rejected: …</td><td>Ask for another payment method or try again.</td></tr>
+<tr><td>… is not available for the requested quantity.</td><td>Stock changed since the order was built: tell the salesperson.</td></tr>
+<tr><td>The tax ID is not valid.</td><td>Check the CUIT: it has 11 digits and a check digit.</td></tr>
+</table>
+<h2>See also</h2>
+<ul>
+<li><a href="carrito.htm">Shopping Cart</a></li>
+<li><a href="entregar.htm">Warehouse Delivery</a></li>
+<li><a href="consultar_comprobantes.htm">Search invoices</a></li>
+</ul>
+<p class="nota">On any screen, press F1 to open the topic of that screen.</p>
+</div>
+<footer>ConectAR S.R.L. · Management system · Online help</footer>
+</body>
+</html>

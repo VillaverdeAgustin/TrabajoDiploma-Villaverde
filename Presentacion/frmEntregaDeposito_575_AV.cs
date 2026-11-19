@@ -22,6 +22,7 @@ namespace Presentacion_575_AV
         public frmEntregaDeposito_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "entregar");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);
         }

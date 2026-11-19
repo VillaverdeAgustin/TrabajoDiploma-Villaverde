@@ -2,7 +2,7 @@
 SetProperty ProductName="ConectAR 575_AV"
 SetProperty Manufacturer="Villaverde Agustin"
 SetProperty UpgradeCode={6E4D9B57-5A3C-4F57-9C1A-575A0C0E2026}
-SetVersion 2.0.0
+SetVersion 3.0.0
 SetPackageType x64 -buildname DefaultBuild
 SetAppdir -buildname DefaultBuild -path [ProgramFiles64Folder]ConectAR_575_AV
 SetShortcutdir -buildname DefaultBuild -path "[ProgramMenuFolder]ConectAR 575_AV"
@@ -12,10 +12,17 @@ AddFile APPDIR "%CONECTAR_ARCHIVOS%\Entidad_BE.dll"
 AddFile APPDIR "%CONECTAR_ARCHIVOS%\Acceso_DAL.dll"
 AddFile APPDIR "%CONECTAR_ARCHIVOS%\Negocio_BLL.dll"
 AddFile APPDIR "%CONECTAR_ARCHIVOS%\Servicios.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\PdfSharp-gdi.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\PdfSharp.Charting-gdi.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\MigraDoc.DocumentObjectModel-gdi.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\MigraDoc.Rendering-gdi.dll"
+AddFile APPDIR "%CONECTAR_ARCHIVOS%\PDFsharp-MigraDoc-LICENSE.txt"
 AddFolder APPDIR "%CONECTAR_ARCHIVOS%\db"
+AddFolder APPDIR "%CONECTAR_ARCHIVOS%\Ayuda"
 NewShortcut -name "ConectAR 575_AV" -dir DesktopFolder -target APPDIR\Presentacion_575_AV.exe -wkdir APPDIR -desc "Sistema de gestion de ConectAR S.R.L."
 NewShortcut -name "ConectAR 575_AV" -dir SHORTCUTDIR -target APPDIR\Presentacion_575_AV.exe -wkdir APPDIR -desc "Sistema de gestion de ConectAR S.R.L."
 SetDotNetFrameworkLc -buildname DefaultBuild -version 4.7.2
+NewPrerequisite "SQL Server Express 2025" -type PreInstall -cmd_line "/q /IACCEPTSQLSERVERLICENSETERMS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS /ADDCURRENTUSERASSQLADMIN=True /UpdateEnabled=False" -cmd_basic_ui "/q /IACCEPTSQLSERVERLICENSETERMS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS /ADDCURRENTUSERASSQLADMIN=True /UpdateEnabled=False" -cmd_silent_ui "/q /IACCEPTSQLSERVERLICENSETERMS /ACTION=Install /FEATURES=SQLEngine /INSTANCENAME=SQLEXPRESS /ADDCURRENTUSERASSQLADMIN=True /UpdateEnabled=False" -setup_location FileBased -prereq_path "%CONECTAR_SQLEXPRESS%" -target_os Win64 -search_type RegKeyExists -search_path "HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL" -64bit
 SetPackageName ConectAR_575_AV.msi -buildname DefaultBuild
 SetOutputLocation -buildname DefaultBuild -path "%CONECTAR_SALIDA%"
 Save

@@ -26,6 +26,7 @@ namespace Presentacion_575_AV
         public frmImportarListaPrecios_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "importar_lista");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnNuevoProveedor);
             EstiloConectAR_575_AV.BotonSecundario(btnExaminar);

@@ -26,18 +26,8 @@ BEGIN
 END
 GO
 
--- Un usuario por rol de compras: AdministradorCompras y Propietario (clave en SHA-256)
+-- Usuario de compras: el Propietario (clave en SHA-256)
 SET IDENTITY_INSERT Usuarios ON;
-
-IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE Usuario = 'compras')
-    INSERT INTO Usuarios
-        (Codigo, DNI, Nombre, Apellido, Usuario, Rol, [Contraseña],
-         Direccion, Telefono, Email, Activo, Bloqueado, DVH)
-    VALUES
-        (5, 29444555, 'Hernan', 'Molina', 'compras', N'AdministradorCompras',
-         '90270432db3aa05e17ed5eeaa9c5c76df71e39f299287ce3079bdd435f545129',
-         'Pringles 610', '1142381004', 'compras@conectar.com.ar', 1, 0,
-         N'6cb38b1b4d03bd64dcb02dcc0907ff8fdfcbe9216156e1e8f3862e4b2498291a');
 
 IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE Usuario = 'propietario')
     INSERT INTO Usuarios
@@ -52,10 +42,10 @@ IF NOT EXISTS (SELECT 1 FROM Usuarios WHERE Usuario = 'propietario')
 SET IDENTITY_INSERT Usuarios OFF;
 GO
 
--- DVV de Usuarios con admin, los tres usuarios del 08 y los dos de compras
-IF (SELECT COUNT(*) FROM Usuarios) = 6
+-- DVV de Usuarios con admin, los tres usuarios del 08 y el propietario
+IF (SELECT COUNT(*) FROM Usuarios) = 5
     UPDATE DigitoVertical
-    SET DVV = N'94a9f56851bd67c6d881b465c198d1987ab7d202874f8fc63525dc2e2ec5034e'
+    SET DVV = N'506738c6038b8d4e89a83869e611cdd96441363e9a1f4541027251a1705f3155'
     WHERE Tabla = N'Usuarios';
 ELSE
     PRINT 'Usuarios tiene filas propias: el DVV se recalcula desde el login del administrador.';

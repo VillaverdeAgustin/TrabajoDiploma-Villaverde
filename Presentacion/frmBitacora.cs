@@ -18,6 +18,7 @@ namespace Presentacion_575_AV
         public frmBitacora()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "bitacora");
             EstiloConectAR_575_AV.AplicarFormulario(this);
         }
 

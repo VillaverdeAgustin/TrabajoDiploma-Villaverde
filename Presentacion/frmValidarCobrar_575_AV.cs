@@ -29,6 +29,7 @@ namespace Presentacion_575_AV
         public frmValidarCobrar_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "validar_cobrar");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnVerCorreo);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);

@@ -19,6 +19,7 @@ namespace Presentacion_575_AV
         public frmRegistrarCliente_575_AV(string dni)
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "validar_cobrar");
             EstiloConectAR_575_AV.AplicarFormulario(this);
 
             if (!string.IsNullOrWhiteSpace(dni))

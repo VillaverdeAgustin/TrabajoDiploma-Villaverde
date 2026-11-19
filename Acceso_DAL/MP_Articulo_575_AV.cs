@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace Acceso_DAL
 {
@@ -13,6 +14,14 @@ namespace Acceso_DAL
         public List<ArticuloBE_575_AV> ListarArticulos()
         {
             return Proyectar(conexDB.LeerTabla("SP_ExtArticulo", null));
+        }
+
+        public ArticuloBE_575_AV ObtenerPorId(int id_articulo)
+        {
+            SqlParameter[] parametros = new SqlParameter[1];
+            parametros[0] = new SqlParameter("@id_articulo", id_articulo);
+
+            return Proyectar(conexDB.LeerTabla("SP_ExtArticulo", parametros)).FirstOrDefault();
         }
 
         public List<ArticuloBE_575_AV> BuscarArticulos(string descripcion, int? id_categoria,
@@ -32,9 +41,9 @@ namespace Acceso_DAL
             return Proyectar(conexDB.LeerTabla("SP_BuscarArticulo", parametros));
         }
 
-        public int CrearArticulo(ArticuloBE_575_AV articulo)
+        public int CrearArticulo(ArticuloBE_575_AV articulo, string usuario)
         {
-            SqlParameter[] parametros = new SqlParameter[10];
+            SqlParameter[] parametros = new SqlParameter[11];
             parametros[0] = new SqlParameter("@codigo", articulo.codigo);
             parametros[1] = new SqlParameter("@descripcion", articulo.descripcion);
             parametros[2] = new SqlParameter("@id_categoria", articulo.id_categoria);
@@ -47,14 +56,15 @@ namespace Acceso_DAL
                 string.IsNullOrWhiteSpace(articulo.deposito_ubicacion)
                     ? (object)DBNull.Value : articulo.deposito_ubicacion);
             parametros[9] = new SqlParameter("@estado_articulo", articulo.estado_articulo.ToString());
+            parametros[10] = new SqlParameter("@usuario", usuario);
 
             object id = conexDB.EscribirRetornar("SP_CrearArticulo", parametros);
             return id == null ? 0 : Convert.ToInt32(id);
         }
 
-        public void ActualizarArticulo(ArticuloBE_575_AV articulo)
+        public void ActualizarArticulo(ArticuloBE_575_AV articulo, string usuario)
         {
-            SqlParameter[] parametros = new SqlParameter[12];
+            SqlParameter[] parametros = new SqlParameter[13];
             parametros[0] = new SqlParameter("@id_articulo", articulo.id_articulo);
             parametros[1] = new SqlParameter("@codigo", articulo.codigo);
             parametros[2] = new SqlParameter("@descripcion", articulo.descripcion);
@@ -69,16 +79,27 @@ namespace Acceso_DAL
                     ? (object)DBNull.Value : articulo.deposito_ubicacion);
             parametros[10] = new SqlParameter("@estado_articulo", articulo.estado_articulo.ToString());
             parametros[11] = new SqlParameter("@activo", articulo.activo);
+            parametros[12] = new SqlParameter("@usuario", usuario);
 
             conexDB.Escribir("SP_ActualizarArticulo", parametros);
         }
 
-        public void EliminarArticulo(int id_articulo)
+        public void EliminarArticulo(int id_articulo, string usuario)
         {
-            SqlParameter[] parametros = new SqlParameter[1];
+            SqlParameter[] parametros = new SqlParameter[2];
             parametros[0] = new SqlParameter("@id_articulo", id_articulo);
+            parametros[1] = new SqlParameter("@usuario", usuario);
 
             conexDB.Escribir("SP_ElimArticulo", parametros);
+        }
+
+        public void RestaurarArticulo(int id_historial, string usuario)
+        {
+            SqlParameter[] parametros = new SqlParameter[2];
+            parametros[0] = new SqlParameter("@id_historial", id_historial);
+            parametros[1] = new SqlParameter("@usuario", usuario);
+
+            conexDB.Escribir("SP_RestaurarArticulo_575_AV", parametros);
         }
 
         public void ActualizarStock(int id_articulo, decimal cantidad)

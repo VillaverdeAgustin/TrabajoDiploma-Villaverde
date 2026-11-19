@@ -13,8 +13,6 @@ namespace Entidad_BE
         public string usuario_emisor { get; set; }
         public EstadoOrdenCompra_575_AV estado { get; set; }
         public decimal total { get; set; }
-        public DateTime? fecha_autorizacion { get; set; }
-        public string usuario_autorizante { get; set; }
         public string observaciones { get; set; }
         public bool activo { get; set; }
         public string dvh { get; set; }
@@ -45,8 +43,6 @@ namespace Entidad_BE
                 usuario_emisor,
                 estado,
                 total.ToString("F2", CultureInfo.InvariantCulture),
-                Fecha(fecha_autorizacion),
-                usuario_autorizante,
                 observaciones,
                 activo);
         }

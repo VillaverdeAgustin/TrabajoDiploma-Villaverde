@@ -36,7 +36,6 @@ namespace Presentacion_575_AV
             this.colMontoUsd = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colRecibido = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPendientes = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colRechazadas = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblLeyenda = new System.Windows.Forms.Label();
             this.gbOrdenes = new System.Windows.Forms.GroupBox();
             this.dgvOrdenes = new System.Windows.Forms.DataGridView();
@@ -50,6 +49,8 @@ namespace Presentacion_575_AV
             this.colOrdenRecibido = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblMensaje = new System.Windows.Forms.Label();
             this.btnSalir = new System.Windows.Forms.Button();
+            this.btnExportarPdf = new System.Windows.Forms.Button();
+            this.sfdPdf = new System.Windows.Forms.SaveFileDialog();
             this.gbFiltros.SuspendLayout();
             this.gbResumen.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvResumen)).BeginInit();
@@ -178,8 +179,7 @@ namespace Presentacion_575_AV
             this.colMontoArs,
             this.colMontoUsd,
             this.colRecibido,
-            this.colPendientes,
-            this.colRechazadas});
+            this.colPendientes});
             this.dgvResumen.MultiSelect = false;
             this.dgvResumen.ReadOnly = true;
             this.dgvResumen.Location = new System.Drawing.Point(12, 26);
@@ -230,19 +230,11 @@ namespace Presentacion_575_AV
             //
             // colPendientes
             //
-            this.colPendientes.DataPropertyName = "pendientes_autorizacion";
-            this.colPendientes.HeaderText = "Pend. autorización";
+            this.colPendientes.DataPropertyName = "pendientes_recepcion";
+            this.colPendientes.HeaderText = "Pend. recepción";
             this.colPendientes.Name = "colPendientes";
             this.colPendientes.ReadOnly = true;
             this.colPendientes.Width = 150;
-            //
-            // colRechazadas
-            //
-            this.colRechazadas.DataPropertyName = "rechazadas";
-            this.colRechazadas.HeaderText = "Rechazadas";
-            this.colRechazadas.Name = "colRechazadas";
-            this.colRechazadas.ReadOnly = true;
-            this.colRechazadas.Width = 104;
             //
             // lblLeyenda
             //
@@ -352,7 +344,7 @@ namespace Presentacion_575_AV
             this.lblMensaje.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblMensaje.Location = new System.Drawing.Point(16, 596);
             this.lblMensaje.Name = "lblMensaje";
-            this.lblMensaje.Size = new System.Drawing.Size(920, 34);
+            this.lblMensaje.Size = new System.Drawing.Size(752, 34);
             this.lblMensaje.TabIndex = 16;
             this.lblMensaje.Text = "";
             //
@@ -365,6 +357,21 @@ namespace Presentacion_575_AV
             this.btnSalir.Text = "Salir";
             this.btnSalir.Click += new System.EventHandler(this.btnSalir_Click);
             //
+            // btnExportarPdf
+            //
+            this.btnExportarPdf.Location = new System.Drawing.Point(784, 596);
+            this.btnExportarPdf.Name = "btnExportarPdf";
+            this.btnExportarPdf.Size = new System.Drawing.Size(152, 34);
+            this.btnExportarPdf.TabIndex = 18;
+            this.btnExportarPdf.Text = "Exportar PDF";
+            this.btnExportarPdf.Click += new System.EventHandler(this.btnExportarPdf_Click);
+            //
+            // sfdPdf
+            //
+            this.sfdPdf.AddExtension = true;
+            this.sfdPdf.DefaultExt = "pdf";
+            this.sfdPdf.OverwritePrompt = true;
+            //
             // frmReporteCompras_575_AV
             //
             this.ClientSize = new System.Drawing.Size(1120, 642);
@@ -373,6 +380,7 @@ namespace Presentacion_575_AV
             this.Controls.Add(this.gbResumen);
             this.Controls.Add(this.gbOrdenes);
             this.Controls.Add(this.lblMensaje);
+            this.Controls.Add(this.btnExportarPdf);
             this.Controls.Add(this.btnSalir);
             this.Name = "frmReporteCompras_575_AV";
             this.Text = "Reporte de compras por proveedor";
@@ -409,7 +417,6 @@ namespace Presentacion_575_AV
         private System.Windows.Forms.DataGridViewTextBoxColumn colMontoUsd;
         private System.Windows.Forms.DataGridViewTextBoxColumn colRecibido;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPendientes;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colRechazadas;
         private System.Windows.Forms.Label lblLeyenda;
         private System.Windows.Forms.GroupBox gbOrdenes;
         private System.Windows.Forms.DataGridView dgvOrdenes;
@@ -423,5 +430,7 @@ namespace Presentacion_575_AV
         private System.Windows.Forms.DataGridViewTextBoxColumn colOrdenRecibido;
         private System.Windows.Forms.Label lblMensaje;
         private System.Windows.Forms.Button btnSalir;
+        private System.Windows.Forms.Button btnExportarPdf;
+        private System.Windows.Forms.SaveFileDialog sfdPdf;
     }
 }

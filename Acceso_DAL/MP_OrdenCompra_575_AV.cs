@@ -123,18 +123,6 @@ namespace Acceso_DAL
             return ordenes;
         }
 
-        public void RegistrarAutorizacion(OrdenCompraBE_575_AV orden)
-        {
-            SqlParameter[] parametros = new SqlParameter[4];
-            parametros[0] = new SqlParameter("@id_orden_compra", orden.id_orden_compra);
-            parametros[1] = new SqlParameter("@estado", orden.estado.ToString());
-            parametros[2] = new SqlParameter("@usuario_autorizante", orden.usuario_autorizante);
-            parametros[3] = new SqlParameter("@observaciones",
-                string.IsNullOrWhiteSpace(orden.observaciones) ? (object)DBNull.Value : orden.observaciones);
-
-            conexDB.Escribir("SP_RegistrarAutorizacionOrdenCompra", parametros);
-        }
-
         public void ActualizarCantidadRecibida(int id_detalle_orden_compra, decimal cantidad)
         {
             SqlParameter[] parametros = new SqlParameter[2];
@@ -215,8 +203,6 @@ namespace Acceso_DAL
                     usuario_emisor = dr["usuario_emisor"].ToString(),
                     estado = estado,
                     total = Convert.ToDecimal(dr["total"]),
-                    fecha_autorizacion = dr["fecha_autorizacion"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(dr["fecha_autorizacion"]),
-                    usuario_autorizante = Leer(dr["usuario_autorizante"]),
                     observaciones = Leer(dr["observaciones"]),
                     activo = Convert.ToBoolean(dr["activo"]),
                     dvh = Leer(dr["dvh"]),

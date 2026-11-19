@@ -3,7 +3,10 @@ using Negocio_BLL;
 using Servicios;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -21,14 +24,18 @@ namespace Presentacion_575_AV
         public frmReporteCompras_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "reporte_compras");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonPrimario(btnGenerar);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);
+            EstiloConectAR_575_AV.BotonPrimario(btnExportarPdf);
+            EstiloConectAR_575_AV.EstadoBoton(btnExportarPdf, false);
+            sfdPdf.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             lblLeyenda.Font = EstiloConectAR_575_AV.FuenteBajada;
 
             EstiloConectAR_575_AV.FormatoNumero(dgvResumen, "colMontoArs", "colMontoUsd");
             EstiloConectAR_575_AV.FormatoNumero(dgvOrdenes, "colOrdenArs", "colOrdenUsd");
-            Alinear(dgvResumen, "colOrdenes", "colRecibido", "colPendientes", "colRechazadas");
+            Alinear(dgvResumen, "colOrdenes", "colRecibido", "colPendientes");
             Alinear(dgvOrdenes, "colRenglones", "colOrdenRecibido");
             colFecha.DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
 
@@ -66,6 +73,9 @@ namespace Presentacion_575_AV
             gbResumen.Text = gestorIdioma.Traducir("REPC_GB_RESUMEN");
             lblLeyenda.Text = gestorIdioma.Traducir("REPC_LBL_LEYENDA");
             btnSalir.Text = gestorIdioma.Traducir("COMUN_SALIR");
+            btnExportarPdf.Text = gestorIdioma.Traducir("REPC_BTN_EXPORTAR_PDF");
+            sfdPdf.Title = gestorIdioma.Traducir("REPC_PDF_DIALOGO");
+            sfdPdf.Filter = gestorIdioma.Traducir("REPC_PDF_FILTRO");
 
             colProveedor.HeaderText = gestorIdioma.Traducir("REPC_COL_PROVEEDOR");
             colOrdenes.HeaderText = gestorIdioma.Traducir("REPC_COL_ORDENES");
@@ -73,7 +83,6 @@ namespace Presentacion_575_AV
             colMontoUsd.HeaderText = gestorIdioma.Traducir("REPC_COL_MONTO_USD");
             colRecibido.HeaderText = gestorIdioma.Traducir("REPC_COL_RECIBIDO");
             colPendientes.HeaderText = gestorIdioma.Traducir("REPC_COL_PENDIENTES");
-            colRechazadas.HeaderText = gestorIdioma.Traducir("REPC_COL_RECHAZADAS");
             colNro.HeaderText = gestorIdioma.Traducir("REPC_COL_NRO");
             colFecha.HeaderText = gestorIdioma.Traducir("REPC_COL_FECHA");
             colProveedorOrden.HeaderText = gestorIdioma.Traducir("REPC_COL_PROVEEDOR");
@@ -136,6 +145,7 @@ namespace Presentacion_575_AV
                 int proveedores = reporte.proveedores.Count;
                 dgvResumen.DataSource = ordenes == 0 ? new List<ResumenProveedorCompra_575_AV>() : reporte.filas;
                 MostrarOrdenes();
+                EstiloConectAR_575_AV.EstadoBoton(btnExportarPdf, ordenes > 0);
 
                 if (ordenes == 0)
                 {
@@ -164,6 +174,7 @@ namespace Presentacion_575_AV
             reporte = null;
             dgvResumen.DataSource = new List<ResumenProveedorCompra_575_AV>();
             MostrarOrdenes();
+            EstiloConectAR_575_AV.EstadoBoton(btnExportarPdf, false);
         }
 
         private void MostrarOrdenes()
@@ -183,6 +194,66 @@ namespace Presentacion_575_AV
         private void btnGenerar_Click(object sender, EventArgs e) => Generar();
 
         private void dgvResumen_SelectionChanged(object sender, EventArgs e) => MostrarOrdenes();
+
+        #endregion
+
+        #region Exportacion a PDF
+
+        private void btnExportarPdf_Click(object sender, EventArgs e)
+        {
+            if (reporte == null || reporte.total.cantidad_ordenes == 0) { return; }
+
+            sfdPdf.FileName = NombrePropuesto(DateTime.Now);
+            if (sfdPdf.ShowDialog(this) == DialogResult.OK)
+            {
+                ExportarPdf(sfdPdf.FileName);
+            }
+        }
+
+        private void ExportarPdf(string ruta)
+        {
+            try
+            {
+                reporteBLL.ExportarPdf(reporte, ruta, UsuarioActual());
+            }
+            catch (InvalidOperationException ex)
+            {
+                string mensaje = ex.Message;
+                Avisar(() => mensaje, true);
+                return;
+            }
+            catch (Exception)
+            {
+                Avisar(() => gestorIdioma.Traducir("COMUN_MSG_ERROR"), true);
+                return;
+            }
+
+            string archivo = Path.GetFileName(ruta);
+            Avisar(() => string.Format(gestorIdioma.Traducir("REPC_MSG_PDF_EXPORTADO"), archivo), false);
+
+            string pregunta = string.Format(gestorIdioma.Traducir("REPC_MSG_PDF_GUARDADO"), Environment.NewLine, ruta);
+            if (MessageBox.Show(this, pregunta, gestorIdioma.Traducir("REPC_TITULO"), MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+            {
+                AbrirArchivo(ruta);
+            }
+        }
+
+        private void AbrirArchivo(string ruta)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(ruta) { UseShellExecute = true });
+            }
+            catch (Exception)
+            {
+                Avisar(() => gestorIdioma.Traducir("REPC_ERR_PDF_ABRIR"), true);
+            }
+        }
+
+        private static string NombrePropuesto(DateTime momento)
+        {
+            return "ReporteCompras_" + momento.ToString("yyyyMMdd_HHmm", CultureInfo.InvariantCulture) + ".pdf";
+        }
 
         #endregion
 

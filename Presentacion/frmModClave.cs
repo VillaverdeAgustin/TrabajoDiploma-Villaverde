@@ -20,6 +20,7 @@ namespace Presentacion_575_AV
         public frmModClave()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "usuarios_perfiles");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             gestorIdioma.Suscribir(this);
             this.FormClosed += frmModClave_FormClosed;

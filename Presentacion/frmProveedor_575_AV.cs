@@ -25,6 +25,7 @@ namespace Presentacion_575_AV
         public frmProveedor_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "proveedores");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnNuevo);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);

@@ -20,6 +20,7 @@ namespace Presentacion_575_AV
         public frmHistorialUsuario()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "usuarios_perfiles");
             EstiloConectAR_575_AV.AplicarFormulario(this);
         }
 

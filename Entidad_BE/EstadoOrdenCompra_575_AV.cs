@@ -4,11 +4,7 @@ namespace Entidad_BE
     {
         Borrador = 0,
 
-        PendienteAutorizacion = 1,
-
-        Autorizada = 2,
-
-        Rechazada = 3,
+        Emitida = 1,
 
         RecibidaParcial = 4,
 

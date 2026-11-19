@@ -24,7 +24,7 @@ Negocio_BLL/     lógica de negocio
 Servicios/       transversales: encriptación, logger, DV, idioma, sesión
 Presentacion/    formularios Windows Forms
 db/              scripts de base de datos e instalar_base.bat
-instalador/      generador del .msi (Advanced Installer), acciones del instalador y diccionario
+instalador/      generador del setup (Advanced Installer), acciones del instalador y diccionario
 docs/            capturas y material por entrega
 ```
 
@@ -36,8 +36,11 @@ docs/            capturas y material por entrega
 - .NET Framework 4.7.2 o posterior (viene con Windows 10 1803 en adelante). Si falta,
   el instalador avisa y no continúa.
 - SQL Server 2019 o posterior (la edición Express alcanza), en la misma PC, con
-  autenticación de Windows. El instalador no incluye el motor.
-- No hace falta ser administrador: sin permisos se instala solo para el usuario.
+  autenticación de Windows. Si la PC no tiene ninguna instancia, el instalador instala
+  **SQL Server Express 2025** (instancia `SQLEXPRESS`), que viene incluido en el setup; eso sí
+  necesita una cuenta de administrador.
+- Con SQL Server ya instalado no hace falta ser administrador: sin permisos se instala solo para
+  el usuario.
 
 **PC de desarrollo**, además:
 
@@ -53,23 +56,38 @@ docs/            capturas y material por entrega
 
 ## Instalación
 
-Ejecutar `ConectAR_575_AV.msi` (paquete de **64 bits**, versión 2.0.0) y seguir el asistente:
+Ejecutar `ConectAR_575_AV_Setup.exe` (paquete de **64 bits**, versión 3.0.0, unos 724 MB porque
+incluye SQL Server Express 2025) y seguir el asistente:
+
+0. **SQL Server Express**. Antes del asistente se busca alguna instancia de SQL Server en la PC
+   (`HKLM\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL`, vista de 64 bits). Si no
+   hay ninguna, se instala SQL Server Express 2025 en silencio, con la instancia `SQLEXPRESS`,
+   autenticación de Windows y la cuenta que instala como administradora del motor. Si ya hay una,
+   este paso se saltea.
 
 1. **Carpeta e "Instalar para"**. *Todos los usuarios* instala en `C:\Program Files\ConectAR_575_AV`
    y pide confirmación de administrador (UAC). *Solo para mí* instala en
    `%LocalAppData%\Programs\ConectAR_575_AV`, con accesos directos solo para ese usuario, y **no
    pide UAC**. Se propone *Todos los usuarios* si la cuenta es administradora y *Solo para mí* si no.
 2. **Base de datos**. Lista las instancias locales de SQL Server (`localhost` para la
-   predeterminada, `.\NOMBRE` para las demás); se puede escribir otra. **Probar conexión** usa
+   predeterminada, `.\NOMBRE` para las demás) y propone la ya configurada, `.\SQLEXPRESS` o la
+   primera; se puede escribir otra. **Probar conexión** usa
    autenticación de Windows. Si la prueba falla, se puede marcar **Continuar sin crear la base**.
 3. **Instalar**. Durante la instalación, con la cuenta de Windows de quien instala (no SYSTEM):
    - se guarda la instancia en `%ProgramData%\ConectAR_575_AV\conexion.cfg`, con permiso de
      modificación para Usuarios (lo lee la capa de acceso a datos; el `App.config` no tiene conexión);
-   - si `ConectAR_DB` ya existe, se conserva con sus datos y no se ejecuta ningún script;
-   - si no existe, se ejecutan los scripts `db\01` a `db\11` contra `master`, en orden y respetando
-     `GO`, con la misma clase que usa el programa (`InstaladorBaseDatos_575_AV`). El avance se ve en
-     la barra de progreso;
-   - si un script falla, se borra la base a medio crear, se avisa y la instalación termina igual.
+   - si `ConectAR_DB` no existe, se ejecutan los scripts `db\01` a `db\13` contra `master`, en orden
+     y respetando `GO`, con la misma clase que usa el programa (`InstaladorBaseDatos_575_AV`). El
+     avance se ve en la barra de progreso. Si un script falla, se borra la base a medio crear, se
+     avisa y la instalación termina igual;
+   - si `ConectAR_DB` ya existe (reinstalación o actualización desde la Entrega 2), **se actualiza
+     sin perder los datos**: primero se hace un backup completo con los SP del T07
+     (`ConectAR_DB_antes_de_actualizar_<fecha>.bak`, en la carpeta Backup de la instancia); después
+     se ejecutan los scripts sin los de datos de prueba (`07`, `08` y `11`), incluido
+     `13_actualizacion_E3_575_AV.sql`, que pasa las órdenes de compra a los estados sin autorización
+     y quita el rol `AdministradorCompras`; por último se recalculan el DVH y el DVV de todas las
+     tablas con `VerificadorIntegridadBLL` del programa instalado (el mismo recálculo que el restore)
+     y se verifica la integridad. Si algo falla, se restaura el backup y la base queda como estaba.
 
 Con la base creada, el programa abre directo en el login. Si no se creó (instancia inválida,
 *Continuar sin crear la base* o falla de un script), la primera vez se abre **Conexión a la base de
@@ -96,22 +114,30 @@ instancia local) y `CONECTAR_SIN_BASE=1`.
 powershell -ExecutionPolicy Bypass -File instalador\generar_instalador.ps1
 ```
 
-Deja `ConectAR_575_AV.msi` en `instalador\salida\`. Todo sale de archivos versionados; el `.aip` se
-vuelve a crear en cada corrida:
+Deja `ConectAR_575_AV_Setup.exe` en `instalador\salida\`: un único archivo con el `.msi` y SQL
+Server Express 2025 adentro. El instalador de SQL Server Express (`SQLEXPR_x64_ENU.exe`, 714 MB) no
+se versiona: el script lo toma de `T.DIPLOMA\_descargas\SQLServerExpress2025\` o de la ruta que se
+pase con `-SqlExpress`. Todo lo demás sale de archivos versionados; el `.aip` se vuelve a crear en
+cada corrida:
 
 1. Compila la solución en Release y las acciones del instalador (`compilar_acciones.ps1`): una DLL
    x64 en C# (`instalador\acciones\`) que compila los mismos archivos de la DAL que el programa.
    Windows Installer llama funciones nativas, así que `ildasm`/`ilasm` le agregan las exportaciones.
 2. Crea un proyecto Professional y le aplica `ConectAR_575_AV.aic` (producto *ConectAR 575_AV*,
-   versión 2.0.0, `UpgradeCode` fijo, archivos, accesos directos y condición de .NET 4.7.2).
-3. Por automatización COM: tipo de instalación *por máquina si es administrador, por usuario si no*
-   y el diálogo **Base de datos**, encadenado después de la pantalla de carpeta.
+   versión 3.0.0, `UpgradeCode` fijo, archivos con las DLL de PDFsharp-MigraDoc, su licencia y la
+   carpeta `Ayuda`, accesos directos, condición de .NET 4.7.2 y el prerequisito de SQL Server
+   Express 2025).
+3. Por automatización COM: tipo de instalación *por máquina si es administrador, por usuario si no*,
+   build de un solo `.exe` y el diálogo **Base de datos**, encadenado después de la pantalla de
+   carpeta.
 4. Agrega `BaseDatosDlg_575_AV.xml`, lo que ni la línea de comandos ni COM permiten configurar:
    controles y eventos del diálogo, la opción *Instalar para* en la pantalla de carpeta, las acciones
    personalizadas y sus secuencias, y el diccionario `ConectAR_575_AV_es.ail` (corrige "Browse" y el
    título de la ventana de interfaz básica).
 5. Ajusta la actualización mayor para que otra compilación de la misma versión reemplace a la
-   instalada (cada compilación tiene un `ProductCode` nuevo) y compila.
+   instalada (cada compilación tiene un `ProductCode` nuevo), hace que el setup extraiga el `.msi` en
+   `%ProgramData%` (desde `AppData\Roaming` la instalación por usuario falla con el error 2203) y
+   compila.
 
 Al compilar aparecen avisos `AI_ICE05` y `AI_ICE07`, que son **esperables**: advierten que algunas
 acciones y propiedades solo existen en la interfaz (listar instancias, carpetas de *Instalar para*,
@@ -127,7 +153,7 @@ Desde una consola, en la carpeta `db`:
 .\instalar_base.bat /limpio
 ```
 
-- Ejecuta los scripts `01` a `11` en orden y se detiene ante el primer error.
+- Ejecuta los scripts `01` a `13` en orden y se detiene ante el primer error.
 - `/limpio` borra `ConectAR_DB` antes de instalar; pide escribir `SI` para confirmar.
 - Sin `/limpio`, instala sobre la base existente.
 - Por defecto usa la instancia `localhost\SQLEXPRESS`. Si es otra, se pasa como
@@ -141,12 +167,11 @@ solo hay que guardar la instancia.
 
 | Usuario | Clave | Rol (familia) | Pantallas |
 |---|---|---|---|
-| `admin` | `Admin1234` | Admin | Todas: Admin (usuarios, historial, perfiles, copia de seguridad y restauración, bitácora, conexión a la base), Ventas, Caja, Depósito, Compras y Gestión de artículos |
+| `admin` | `Admin1234` | Admin | Todas: Admin (usuarios, historial, perfiles, copia de seguridad y restauración, bitácora, bitácora de cambios, conexión a la base), Ventas, Caja, Depósito, Compras, Gestión de artículos y Reportes |
 | `vendedor` | `Ventas2026` | Ventas | Ventas: Carrito de Compras y Orden de Pago |
 | `cajero` | `Caja2026` | Caja | Caja: Validar Pedido y Cobrar (con alta de cliente por DNI) |
 | `deposito` | `Deposito2026` | Deposito | Depósito: Entregar Artículos; Compras: Recepción de mercadería; Gestión: Artículos |
-| `compras` | `Compras2026` | AdministradorCompras | Compras: Proveedores, Importar lista de precios, Comparar precios, Órdenes de compra, Reporte de compras y Serialización de órdenes |
-| `propietario` | `Propietario2026` | Propietario | Compras: Autorizaciones pendientes |
+| `propietario` | `Propietario2026` | Propietario | Compras: Proveedores, Importar lista de precios, Comparar precios, Órdenes de compra y Serialización de órdenes; Reportes: Reporte de compras |
 
 Todos pueden cambiar su clave y el idioma de la interfaz.
 

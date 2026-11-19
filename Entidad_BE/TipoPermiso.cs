@@ -19,12 +19,12 @@ namespace Entidad_BE
         GestionPerfiles,
         GestionBackup,
         GestionBitacora,
+        BitacoraCambios,
 
         RegistrarProveedor,
         ImportarListaPrecios,
         CompararPrecios,
         GenerarOrdenCompra,
-        AutorizarOrdenCompra,
         RegistrarRecepcion,
         ReporteCompras,
         SerializarOrdenCompra

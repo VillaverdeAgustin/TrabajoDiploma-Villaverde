@@ -260,7 +260,7 @@ BEGIN
 END
 GO
 
--- Orden de compra (CUN-009 a CUN-011)
+-- Orden de compra (CUN-009 y CUN-010)
 IF OBJECT_ID('dbo.SP_ProximoNumeroOrdenCompra', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_ProximoNumeroOrdenCompra];
 GO
@@ -284,7 +284,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT TOP 1 o.id_orden_compra, o.nro_orden_compra, o.id_proveedor, o.fecha_emision, o.usuario_emisor,
-           o.estado, o.total, o.fecha_autorizacion, o.usuario_autorizante, o.observaciones,
+           o.estado, o.total, o.observaciones,
            o.activo, o.dvh, p.razon_social
     FROM OrdenCompra o
          JOIN Proveedor p ON p.id_proveedor = o.id_proveedor
@@ -307,9 +307,9 @@ BEGIN
 
     INSERT INTO OrdenCompra
         (nro_orden_compra, id_proveedor, fecha_emision, usuario_emisor, estado, total,
-         fecha_autorizacion, usuario_autorizante, observaciones, activo, dvh)
+         observaciones, activo, dvh)
     VALUES
-        (NULL, @id_proveedor, NULL, @usuario_emisor, 'Borrador', 0, NULL, NULL, NULL, 1, NULL);
+        (NULL, @id_proveedor, NULL, @usuario_emisor, 'Borrador', 0, NULL, 1, NULL);
 
     SELECT SCOPE_IDENTITY();
 END
@@ -372,7 +372,7 @@ BEGIN
 
     UPDATE OrdenCompra
     SET nro_orden_compra = @nro_orden_compra, total = @total,
-        estado = 'PendienteAutorizacion', fecha_emision = GETDATE()
+        estado = 'Emitida', fecha_emision = GETDATE()
     WHERE id_orden_compra = @id_orden_compra AND estado = 'Borrador';
 
     IF @@ROWCOUNT = 0
@@ -390,7 +390,7 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT o.id_orden_compra, o.nro_orden_compra, o.id_proveedor, o.fecha_emision, o.usuario_emisor,
-           o.estado, o.total, o.fecha_autorizacion, o.usuario_autorizante, o.observaciones,
+           o.estado, o.total, o.observaciones,
            o.activo, o.dvh, p.razon_social
     FROM OrdenCompra o
          JOIN Proveedor p ON p.id_proveedor = o.id_proveedor
@@ -418,32 +418,6 @@ GO
 
 IF OBJECT_ID('dbo.SP_RegistrarAutorizacionOrdenCompra', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_RegistrarAutorizacionOrdenCompra];
-GO
-CREATE PROCEDURE [dbo].[SP_RegistrarAutorizacionOrdenCompra]
-(
-    @id_orden_compra     INT,
-    @estado              VARCHAR(25),
-    @usuario_autorizante VARCHAR(50),
-    @observaciones       VARCHAR(300) = NULL
-)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    IF @estado NOT IN ('Autorizada', 'Rechazada')
-    BEGIN
-        RAISERROR('Estado de autorizacion invalido.', 16, 1);
-        RETURN;
-    END
-
-    UPDATE OrdenCompra
-    SET estado = @estado, usuario_autorizante = @usuario_autorizante,
-        fecha_autorizacion = GETDATE(), observaciones = @observaciones
-    WHERE id_orden_compra = @id_orden_compra AND estado = 'PendienteAutorizacion';
-
-    IF @@ROWCOUNT = 0
-        RAISERROR('La orden de compra no esta pendiente de autorizacion.', 16, 1);
-END
 GO
 
 -- Cantidad recibida acumulada de un renglon de la orden
@@ -479,7 +453,7 @@ BEGIN
 END
 GO
 
--- Recepcion de mercaderia (CUN-012)
+-- Recepcion de mercaderia (CUN-011)
 IF OBJECT_ID('dbo.SP_CrearRecepcion', 'P') IS NOT NULL
     DROP PROCEDURE [dbo].[SP_CrearRecepcion];
 GO

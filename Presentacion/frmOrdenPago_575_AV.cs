@@ -21,6 +21,7 @@ namespace Presentacion_575_AV
         public frmOrdenPago_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "carrito");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnActualizar);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);

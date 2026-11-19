@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Login - ConectAR Help</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">ConectAR Help</span><a class="idioma" href="../es/login.htm">Español</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Back to contents</a></p>
+<h1>Login</h1>
+<h2>What it is for</h2>
+<p>Identifies the user when the system starts and, before letting them in, checks the integrity of the database (check digits). It is the first screen of the program.</p>
+<h2>Who uses it</h2>
+<p>All users</p>
+<h2>Step by step</h2>
+<ol>
+<li>Type your user name and password.</li>
+<li>Press <b>Sign In</b>.</li>
+<li>The user and the database integrity are checked. If everything is fine, the main menu opens with the options your role allows.</li>
+<li>If the database has altered tables and you are an administrator, the <b>Database integrity</b> screen opens: you can recalculate the check digits, restore a backup or exit. If you are not an administrator, the system reports that it is not available.</li>
+</ol>
+<h2>Fields and buttons</h2>
+<table>
+<tr><th>On screen</th><th>Meaning</th></tr>
+<tr><td><b>User</b></td><td>User name assigned by the administrator.</td></tr>
+<tr><td><b>Password</b></td><td>Your password. After 3 failed attempts the user is locked.</td></tr>
+<tr><td><b>Sign In</b></td><td>Starts the session.</td></tr>
+<tr><td><b>Recalculate</b></td><td>(administrator only) Recalculates the check digits of every table.</td></tr>
+<tr><td><b>Restore backup</b></td><td>(administrator only) Opens the restore of a backup.</td></tr>
+</table>
+<h2>Common messages</h2>
+<table class="mensajes">
+<tr><th>Message</th><th>What to do</th></tr>
+<tr><td>The entered user does not exist</td><td>Check how you typed the user name.</td></tr>
+<tr><td>The entered password is incorrect</td><td>Type it again carefully: on the third mistake the user is locked.</td></tr>
+<tr><td>The user is locked. Contact the administrator</td><td>Ask the administrator to unlock you from User Management.</td></tr>
+<tr><td>System unavailable. Please contact the administrator.</td><td>The database was altered. Tell the administrator so they can check it.</td></tr>
+</table>
+<h2>See also</h2>
+<ul>
+<li><a href="menu.htm">Main menu</a></li>
+<li><a href="backup_restore.htm">Backup and restore</a></li>
+</ul>
+<p class="nota">On any screen, press F1 to open the topic of that screen.</p>
+</div>
+<footer>ConectAR S.R.L. · Management system · Online help</footer>
+</body>
+</html>

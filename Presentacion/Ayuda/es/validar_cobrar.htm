@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Validar Pedido y Cobrar - Ayuda de ConectAR</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">Ayuda de ConectAR</span><a class="idioma" href="../en/validar_cobrar.htm">English</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Volver al índice</a></p>
+<h1>Validar Pedido y Cobrar</h1>
+<h2>Para qué sirve</h2>
+<p>Valida el pedido contra la orden de pago, identifica al cliente por su DNI, cobra con el medio de pago elegido y emite el comprobante (CUN-004). Si el cliente no está registrado, se lo da de alta desde acá (CUN-003, Registrar cliente).</p>
+<h2>Quién la usa</h2>
+<p>Cajero</p>
+<h2>Dónde está</h2>
+<p class="ruta"><b>Caja</b> → <b>Validar Pedido y Cobrar</b></p>
+<h2>Paso a paso</h2>
+<ol>
+<li>Abra <b>Caja</b> → <b>Validar Pedido y Cobrar</b> y elija la orden de pago del cliente.</li>
+<li>Escriba el DNI y presione <b>Buscar cliente</b>. Si el cliente no existe, presione <b>Registrar</b>, complete sus datos y guárdelos.</li>
+<li>Controle el detalle de la orden con el pedido.</li>
+<li>Elija el medio de pago, complete los datos que pida y presione <b>Cobrar y emitir comprobante</b>.</li>
+<li>Si el pago se acredita, se descuenta el stock y se emite el comprobante, que se muestra en pantalla. Entregue una copia al cliente.</li>
+</ol>
+<h2>Campos y botones</h2>
+<table>
+<tr><th>En pantalla</th><th>Qué significa</th></tr>
+<tr><td><b>Órdenes de pago pendientes</b></td><td>Órdenes de pago pendientes de cobro.</td></tr>
+<tr><td><b>DNI</b></td><td>Documento del cliente. Identifica al cliente registrado.</td></tr>
+<tr><td><b>Buscar cliente</b></td><td>Busca el cliente por DNI.</td></tr>
+<tr><td><b>Condición IVA</b></td><td>Define el tipo de comprobante. Responsable inscripto y monotributista requieren CUIT.</td></tr>
+<tr><td><b>Medio de pago</b></td><td>Efectivo, tarjeta u otro medio habilitado.</td></tr>
+<tr><td><b>Ver correo</b></td><td>Muestra el correo del cliente, que se guarda cifrado; pide la clave de autorización.</td></tr>
+<tr><td><b>Cobrar y emitir comprobante</b></td><td>Cobra la orden y emite el comprobante.</td></tr>
+</table>
+<h2>Mensajes frecuentes</h2>
+<table class="mensajes">
+<tr><th>Mensaje</th><th>Qué hacer</th></tr>
+<tr><td>No hay un cliente registrado con el DNI …. ¿Desea registrarlo?</td><td>Registre al cliente con <b>Registrar</b>.</td></tr>
+<tr><td>Hay que identificar al cliente antes de cobrar.</td><td>Busque al cliente por DNI antes de cobrar.</td></tr>
+<tr><td>El pago fue rechazado: …</td><td>Pida otro medio de pago o reintente.</td></tr>
+<tr><td>No hay disponibilidad de … para la cantidad pedida.</td><td>El stock cambió desde que se armó el pedido: avise al vendedor.</td></tr>
+<tr><td>El CUIT no es válido.</td><td>Revise el CUIT: tiene 11 dígitos y un dígito verificador.</td></tr>
+</table>
+<h2>Ver también</h2>
+<ul>
+<li><a href="carrito.htm">Carrito de Compras</a></li>
+<li><a href="entregar.htm">Entrega en Depósito</a></li>
+<li><a href="consultar_comprobantes.htm">Consultar comprobantes</a></li>
+</ul>
+<p class="nota">En cualquier pantalla, presione F1 para abrir el tema de esa pantalla.</p>
+</div>
+<footer>ConectAR S.R.L. · Sistema de gestión · Ayuda en línea</footer>
+</body>
+</html>

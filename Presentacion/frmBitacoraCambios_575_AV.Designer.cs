@@ -18,7 +18,6 @@ namespace Presentacion_575_AV
         private void InitializeComponent()
         {
             this.lblTitulo = new System.Windows.Forms.Label();
-            this.lblEjemplo = new System.Windows.Forms.Label();
             this.gbFiltros = new System.Windows.Forms.GroupBox();
             this.lblArticulo = new System.Windows.Forms.Label();
             this.cmbArticulo = new System.Windows.Forms.ComboBox();
@@ -42,6 +41,8 @@ namespace Presentacion_575_AV
             this.colAnterior = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colPosterior = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.lblLeyenda = new System.Windows.Forms.Label();
+            this.rbAnterior = new System.Windows.Forms.RadioButton();
+            this.rbPosterior = new System.Windows.Forms.RadioButton();
             this.lblMensaje = new System.Windows.Forms.Label();
             this.btnRestaurar = new System.Windows.Forms.Button();
             this.btnSalir = new System.Windows.Forms.Button();
@@ -62,14 +63,6 @@ namespace Presentacion_575_AV
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Bitácora de cambios de artículos";
             //
-            // lblEjemplo
-            //
-            this.lblEjemplo.Location = new System.Drawing.Point(18, 40);
-            this.lblEjemplo.Name = "lblEjemplo";
-            this.lblEjemplo.Size = new System.Drawing.Size(900, 19);
-            this.lblEjemplo.TabIndex = 1;
-            this.lblEjemplo.Text = "Pantalla de diseño (Entrega 3): muestra datos de ejemplo.";
-            //
             // gbFiltros
             //
             this.gbFiltros.Controls.Add(this.lblArticulo);
@@ -81,7 +74,7 @@ namespace Presentacion_575_AV
             this.gbFiltros.Controls.Add(this.lblHasta);
             this.gbFiltros.Controls.Add(this.dtpHasta);
             this.gbFiltros.Controls.Add(this.btnBuscar);
-            this.gbFiltros.Location = new System.Drawing.Point(16, 64);
+            this.gbFiltros.Location = new System.Drawing.Point(16, 40);
             this.gbFiltros.Name = "gbFiltros";
             this.gbFiltros.Size = new System.Drawing.Size(1088, 92);
             this.gbFiltros.TabIndex = 2;
@@ -164,7 +157,7 @@ namespace Presentacion_575_AV
             // gbHistorial
             //
             this.gbHistorial.Controls.Add(this.dgvHistorial);
-            this.gbHistorial.Location = new System.Drawing.Point(16, 166);
+            this.gbHistorial.Location = new System.Drawing.Point(16, 142);
             this.gbHistorial.Name = "gbHistorial";
             this.gbHistorial.Size = new System.Drawing.Size(610, 404);
             this.gbHistorial.TabIndex = 3;
@@ -229,7 +222,9 @@ namespace Presentacion_575_AV
             //
             this.gbComparacion.Controls.Add(this.dgvComparacion);
             this.gbComparacion.Controls.Add(this.lblLeyenda);
-            this.gbComparacion.Location = new System.Drawing.Point(638, 166);
+            this.gbComparacion.Controls.Add(this.rbAnterior);
+            this.gbComparacion.Controls.Add(this.rbPosterior);
+            this.gbComparacion.Location = new System.Drawing.Point(638, 142);
             this.gbComparacion.Name = "gbComparacion";
             this.gbComparacion.Size = new System.Drawing.Size(466, 404);
             this.gbComparacion.TabIndex = 4;
@@ -248,7 +243,7 @@ namespace Presentacion_575_AV
             this.dgvComparacion.Location = new System.Drawing.Point(12, 28);
             this.dgvComparacion.Name = "dgvComparacion";
             this.dgvComparacion.ReadOnly = true;
-            this.dgvComparacion.Size = new System.Drawing.Size(442, 326);
+            this.dgvComparacion.Size = new System.Drawing.Size(442, 296);
             this.dgvComparacion.TabIndex = 0;
             this.dgvComparacion.TabStop = false;
             //
@@ -275,7 +270,7 @@ namespace Presentacion_575_AV
             //
             // lblLeyenda
             //
-            this.lblLeyenda.Location = new System.Drawing.Point(12, 364);
+            this.lblLeyenda.Location = new System.Drawing.Point(12, 332);
             this.lblLeyenda.Name = "lblLeyenda";
             this.lblLeyenda.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
             this.lblLeyenda.Size = new System.Drawing.Size(442, 26);
@@ -283,9 +278,27 @@ namespace Presentacion_575_AV
             this.lblLeyenda.Text = "Resaltados: los campos que cambiaron.";
             this.lblLeyenda.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             //
+            // rbAnterior
+            //
+            this.rbAnterior.Location = new System.Drawing.Point(14, 366);
+            this.rbAnterior.Name = "rbAnterior";
+            this.rbAnterior.Size = new System.Drawing.Size(210, 26);
+            this.rbAnterior.TabIndex = 2;
+            this.rbAnterior.Text = "Versión anterior";
+            this.rbAnterior.CheckedChanged += new System.EventHandler(this.rbVersion_CheckedChanged);
+            //
+            // rbPosterior
+            //
+            this.rbPosterior.Location = new System.Drawing.Point(236, 366);
+            this.rbPosterior.Name = "rbPosterior";
+            this.rbPosterior.Size = new System.Drawing.Size(210, 26);
+            this.rbPosterior.TabIndex = 3;
+            this.rbPosterior.Text = "Versión posterior";
+            this.rbPosterior.CheckedChanged += new System.EventHandler(this.rbVersion_CheckedChanged);
+            //
             // lblMensaje
             //
-            this.lblMensaje.Location = new System.Drawing.Point(16, 584);
+            this.lblMensaje.Location = new System.Drawing.Point(16, 560);
             this.lblMensaje.Name = "lblMensaje";
             this.lblMensaje.Size = new System.Drawing.Size(720, 32);
             this.lblMensaje.TabIndex = 5;
@@ -293,7 +306,7 @@ namespace Presentacion_575_AV
             //
             // btnRestaurar
             //
-            this.btnRestaurar.Location = new System.Drawing.Point(764, 584);
+            this.btnRestaurar.Location = new System.Drawing.Point(764, 560);
             this.btnRestaurar.Name = "btnRestaurar";
             this.btnRestaurar.Size = new System.Drawing.Size(180, 34);
             this.btnRestaurar.TabIndex = 6;
@@ -302,7 +315,7 @@ namespace Presentacion_575_AV
             //
             // btnSalir
             //
-            this.btnSalir.Location = new System.Drawing.Point(952, 584);
+            this.btnSalir.Location = new System.Drawing.Point(952, 560);
             this.btnSalir.Name = "btnSalir";
             this.btnSalir.Size = new System.Drawing.Size(152, 34);
             this.btnSalir.TabIndex = 7;
@@ -311,9 +324,8 @@ namespace Presentacion_575_AV
             //
             // frmBitacoraCambios_575_AV
             //
-            this.ClientSize = new System.Drawing.Size(1120, 634);
+            this.ClientSize = new System.Drawing.Size(1120, 610);
             this.Controls.Add(this.lblTitulo);
-            this.Controls.Add(this.lblEjemplo);
             this.Controls.Add(this.gbFiltros);
             this.Controls.Add(this.gbHistorial);
             this.Controls.Add(this.gbComparacion);
@@ -335,7 +347,6 @@ namespace Presentacion_575_AV
         #endregion
 
         private System.Windows.Forms.Label lblTitulo;
-        private System.Windows.Forms.Label lblEjemplo;
         private System.Windows.Forms.GroupBox gbFiltros;
         private System.Windows.Forms.Label lblArticulo;
         private System.Windows.Forms.ComboBox cmbArticulo;
@@ -359,6 +370,8 @@ namespace Presentacion_575_AV
         private System.Windows.Forms.DataGridViewTextBoxColumn colAnterior;
         private System.Windows.Forms.DataGridViewTextBoxColumn colPosterior;
         private System.Windows.Forms.Label lblLeyenda;
+        private System.Windows.Forms.RadioButton rbAnterior;
+        private System.Windows.Forms.RadioButton rbPosterior;
         private System.Windows.Forms.Label lblMensaje;
         private System.Windows.Forms.Button btnRestaurar;
         private System.Windows.Forms.Button btnSalir;

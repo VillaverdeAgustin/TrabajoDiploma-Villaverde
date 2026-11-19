@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Copia de seguridad y restauración - Ayuda de ConectAR</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">Ayuda de ConectAR</span><a class="idioma" href="../en/backup_restore.htm">English</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Volver al índice</a></p>
+<h1>Copia de seguridad y restauración</h1>
+<h2>Para qué sirve</h2>
+<p>Genera una copia de seguridad completa de la base ConectAR_DB y la verifica (CUS-014), y restaura una copia (CUS-015). Después de restaurar se recalculan los dígitos verificadores y se cierra la sesión.</p>
+<h2>Quién la usa</h2>
+<p>Administrador</p>
+<h2>Dónde está</h2>
+<p class="ruta"><b>Admin</b> → <b>Copia de seguridad</b></p>
+<h2>Paso a paso</h2>
+<ol>
+<li>Copia: abra <b>Admin</b> → <b>Copia de seguridad</b>. Se propone la carpeta de copias de SQL Server; puede escribir otra ruta del servidor.</li>
+<li>Presione <b>Generar copia</b>. Se muestran el archivo, la fecha, el tamaño y el resultado de la verificación.</li>
+<li>Restauración: abra <b>Admin</b> → <b>Restaurar copia</b>, elija una copia de la lista o un archivo con <b>Examinar...</b>.</li>
+<li>Presione <b>Restaurar</b> y confirme. Al terminar, vuelva a iniciar sesión.</li>
+</ol>
+<h2>Campos y botones</h2>
+<table>
+<tr><th>En pantalla</th><th>Qué significa</th></tr>
+<tr><td><b>Carpeta</b></td><td>Carpeta del servidor donde SQL Server escribe la copia.</td></tr>
+<tr><td><b>Predeterminada</b></td><td>Vuelve a la carpeta de copias de la instancia.</td></tr>
+<tr><td><b>Verificación</b></td><td>Resultado de RESTORE VERIFYONLY sobre la copia.</td></tr>
+<tr><td><b>Copias registradas en el servidor</b></td><td>Copias registradas por SQL Server.</td></tr>
+<tr><td><b>Restaurar</b></td><td>Reemplaza todos los datos actuales por los de la copia.</td></tr>
+</table>
+<h2>Mensajes frecuentes</h2>
+<table class="mensajes">
+<tr><th>Mensaje</th><th>Qué hacer</th></tr>
+<tr><td>La carpeta no es válida: escriba una ruta completa del servidor, por ejemplo C:\Backups.</td><td>Escriba una ruta completa, como C:\Backups.</td></tr>
+<tr><td>No se pudo generar la copia: verifique que la carpeta exista y que el servicio de SQL Server pueda escribir en ella.</td><td>Use la carpeta predeterminada o dé permiso de escritura al servicio de SQL Server.</td></tr>
+<tr><td>El archivo es una copia de la base …, no de ConectAR_DB.</td><td>Elija una copia de ConectAR_DB.</td></tr>
+<tr><td>La copia no pasó la verificación (RESTORE VERIFYONLY): no se restauró.</td><td>La copia está dañada: elija otra.</td></tr>
+</table>
+<h2>Ver también</h2>
+<ul>
+<li><a href="login.htm">Login</a></li>
+</ul>
+<p class="nota">En cualquier pantalla, presione F1 para abrir el tema de esa pantalla.</p>
+</div>
+<footer>ConectAR S.R.L. · Sistema de gestión · Ayuda en línea</footer>
+</body>
+</html>

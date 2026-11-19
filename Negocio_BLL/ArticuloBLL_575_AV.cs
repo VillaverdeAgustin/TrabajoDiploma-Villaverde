@@ -16,6 +16,7 @@ namespace Negocio_BLL
         private BobinaBLL_575_AV bobinaBLL = new BobinaBLL_575_AV();
         private BitacoraBLL bitacora = new BitacoraBLL();
         private VerificadorIntegridadBLL verificador = new VerificadorIntegridadBLL();
+        private ArticuloHistorialBLL_575_AV historialBLL = new ArticuloHistorialBLL_575_AV();
 
         public ArticuloBLL_575_AV()
         {
@@ -63,7 +64,8 @@ namespace Negocio_BLL
 
         public ArticuloBE_575_AV ObtenerPorId(int id_articulo)
         {
-            return ListarArticulos().FirstOrDefault(a => a.id_articulo == id_articulo);
+            ArticuloBE_575_AV articulo = mpArticulo.ObtenerPorId(id_articulo);
+            return articulo == null ? null : Completar(new List<ArticuloBE_575_AV> { articulo })[0];
         }
 
         public List<ArticuloBE_575_AV> ListarParaReponer()
@@ -106,9 +108,10 @@ namespace Negocio_BLL
                 ? EstadoArticulo_575_AV.Disponible
                 : EstadoArticulo_575_AV.SinStock;
 
-            articulo.id_articulo = mpArticulo.CrearArticulo(articulo);
+            articulo.id_articulo = mpArticulo.CrearArticulo(articulo, usuario);
 
             PersistirDigito(articulo);
+            historialBLL.PersistirDigitosPendientes();
             bitacora.RegistrarBitacora(usuario, TipoAccion.AltaArticulo);
 
             return articulo.id_articulo;
@@ -135,9 +138,10 @@ namespace Negocio_BLL
                         articulo.codigo));
             }
 
-            mpArticulo.ActualizarArticulo(articulo);
+            mpArticulo.ActualizarArticulo(articulo, usuario);
 
             PersistirDigito(articulo);
+            historialBLL.PersistirDigitosPendientes();
             bitacora.RegistrarBitacora(usuario, TipoAccion.ModificacionArticulo);
         }
 
@@ -150,11 +154,50 @@ namespace Negocio_BLL
                     GestorDeIdioma.GetInstance.Traducir("ART_ERR_NO_EXISTE"));
             }
 
-            mpArticulo.EliminarArticulo(id_articulo);
+            mpArticulo.EliminarArticulo(id_articulo, usuario);
 
             articulo.activo = false;
             PersistirDigito(articulo);
+            historialBLL.PersistirDigitosPendientes();
             bitacora.RegistrarBitacora(usuario, TipoAccion.BajaArticulo);
+        }
+
+        #endregion
+
+        #region Restauracion (CUS-017)
+
+        public void RestaurarVersion(ArticuloHistorialBE_575_AV version, string usuario)
+        {
+            ArticuloBE_575_AV actual = version == null ? null : ObtenerPorId(version.id_articulo);
+            if (actual == null)
+            {
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("ART_ERR_NO_EXISTE"));
+            }
+
+            if (actual.codigo == version.codigo && actual.descripcion == version.descripcion
+                && actual.id_categoria == version.id_categoria && actual.id_marca == version.id_marca
+                && actual.id_unidad_medida == version.id_unidad_medida && actual.precio_unitario == version.precio_unitario
+                && actual.punto_reposicion == version.punto_reposicion && actual.activo == version.activo
+                && (actual.deposito_ubicacion ?? string.Empty) == (version.deposito_ubicacion ?? string.Empty))
+            {
+                throw new InvalidOperationException(
+                    GestorDeIdioma.GetInstance.Traducir("HIS_ERR_SIN_CAMBIOS"));
+            }
+
+            if (mpArticulo.BuscarArticulos(null, null, null, version.codigo, false)
+                    .Any(a => a.id_articulo != version.id_articulo))
+            {
+                throw new InvalidOperationException(
+                    string.Format(GestorDeIdioma.GetInstance.Traducir("ART_ERR_CODIGO_EXISTE"),
+                        version.codigo));
+            }
+
+            mpArticulo.RestaurarArticulo(version.id_historial, usuario);
+
+            PersistirDigito(ObtenerPorId(version.id_articulo));
+            historialBLL.PersistirDigitosPendientes();
+            bitacora.RegistrarBitacora(usuario, TipoAccion.RestauracionArticulo);
         }
 
         #endregion

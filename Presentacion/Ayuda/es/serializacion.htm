@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Serialización de órdenes de compra (XML) - Ayuda de ConectAR</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">Ayuda de ConectAR</span><a class="idioma" href="../en/serializacion.htm">English</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Volver al índice</a></p>
+<h1>Serialización de órdenes de compra (XML)</h1>
+<h2>Para qué sirve</h2>
+<p>Guarda una orden de compra emitida en un archivo XML y lo verifica; también abre un XML guardado y lo compara con la base.</p>
+<h2>Quién la usa</h2>
+<p>Propietario</p>
+<h2>Dónde está</h2>
+<p class="ruta"><b>Compras</b> → <b>Serialización de órdenes</b></p>
+<h2>Paso a paso</h2>
+<ol>
+<li>Abra <b>Compras</b> → <b>Serialización de órdenes</b>.</li>
+<li>En <b>Serializar</b>, elija la orden y presione <b>Serializar a XML...</b>. Elija dónde guardar el archivo; al terminar se muestran las verificaciones.</li>
+<li>En <b>Deserializar</b>, presione <b>Abrir archivo XML...</b> y elija un XML. Se muestra la orden recuperada y su comparación con la base.</li>
+</ol>
+<h2>Campos y botones</h2>
+<table>
+<tr><th>En pantalla</th><th>Qué significa</th></tr>
+<tr><td><b>Órdenes de compra emitidas</b></td><td>Órdenes ya emitidas (no borradores).</td></tr>
+<tr><td><b>Hash SHA-256</b></td><td>Huella SHA-256 del archivo.</td></tr>
+<tr><td><b>Verificación del archivo generado</b></td><td>Cada dato del archivo comparado con la orden.</td></tr>
+<tr><td><b>Verificación contra la base de datos</b></td><td>Cada dato del archivo comparado con la base.</td></tr>
+</table>
+<h2>Mensajes frecuentes</h2>
+<table class="mensajes">
+<tr><th>Mensaje</th><th>Qué hacer</th></tr>
+<tr><td>El archivo no es una orden de compra serializada válida.</td><td>Elija un archivo generado por esta pantalla.</td></tr>
+<tr><td>No se pudo escribir el archivo en esa ubicación.</td><td>Elija una carpeta en la que pueda escribir.</td></tr>
+</table>
+<h2>Ver también</h2>
+<ul>
+<li><a href="reporte_compras.htm">Reporte de compras por proveedor</a></li>
+</ul>
+<p class="nota">En cualquier pantalla, presione F1 para abrir el tema de esa pantalla.</p>
+</div>
+<footer>ConectAR S.R.L. · Sistema de gestión · Ayuda en línea</footer>
+</body>
+</html>

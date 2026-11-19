@@ -11,6 +11,7 @@ namespace Presentacion_575_AV
         public frmMenu()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "menu");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             AplicarIdentidad();
         }
@@ -75,6 +76,7 @@ namespace Presentacion_575_AV
             backupToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_BACKUP");
             restoreToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_RESTORE");
             bitacoraToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_BITACORA");
+            bitacoraCambiosToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_BITACORA_CAMBIOS");
             conexionToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CONEXION");
             tsUsuario.Text = gestorIdioma.Traducir("COMUN_USUARIO");
             cambiarClaveToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_CAMBIAR_CLAVE");
@@ -95,12 +97,12 @@ namespace Presentacion_575_AV
             importarListaToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_IMPORTAR_LISTA");
             compararPreciosToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_COMPARAR_PRECIOS");
             ordenesCompraToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_ORDENES_COMPRA");
-            autorizacionesToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_AUTORIZACIONES");
             recepcionToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_RECEPCION");
             reporteComprasToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_REPORTE_COMPRAS");
             serializacionToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_SERIALIZACION");
             tsReportes.Text = gestorIdioma.Traducir("MENU_TS_REPORTES");
             tsAyuda.Text = gestorIdioma.Traducir("MENU_TS_AYUDA");
+            contenidoAyudaToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_AYUDA_CONTENIDO");
             historialToolStripMenuItem.Text = gestorIdioma.Traducir("MENU_HISTORIAL");
 
             if (SessionManager.Logged() && SessionManager.GetInstance.UsuarioActual() != null)
@@ -164,7 +166,6 @@ namespace Presentacion_575_AV
             iniciarSesionToolStripMenuItem.Enabled = false;
             cerrarSesionToolStripMenuItem.Enabled = true;
             tsAdmin.Enabled = true;
-            tsReportes.Enabled = true;
             tsGestion.Enabled = true;
             tsVentas.Enabled = true;
             cambiarClaveToolStripMenuItem.Enabled = true;
@@ -181,6 +182,7 @@ namespace Presentacion_575_AV
             backupToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionBackup.ToString());
             restoreToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionBackup.ToString());
             bitacoraToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GestionBitacora.ToString());
+            bitacoraCambiosToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.BitacoraCambios.ToString());
             carritoComprasToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.CompletarCarrito.ToString());
             validarCobrarToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ValidarPedidoYCobrar.ToString());
             consultarComprobantesToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ValidarPedidoYCobrar.ToString());
@@ -193,14 +195,13 @@ namespace Presentacion_575_AV
             importarListaToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ImportarListaPrecios.ToString());
             compararPreciosToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.CompararPrecios.ToString());
             ordenesCompraToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.GenerarOrdenCompra.ToString());
-            autorizacionesToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.AutorizarOrdenCompra.ToString());
             recepcionToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.RegistrarRecepcion.ToString());
             reporteComprasToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.ReporteCompras.ToString());
             serializacionToolStripMenuItem.Enabled = perfilBLL.TienePermiso(rol, TipoPermiso.SerializarOrdenCompra.ToString());
             tsCompras.Enabled = proveedoresToolStripMenuItem.Enabled || importarListaToolStripMenuItem.Enabled
                 || compararPreciosToolStripMenuItem.Enabled || ordenesCompraToolStripMenuItem.Enabled
-                || autorizacionesToolStripMenuItem.Enabled || recepcionToolStripMenuItem.Enabled
-                || reporteComprasToolStripMenuItem.Enabled || serializacionToolStripMenuItem.Enabled;
+                || recepcionToolStripMenuItem.Enabled || serializacionToolStripMenuItem.Enabled;
+            tsReportes.Enabled = reporteComprasToolStripMenuItem.Enabled;
 
             clienteToolStripMenuItem.Visible = false;
         }
@@ -295,6 +296,16 @@ namespace Presentacion_575_AV
             OpenForm(tsAdmin, new frmBitacora());
         }
 
+        private void contenidoAyudaToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            AyudaFormulario_575_AV.MostrarIndice();
+        }
+
+        private void bitacoraCambiosToolStripMenuItem_Click(object sender, System.EventArgs e)
+        {
+            OpenForm(tsAdmin, new frmBitacoraCambios_575_AV());
+        }
+
         private void perfilesToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             frmGestionPerfiles frmperfil = new frmGestionPerfiles();
@@ -362,11 +373,6 @@ namespace Presentacion_575_AV
             OpenForm(tsCompras, new frmOrdenCompra_575_AV());
         }
 
-        private void autorizacionesToolStripMenuItem_Click(object sender, System.EventArgs e)
-        {
-            OpenForm(tsCompras, new frmAutorizarOrdenCompra_575_AV());
-        }
-
         private void recepcionToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
             OpenForm(tsCompras, new frmRecepcionMercaderia_575_AV());
@@ -387,7 +393,7 @@ namespace Presentacion_575_AV
 
         private void reporteComprasToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
-            OpenForm(tsCompras, new frmReporteCompras_575_AV());
+            OpenForm(tsReportes, new frmReporteCompras_575_AV());
         }
 
         private void serializacionToolStripMenuItem_Click(object sender, System.EventArgs e)

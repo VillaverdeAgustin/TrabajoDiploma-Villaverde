@@ -14,8 +14,7 @@ namespace Entidad_BE
         public decimal cantidad_solicitada { get; set; }
         public decimal cantidad_recibida { get; set; }
         public decimal? porcentaje_recibido { get; set; }
-        public int pendientes_autorizacion { get; set; }
-        public int rechazadas { get; set; }
+        public int pendientes_recepcion { get; set; }
         public bool es_total { get; set; }
         public List<OrdenReporteCompra_575_AV> ordenes { get; set; }
 

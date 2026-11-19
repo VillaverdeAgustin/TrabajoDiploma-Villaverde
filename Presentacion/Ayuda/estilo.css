@@ -1,0 +1,22 @@
+/* ConectAR 575_AV - Ayuda en linea: colores de EstiloConectAR_575_AV */
+body { margin: 0; background: #F2F6F9; color: #1F2D3A; font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; line-height: 1.5; }
+header { background: #0D3B5C; color: #FFFFFF; padding: 12px 24px; }
+header .marca { font-weight: bold; font-size: 20px; }
+header .ayuda { margin-left: 12px; color: #B9D7EA; }
+header .idioma { float: right; color: #FFFFFF; text-decoration: none; border: 1px solid #00A9E0; padding: 2px 10px; }
+.contenido { max-width: 960px; margin: 0 auto; padding: 8px 24px 24px 24px; background: #FFFFFF; border-left: 1px solid #D6E1E8; border-right: 1px solid #D6E1E8; }
+h1 { color: #0D3B5C; font-size: 24px; border-bottom: 3px solid #00A9E0; padding-bottom: 6px; }
+h2 { color: #0D3B5C; font-size: 17px; margin-top: 22px; }
+a { color: #00739A; }
+.nav { margin: 8px 0 0 0; font-size: 13px; }
+.ruta { color: #5A7183; }
+p.ruta b { color: #0D3B5C; }
+ol li, ul li { margin: 4px 0; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0; }
+th { background: #0D3B5C; color: #FFFFFF; text-align: left; padding: 6px 8px; font-weight: normal; }
+td { border-bottom: 1px solid #D6E1E8; padding: 6px 8px; vertical-align: top; }
+td:first-child { width: 38%; }
+table.mensajes td:first-child { color: #C0392B; }
+ul.temas li { margin: 6px 0; }
+.nota { margin-top: 24px; padding: 8px 12px; background: #E8F6FC; border-left: 4px solid #00A9E0; color: #31586F; }
+footer { text-align: center; color: #5A7183; font-size: 12px; padding: 12px; }

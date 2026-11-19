@@ -46,6 +46,7 @@
     <Compile Include="ProveedorBLL_575_AV.cs" />
     <Compile Include="ConexionBLL_575_AV.cs" />
     <Compile Include="RecepcionBLL_575_AV.cs" />
+    <Compile Include="ArticuloHistorialBLL_575_AV.cs" />
     <Compile Include="ReporteComprasBLL_575_AV.cs" />
     <Compile Include="SerializacionOrdenCompraBLL_575_AV.cs" />
     <Compile Include="BitacoraBLL.cs" />

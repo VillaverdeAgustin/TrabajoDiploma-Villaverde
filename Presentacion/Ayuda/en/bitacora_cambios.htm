@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Item change log - ConectAR Help</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">ConectAR Help</span><a class="idioma" href="../es/bitacora_cambios.htm">Español</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Back to contents</a></p>
+<h1>Item change log</h1>
+<h2>What it is for</h2>
+<p>Shows every change to the data of an item (creation, change, deactivation and restoration) with the previous and new value, and lets you go back to a version (CUS-016 and CUS-017). Stock and status are not restored.</p>
+<h2>Who uses it</h2>
+<p>Administrator</p>
+<h2>Where it is</h2>
+<p class="ruta"><b>Admin</b> → <b>Change Log</b></p>
+<h2>Step by step</h2>
+<ol>
+<li>Open <b>Admin</b> → <b>Change Log</b>.</li>
+<li>Choose the item, the operation and the dates, and press <b>Search</b>.</li>
+<li>Select a change: on the right the values are compared, with the modified fields highlighted.</li>
+<li>To go back to a version, choose <b>Previous version</b> or <b>Later version</b>, press <b>Restore version</b> and confirm.</li>
+</ol>
+<h2>Fields and buttons</h2>
+<table>
+<tr><th>On screen</th><th>Meaning</th></tr>
+<tr><td><b>Item</b></td><td>Item to look up, or all.</td></tr>
+<tr><td><b>Operation</b></td><td>Creation, change, deactivation or restoration.</td></tr>
+<tr><td><b>Previous value / New value</b></td><td>Previous and new value of each item data.</td></tr>
+<tr><td><b>Restore version</b></td><td>Returns the item to the chosen version.</td></tr>
+</table>
+<h2>Common messages</h2>
+<table class="mensajes">
+<tr><th>Message</th><th>What to do</th></tr>
+<tr><td>The start date cannot be later than the end date.</td><td>Fix the dates.</td></tr>
+<tr><td>The item already has that data.</td><td>That version equals the current one: there is nothing to restore.</td></tr>
+<tr><td>Code … is already used by another item.</td><td>Another item uses that code: change it before restoring.</td></tr>
+<tr><td>The change log is not available: the integrity check failed.</td><td>The history was altered: recalculate the check digits from the login.</td></tr>
+</table>
+<h2>See also</h2>
+<ul>
+<li><a href="bitacora.htm">Event Log</a></li>
+</ul>
+<p class="nota">On any screen, press F1 to open the topic of that screen.</p>
+</div>
+<footer>ConectAR S.R.L. · Management system · Online help</footer>
+</body>
+</html>

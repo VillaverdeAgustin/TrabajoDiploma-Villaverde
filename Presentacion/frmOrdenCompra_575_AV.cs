@@ -26,6 +26,7 @@ namespace Presentacion_575_AV
         public frmOrdenCompra_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "ordenes_compra");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnComparar);
             EstiloConectAR_575_AV.BotonSecundario(btnAgregar);

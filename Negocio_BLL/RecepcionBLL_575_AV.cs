@@ -25,7 +25,7 @@ namespace Negocio_BLL
         private BitacoraBLL bitacora = new BitacoraBLL();
         private VerificadorIntegridadBLL verificador = new VerificadorIntegridadBLL();
 
-        #region Recepcion (CUN-012)
+        #region Recepcion (CUN-011)
 
         public RecepcionBE_575_AV RegistrarRecepcion(OrdenCompraBE_575_AV orden, RecepcionBE_575_AV recepcion,
                                                      List<DetalleRecepcionBE_575_AV> detalles, string usuario)

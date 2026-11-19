@@ -25,6 +25,7 @@ namespace Presentacion_575_AV
         public frmCompararPrecios_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "comparar_precios");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnBuscar);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);

@@ -72,14 +72,12 @@ CREATE TABLE [dbo].[OrdenCompra](
     [estado]              [varchar](25)   COLLATE Modern_Spanish_CI_AS NOT NULL
                           CONSTRAINT [DF_OrdenCompra_estado] DEFAULT ('Borrador'),
     [total]               [decimal](14,2) NOT NULL CONSTRAINT [DF_OrdenCompra_total] DEFAULT (0),
-    [fecha_autorizacion]  [datetime]      NULL,
-    [usuario_autorizante] [varchar](50)   COLLATE Modern_Spanish_CI_AS NULL,
     [observaciones]       [varchar](300)  COLLATE Modern_Spanish_CI_AS NULL,
     [activo]              [bit]           NOT NULL CONSTRAINT [DF_OrdenCompra_activo] DEFAULT (1),
     [dvh]                 [varchar](64)   COLLATE Modern_Spanish_CI_AS NULL,
     CONSTRAINT [PK_OrdenCompra] PRIMARY KEY CLUSTERED ([id_orden_compra] ASC),
     CONSTRAINT [CK_OrdenCompra_estado] CHECK ([estado] IN
-        ('Borrador', 'PendienteAutorizacion', 'Autorizada', 'Rechazada', 'RecibidaParcial', 'Recibida'))
+        ('Borrador', 'Emitida', 'RecibidaParcial', 'Recibida'))
 ) ON [PRIMARY];
 GO
 

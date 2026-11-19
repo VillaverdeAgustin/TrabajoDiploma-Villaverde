@@ -18,6 +18,7 @@ namespace Presentacion_575_AV
         public frmLogin()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "login");
             EstiloConectAR_575_AV.AplicarFormulario(this);
         }
 

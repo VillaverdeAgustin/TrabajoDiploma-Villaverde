@@ -17,6 +17,7 @@ namespace Presentacion_575_AV
         public frmBackup_575_AV()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "backup_restore");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonPrimario(btnGenerar);
             EstiloConectAR_575_AV.BotonSecundario(btnPredeterminada);

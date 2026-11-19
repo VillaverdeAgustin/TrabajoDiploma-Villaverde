@@ -27,6 +27,7 @@
             this.backupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.bitacoraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bitacoraCambiosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.conexionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsInicio = new System.Windows.Forms.ToolStripMenuItem();
             this.iniciarSesionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -44,7 +45,6 @@
             this.importarListaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.compararPreciosToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ordenesCompraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.autorizacionesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.recepcionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reporteComprasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serializacionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,6 +57,7 @@
             this.proveedoresToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tsReportes = new System.Windows.Forms.ToolStripMenuItem();
             this.tsAyuda = new System.Windows.Forms.ToolStripMenuItem();
+            this.contenidoAyudaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblUsuario = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -94,6 +95,7 @@
             this.backupToolStripMenuItem,
             this.restoreToolStripMenuItem,
             this.bitacoraToolStripMenuItem,
+            this.bitacoraCambiosToolStripMenuItem,
             this.conexionToolStripMenuItem});
             this.tsAdmin.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.tsAdmin.Name = "tsAdmin";
@@ -148,6 +150,13 @@
             this.bitacoraToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
             this.bitacoraToolStripMenuItem.Text = "Bitacora";
             this.bitacoraToolStripMenuItem.Click += new System.EventHandler(this.bitacoraToolStripMenuItem_Click);
+            //
+            // bitacoraCambiosToolStripMenuItem
+            //
+            this.bitacoraCambiosToolStripMenuItem.Name = "bitacoraCambiosToolStripMenuItem";
+            this.bitacoraCambiosToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.bitacoraCambiosToolStripMenuItem.Text = "Bitácora de cambios";
+            this.bitacoraCambiosToolStripMenuItem.Click += new System.EventHandler(this.bitacoraCambiosToolStripMenuItem_Click);
             //
             // conexionToolStripMenuItem
             //
@@ -312,9 +321,7 @@
             this.importarListaToolStripMenuItem,
             this.compararPreciosToolStripMenuItem,
             this.ordenesCompraToolStripMenuItem,
-            this.autorizacionesToolStripMenuItem,
             this.recepcionToolStripMenuItem,
-            this.reporteComprasToolStripMenuItem,
             this.serializacionToolStripMenuItem});
             this.tsCompras.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.tsCompras.Name = "tsCompras";
@@ -342,13 +349,6 @@
             this.ordenesCompraToolStripMenuItem.Text = "Órdenes de compra";
             this.ordenesCompraToolStripMenuItem.Click += new System.EventHandler(this.ordenesCompraToolStripMenuItem_Click);
             //
-            // autorizacionesToolStripMenuItem
-            //
-            this.autorizacionesToolStripMenuItem.Name = "autorizacionesToolStripMenuItem";
-            this.autorizacionesToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
-            this.autorizacionesToolStripMenuItem.Text = "Autorizaciones pendientes";
-            this.autorizacionesToolStripMenuItem.Click += new System.EventHandler(this.autorizacionesToolStripMenuItem_Click);
-            //
             // recepcionToolStripMenuItem
             //
             this.recepcionToolStripMenuItem.Name = "recepcionToolStripMenuItem";
@@ -371,7 +371,9 @@
             this.serializacionToolStripMenuItem.Click += new System.EventHandler(this.serializacionToolStripMenuItem_Click);
             // 
             // tsReportes
-            // 
+            //
+            this.tsReportes.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.reporteComprasToolStripMenuItem});
             this.tsReportes.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.tsReportes.Name = "tsReportes";
             this.tsReportes.Size = new System.Drawing.Size(70, 30);
@@ -379,10 +381,20 @@
             // 
             // tsAyuda
             // 
+            this.tsAyuda.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.contenidoAyudaToolStripMenuItem});
             this.tsAyuda.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.tsAyuda.Name = "tsAyuda";
             this.tsAyuda.Size = new System.Drawing.Size(53, 30);
             this.tsAyuda.Text = "Ayuda";
+            // 
+            // contenidoAyudaToolStripMenuItem
+            // 
+            this.contenidoAyudaToolStripMenuItem.Name = "contenidoAyudaToolStripMenuItem";
+            this.contenidoAyudaToolStripMenuItem.ShortcutKeyDisplayString = "F1";
+            this.contenidoAyudaToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.contenidoAyudaToolStripMenuItem.Text = "Contenido";
+            this.contenidoAyudaToolStripMenuItem.Click += new System.EventHandler(this.contenidoAyudaToolStripMenuItem_Click);
             // 
             // lblUsuario
             // 
@@ -432,6 +444,7 @@
         private System.Windows.Forms.ToolStripMenuItem tsGestion;
         private System.Windows.Forms.ToolStripMenuItem tsReportes;
         private System.Windows.Forms.ToolStripMenuItem tsAyuda;
+        private System.Windows.Forms.ToolStripMenuItem contenidoAyudaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem iniciarSesionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cerrarSesionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem salirToolStripMenuItem;
@@ -442,6 +455,7 @@
         private System.Windows.Forms.ToolStripMenuItem backupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem bitacoraToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem bitacoraCambiosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem conexionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cambiarClaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem cambiarIdiomaToolStripMenuItem;
@@ -453,7 +467,6 @@
         private System.Windows.Forms.ToolStripMenuItem importarListaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem compararPreciosToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ordenesCompraToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem autorizacionesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem recepcionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reporteComprasToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem serializacionToolStripMenuItem;

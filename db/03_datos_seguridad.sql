@@ -14,7 +14,6 @@ USING (VALUES
     (N'Ventas',               N'Compuesto', 1),
     (N'Caja',                 N'Compuesto', 1),
     (N'Deposito',             N'Compuesto', 1),
-    (N'AdministradorCompras', N'Compuesto', 1),
     (N'Propietario',          N'Compuesto', 1)
 ) AS origen (Nombre, Tipo, EsRol)
     ON destino.Nombre_Permiso = origen.Nombre
@@ -34,11 +33,11 @@ USING (VALUES
     (N'GestionPerfiles'),
     (N'GestionBackup'),
     (N'GestionBitacora'),
+    (N'BitacoraCambios'),
     (N'RegistrarProveedor'),
     (N'ImportarListaPrecios'),
     (N'CompararPrecios'),
     (N'GenerarOrdenCompra'),
-    (N'AutorizarOrdenCompra'),
     (N'RegistrarRecepcion'),
     (N'ReporteCompras'),
     (N'SerializarOrdenCompra')
@@ -50,7 +49,7 @@ GO
 
 -- Asignacion de cada permiso a su familia
 UPDATE Permiso SET Nombre_PermisoPadre = N'Admin'
-WHERE Nombre_Permiso IN (N'GestionUsuarios', N'GestionPerfiles', N'GestionBackup', N'GestionBitacora');
+WHERE Nombre_Permiso IN (N'GestionUsuarios', N'GestionPerfiles', N'GestionBackup', N'GestionBitacora', N'BitacoraCambios');
 
 UPDATE Permiso SET Nombre_PermisoPadre = N'Ventas'
 WHERE Nombre_Permiso IN (N'CompletarCarrito', N'GenerarOrdenPago');
@@ -61,16 +60,13 @@ WHERE Nombre_Permiso IN (N'ValidarPedidoYCobrar', N'RegistrarCliente');
 UPDATE Permiso SET Nombre_PermisoPadre = N'Deposito'
 WHERE Nombre_Permiso IN (N'EntregarArticulos', N'GestionArticulos', N'RegistrarRecepcion');
 
-UPDATE Permiso SET Nombre_PermisoPadre = N'AdministradorCompras'
+UPDATE Permiso SET Nombre_PermisoPadre = N'Propietario'
 WHERE Nombre_Permiso IN (N'RegistrarProveedor', N'ImportarListaPrecios', N'CompararPrecios', N'GenerarOrdenCompra',
                          N'ReporteCompras', N'SerializarOrdenCompra');
-
-UPDATE Permiso SET Nombre_PermisoPadre = N'Propietario'
-WHERE Nombre_Permiso IN (N'AutorizarOrdenCompra');
 GO
 
 UPDATE Permiso SET Nombre_PermisoPadre = N'Admin'
-WHERE Nombre_Permiso IN (N'Ventas', N'Caja', N'Deposito', N'AdministradorCompras', N'Propietario');
+WHERE Nombre_Permiso IN (N'Ventas', N'Caja', N'Deposito', N'Propietario');
 GO
 
 -- Limpieza del mapa de casos de uso anterior.

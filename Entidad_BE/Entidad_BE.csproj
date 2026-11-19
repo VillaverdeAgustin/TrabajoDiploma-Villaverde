@@ -58,6 +58,7 @@
     <Compile Include="ResumenProveedorCompra_575_AV.cs" />
     <Compile Include="ProveedorBE_575_AV.cs" />
     <Compile Include="RecepcionBE_575_AV.cs" />
+    <Compile Include="ArticuloHistorialBE_575_AV.cs" />
     <Compile Include="ResultadoImportacion_575_AV.cs" />
     <Compile Include="ResumenImportacion_575_AV.cs" />
     <Compile Include="EventoBE.cs" />
@@ -98,6 +99,8 @@
     <Compile Include="EstadoEntrega_575_AV.cs" />
     <Compile Include="BackupBE_575_AV.cs" />
     <Compile Include="ResultadoRestore_575_AV.cs" />
+    <Compile Include="ReportePdfBE_575_AV.cs" />
+    <Compile Include="ColumnaReportePdfBE_575_AV.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

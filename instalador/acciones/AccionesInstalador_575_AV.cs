@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
@@ -23,9 +24,12 @@ namespace InstaladorConectAR_575_AV
         private const string ACCION_DIFERIDA = "CrearBaseDatos_575_AV";
         private const char SEPARADOR = '|';
         private const int PASOS_POR_SCRIPT = 50000;
-        private const int SCRIPTS_ESPERADOS = 11;
+        private const int SCRIPTS_ESPERADOS = 13;
+        private const string INSTANCIA_EXPRESS = @".\SQLEXPRESS";
+        private const string ENSAMBLADO_NEGOCIO = "Negocio_BLL.dll";
+        private const string CLASE_INTEGRIDAD = "Negocio_BLL.VerificadorIntegridadBLL";
 
-        // Interfaz: llena el combo con las instancias locales y propone la ya configurada o la primera.
+        // Interfaz: llena el combo con las instancias locales y propone la ya configurada, .\SQLEXPRESS o la primera.
         public static uint ListarInstancias(uint manejador)
         {
             SesionMsi_575_AV sesion = new SesionMsi_575_AV(manejador);
@@ -60,7 +64,7 @@ namespace InstaladorConectAR_575_AV
                     sesion.FijarPropiedad(PROP_PRUEBA, "1");
                     sesion.FijarPropiedad(PROP_SIN_BASE, string.Empty);
                     sesion.FijarPropiedad(PROP_RESULTADO, existe
-                        ? "Conexión correcta. ConectAR_DB ya existe: se conservan sus datos y no se ejecutan scripts."
+                        ? "Conexión correcta. ConectAR_DB ya existe: se respalda y se actualiza conservando sus datos."
                         : "Conexión correcta. Se va a crear la base ConectAR_DB.");
                 }
                 else
@@ -105,7 +109,7 @@ namespace InstaladorConectAR_575_AV
         }
 
         // Ejecucion diferida, con la cuenta del usuario que instala (sin "No Impersonate").
-        // Guarda conexion.cfg y crea ConectAR_DB si no existe. Nunca hace fallar la instalacion.
+        // Guarda conexion.cfg y crea ConectAR_DB, o la actualiza si ya existe. Nunca hace fallar la instalacion.
         public static uint CrearBaseDatos(uint manejador)
         {
             SesionMsi_575_AV sesion = new SesionMsi_575_AV(manejador);
@@ -136,7 +140,7 @@ namespace InstaladorConectAR_575_AV
             {
                 if (instalador.ExisteBase(instancia))
                 {
-                    sesion.Registrar("ConectAR_DB ya existe en " + instancia + ": no se ejecuta ningun script");
+                    ActualizarBase(sesion, instalador, instancia, Path.GetDirectoryName(carpeta));
                     return EXITO;
                 }
 
@@ -159,11 +163,72 @@ namespace InstaladorConectAR_575_AV
             return EXITO;
         }
 
+        // Reinstalacion: respaldo, scripts sin datos de prueba y recalculo de DVH/DVV con la BLL ya instalada.
+        // Si algo falla se restaura el respaldo, asi la base queda como estaba.
+        private static void ActualizarBase(SesionMsi_575_AV sesion, InstaladorBaseDatos_575_AV instalador, string instancia, string carpetaPrograma)
+        {
+            sesion.Registrar("ConectAR_DB ya existe en " + instancia + ": se actualiza conservando los datos");
+            string respaldo;
+            try
+            {
+                respaldo = instalador.RespaldarBase(instancia);
+                sesion.Registrar("respaldo previo a la actualizacion: " + respaldo);
+            }
+            catch (Exception ex)
+            {
+                sesion.Registrar("no se pudo respaldar ConectAR_DB: " + ex.Message);
+                sesion.Avisar("No se pudo respaldar la base de datos ConectAR_DB, así que no se actualizó. La instalación continúa; " +
+                              "vuelva a ejecutar el instalador cuando el respaldo sea posible.");
+                return;
+            }
+
+            try
+            {
+                sesion.IniciarAccion(ACCION_DIFERIDA, "Actualizando la base de datos ConectAR_DB", "Ejecutando [1] ([2] de [3])");
+                instalador.ActualizarBase(instancia, new AvanceMsi(sesion));
+                List<string> falladas = RecalcularDigitosVerificadores(carpetaPrograma);
+                if (falladas.Count > 0)
+                {
+                    throw new InvalidOperationException("tablas con DV incorrecto despues del recalculo: " + string.Join(", ", falladas));
+                }
+                sesion.Registrar("ConectAR_DB actualizada en " + instancia + "; DVH y DVV recalculados, integridad verificada");
+            }
+            catch (Exception ex)
+            {
+                Exception causa = ex is TargetInvocationException && ex.InnerException != null ? ex.InnerException : ex;
+                sesion.Registrar("fallo la actualizacion de la base: " + causa.Message);
+                try
+                {
+                    instalador.RestaurarRespaldo(instancia, respaldo);
+                    sesion.Registrar("se restauro el respaldo " + respaldo);
+                    sesion.Avisar("No se pudo actualizar la base de datos ConectAR_DB y se restauró como estaba antes de la instalación.");
+                }
+                catch (Exception restauracion)
+                {
+                    sesion.Registrar("no se pudo restaurar el respaldo: " + restauracion.Message);
+                    sesion.Avisar("No se pudo actualizar la base de datos ConectAR_DB. Sus datos están en el respaldo " + respaldo +
+                                  ", que se puede restaurar desde ConectAR (Backup y restore).");
+                }
+            }
+        }
+
+        // Mismo recalculo que dispara el restore (T07): VerificadorIntegridadBLL del programa instalado
+        private static List<string> RecalcularDigitosVerificadores(string carpetaPrograma)
+        {
+            Assembly negocio = Assembly.LoadFrom(Path.Combine(carpetaPrograma, ENSAMBLADO_NEGOCIO));
+            Type tipo = negocio.GetType(CLASE_INTEGRIDAD, true);
+            object integridad = Activator.CreateInstance(tipo);
+            tipo.GetMethod("RecalcularDVTotal").Invoke(integridad, null);
+            return ((IEnumerable<string>)tipo.GetMethod("VerificarIntegridadTotal").Invoke(integridad, null)).ToList();
+        }
+
         private static string InstanciaPropuesta(List<string> instancias)
         {
             string configurada = ConfiguracionConexion_575_AV.ObtenerInstancia();
             if (!string.IsNullOrWhiteSpace(configurada)) { return configurada; }
-            return instancias.Count > 0 ? instancias[0] : "localhost";
+            string express = instancias.FirstOrDefault(i => string.Equals(i, INSTANCIA_EXPRESS, StringComparison.OrdinalIgnoreCase));
+            if (express != null) { return express; }
+            return instancias.Count > 0 ? instancias[0] : INSTANCIA_EXPRESS;
         }
 
         private static void GuardarConfiguracion(SesionMsi_575_AV sesion, string instancia)

@@ -49,6 +49,7 @@
     <Compile Include="ConfiguracionConexion_575_AV.cs" />
     <Compile Include="InstaladorBaseDatos_575_AV.cs" />
     <Compile Include="MP_Recepcion_575_AV.cs" />
+    <Compile Include="MP_ArticuloHistorial_575_AV.cs" />
     <Compile Include="MP_Backup_575_AV.cs" />
     <Compile Include="MP_Bitacora.cs" />
     <Compile Include="MP_HistorialUsuario.cs" />

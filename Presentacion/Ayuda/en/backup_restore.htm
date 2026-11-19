@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Backup and restore - ConectAR Help</title>
+<link rel="stylesheet" href="../estilo.css">
+</head>
+<body>
+<header><span class="marca">ConectAR</span><span class="ayuda">ConectAR Help</span><a class="idioma" href="../es/backup_restore.htm">Español</a></header>
+<div class="contenido">
+<p class="nav"><a href="index.htm">← Back to contents</a></p>
+<h1>Backup and restore</h1>
+<h2>What it is for</h2>
+<p>Creates a full backup of the ConectAR_DB database and verifies it (CUS-014), and restores a backup (CUS-015). After restoring, the check digits are recalculated and the session is closed.</p>
+<h2>Who uses it</h2>
+<p>Administrator</p>
+<h2>Where it is</h2>
+<p class="ruta"><b>Admin</b> → <b>Backup</b></p>
+<h2>Step by step</h2>
+<ol>
+<li>Backup: open <b>Admin</b> → <b>Backup</b>. The SQL Server backup folder is suggested; you can type another server path.</li>
+<li>Press <b>Create backup</b>. The file, date, size and verification result are shown.</li>
+<li>Restore: open <b>Admin</b> → <b>Restore</b>, choose a backup from the list or a file with <b>Browse...</b>.</li>
+<li>Press <b>Restore</b> and confirm. When it finishes, log in again.</li>
+</ol>
+<h2>Fields and buttons</h2>
+<table>
+<tr><th>On screen</th><th>Meaning</th></tr>
+<tr><td><b>Folder</b></td><td>Server folder where SQL Server writes the backup.</td></tr>
+<tr><td><b>Default</b></td><td>Goes back to the instance backup folder.</td></tr>
+<tr><td><b>Check</b></td><td>Result of RESTORE VERIFYONLY on the backup.</td></tr>
+<tr><td><b>Backups recorded on the server</b></td><td>Backups recorded by SQL Server.</td></tr>
+<tr><td><b>Restore</b></td><td>Replaces all current data with the backup data.</td></tr>
+</table>
+<h2>Common messages</h2>
+<table class="mensajes">
+<tr><th>Message</th><th>What to do</th></tr>
+<tr><td>The folder is not valid: type a full server path, for example C:\Backups.</td><td>Type a full path, such as C:\Backups.</td></tr>
+<tr><td>The backup could not be created: check that the folder exists and that the SQL Server service can write to it.</td><td>Use the default folder or give the SQL Server service write permission.</td></tr>
+<tr><td>The file is a backup of database …, not of ConectAR_DB.</td><td>Choose a ConectAR_DB backup.</td></tr>
+<tr><td>The backup did not pass the check (RESTORE VERIFYONLY): it was not restored.</td><td>The backup is damaged: choose another one.</td></tr>
+</table>
+<h2>See also</h2>
+<ul>
+<li><a href="login.htm">Login</a></li>
+</ul>
+<p class="nota">On any screen, press F1 to open the topic of that screen.</p>
+</div>
+<footer>ConectAR S.R.L. · Management system · Online help</footer>
+</body>
+</html>

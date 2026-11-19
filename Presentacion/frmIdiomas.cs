@@ -12,6 +12,7 @@ namespace Presentacion_575_AV
         public frmIdiomas()
         {
             InitializeComponent();
+            AyudaFormulario_575_AV.Asociar(this, "cambiar_idioma");
             EstiloConectAR_575_AV.AplicarFormulario(this);
             EstiloConectAR_575_AV.BotonSecundario(btnSalir);
         }
