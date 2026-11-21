@@ -108,61 +108,6 @@ msiexec /i ConectAR_575_AV.msi MSIINSTALLPERUSER=1 ALLUSERS="" /qn
 Opcionales: `CONECTAR_INSTANCIA=.\SQLEXPRESS` (si no se indica, se usa la ya configurada o la primera
 instancia local) y `CONECTAR_SIN_BASE=1`.
 
-### Generar el instalador
-
-```
-powershell -ExecutionPolicy Bypass -File instalador\generar_instalador.ps1
-```
-
-Deja `ConectAR_575_AV_Setup.exe` en `instalador\salida\`: un único archivo con el `.msi` y SQL
-Server Express 2025 adentro. El instalador de SQL Server Express (`SQLEXPR_x64_ENU.exe`, 714 MB) no
-se versiona: el script lo toma de `T.DIPLOMA\_descargas\SQLServerExpress2025\` o de la ruta que se
-pase con `-SqlExpress`. Todo lo demás sale de archivos versionados; el `.aip` se vuelve a crear en
-cada corrida:
-
-1. Compila la solución en Release y las acciones del instalador (`compilar_acciones.ps1`): una DLL
-   x64 en C# (`instalador\acciones\`) que compila los mismos archivos de la DAL que el programa.
-   Windows Installer llama funciones nativas, así que `ildasm`/`ilasm` le agregan las exportaciones.
-2. Crea un proyecto Professional y le aplica `ConectAR_575_AV.aic` (producto *ConectAR 575_AV*,
-   versión 3.0.0, `UpgradeCode` fijo, archivos con las DLL de PDFsharp-MigraDoc, su licencia y la
-   carpeta `Ayuda`, accesos directos, condición de .NET 4.7.2 y el prerequisito de SQL Server
-   Express 2025).
-3. Por automatización COM: tipo de instalación *por máquina si es administrador, por usuario si no*,
-   build de un solo `.exe` y el diálogo **Base de datos**, encadenado después de la pantalla de
-   carpeta.
-4. Agrega `BaseDatosDlg_575_AV.xml`, lo que ni la línea de comandos ni COM permiten configurar:
-   controles y eventos del diálogo, la opción *Instalar para* en la pantalla de carpeta, las acciones
-   personalizadas y sus secuencias, y el diccionario `ConectAR_575_AV_es.ail` (corrige "Browse" y el
-   título de la ventana de interfaz básica).
-5. Ajusta la actualización mayor para que otra compilación de la misma versión reemplace a la
-   instalada (cada compilación tiene un `ProductCode` nuevo), hace que el setup extraiga el `.msi` en
-   `%ProgramData%` (desde `AppData\Roaming` la instalación por usuario falla con el error 2203) y
-   compila.
-
-Al compilar aparecen avisos `AI_ICE05` y `AI_ICE07`, que son **esperables**: advierten que algunas
-acciones y propiedades solo existen en la interfaz (listar instancias, carpetas de *Instalar para*,
-la instancia elegida y la casilla *Continuar sin crear la base*). En una instalación sin interfaz,
-`PrepararBaseDatos_575_AV` calcula la instancia por su cuenta y el modo se pide con
-`MSIINSTALLPERUSER=1`, como se indica arriba. La compilación termina bien.
-
-### Alternativa: instalar la base con el script
-
-Desde una consola, en la carpeta `db`:
-
-```
-.\instalar_base.bat /limpio
-```
-
-- Ejecuta los scripts `01` a `13` en orden y se detiene ante el primer error.
-- `/limpio` borra `ConectAR_DB` antes de instalar; pide escribir `SI` para confirmar.
-- Sin `/limpio`, instala sobre la base existente.
-- Por defecto usa la instancia `localhost\SQLEXPRESS`. Si es otra, se pasa como
-  parámetro: `.\instalar_base.bat MIPC\SQLEXPRESS /limpio`.
-- Al terminar muestra `Base instalada` o el script que falló.
-
-Después, al abrir el programa, la pantalla de conexión encuentra la base ya creada y
-solo hay que guardar la instancia.
-
 ## Usuarios de prueba
 
 | Usuario | Clave | Rol (familia) | Pantallas |
