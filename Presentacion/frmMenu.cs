@@ -303,7 +303,7 @@ namespace Presentacion_575_AV
 
         private void bitacoraCambiosToolStripMenuItem_Click(object sender, System.EventArgs e)
         {
-            OpenForm(tsAdmin, new frmBitacoraCambios_575_AV());
+            OpenForm(tsGestion, new frmBitacoraCambios_575_AV());
         }
 
         private void perfilesToolStripMenuItem_Click(object sender, System.EventArgs e)

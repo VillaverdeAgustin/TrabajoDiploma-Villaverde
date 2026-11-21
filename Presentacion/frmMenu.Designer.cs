@@ -95,7 +95,6 @@
             this.backupToolStripMenuItem,
             this.restoreToolStripMenuItem,
             this.bitacoraToolStripMenuItem,
-            this.bitacoraCambiosToolStripMenuItem,
             this.conexionToolStripMenuItem});
             this.tsAdmin.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.tsAdmin.Name = "tsAdmin";
@@ -288,7 +287,8 @@
             // 
             this.tsGestion.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.clienteToolStripMenuItem,
-            this.articulosToolStripMenuItem});
+            this.articulosToolStripMenuItem,
+            this.bitacoraCambiosToolStripMenuItem});
             this.tsGestion.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.tsGestion.Name = "tsGestion";
             this.tsGestion.Size = new System.Drawing.Size(62, 30);
